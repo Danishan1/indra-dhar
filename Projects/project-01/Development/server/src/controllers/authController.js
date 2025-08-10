@@ -52,7 +52,7 @@ export async function login(req, res, next) {
     const { tenantName, email, password } = req.body;
 
     // Validate
-    const { error } = loginSchema.validate(req.body);
+    const { error } = loginSchema.validate({ tenantName, email, password });
     if (error) return res.status(400).json({ message: error.message });
 
     const tenant = await Tenant.findOne({ name: tenantName });

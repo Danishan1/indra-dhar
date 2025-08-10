@@ -1,0 +1,22 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 320px;
+  margin: auto;
+
+}
+
+.submitBtn {
+  background: #4cafef;
+  width: 100%;
+  border: none;
+  padding: 8px;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.submitBtn:hover {
+  background: #3499dd;
+}
