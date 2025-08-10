@@ -9,23 +9,17 @@ const router = express.Router();
 
 router.use(authMiddleware);
 
-// ---------------------
-// ITEM ROUTES
-// ---------------------
+// --- ITEM ROUTES ---
+router.get("/dashboard", getDashboardData); // Dashboard (GET)
 router.post("/", itemController.createItem); // Create single item
-router.get("/", itemController.listItems); // Get all items (with filters: phase, status, trackingId, etc.)
+router.get("/", itemController.listItems); // Get all items
 router.get("/:id", itemController.getItem); // Get single item by ID
-// router.put("/items/:id", itemController.updateItem); // Update item (e.g., formData, images)
-router.post("/:id/move-forward", itemController.moveItem); // Move item forward to next phase
-router.post("/:id/move-backward", itemController.requestItemReturn); // Move item backward (non-sequential return)
-router.post("/dashboard", getDashboardData); // Move item backward (non-sequential return)
+router.post("/:id/move-forward", itemController.moveItem);
+router.post("/:id/move-backward", itemController.requestItemReturn);
 
-// ---------------------
-// RETURN ROUTES
-// ---------------------
-// router.post("/returns/request", returnController.listPendingReturns); // Request a return (single or bulk)
-router.get("/returns/pending", returnController.listPendingReturns); // Get all pending return requests
-router.put("/returns/:returnRequestId/approve", returnController.approveReturn); // Approve a return request
-router.put("/returns/:returnRequestId/reject", returnController.rejectReturn); // Reject a return request
+// --- RETURN ROUTES ---
+router.get("/returns/pending", returnController.listPendingReturns);
+router.put("/returns/:returnRequestId/approve", returnController.approveReturn);
+router.put("/returns/:returnRequestId/reject", returnController.rejectReturn);
 
 export const itemRoutes = router;

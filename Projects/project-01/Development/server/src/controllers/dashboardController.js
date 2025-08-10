@@ -10,6 +10,8 @@ export const getDashboardData = async (req, res) => {
   try {
     const tenantId = req.user.tenantId;
 
+    console.log("Fetching dashboard data for tenant:", tenantId);
+
     // Get all phases
     const phases = await Phase.find({ tenantId }).lean();
 
