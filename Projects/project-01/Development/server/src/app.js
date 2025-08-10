@@ -4,6 +4,8 @@ import helmet from "helmet";
 import morgan from "morgan";
 import { join } from "path";
 import dotenv from "dotenv";
+import swaggerUi from "swagger-ui-express";
+
 
 import { connectDB } from "./config/db.js";
 import { authRoutes } from "./routes/auth.js";
@@ -11,6 +13,7 @@ import { adminRoutes } from "./routes/admin.js";
 import { itemRoutes } from "./routes/items.js";
 import { fileRoutes } from "./routes/files.js";
 import { errorHandler } from "./middleware/errorHandler.js";
+import { swaggerSpec } from "./config/swagger.js";
 
 // Load environment variables
 dotenv.config();
@@ -29,6 +32,8 @@ app.use(
   "/public/uploads",
   express.static(join(process.cwd(), process.env.UPLOAD_DIR || "uploads"))
 );
+
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // routes
 app.use("/api/auth", authRoutes);

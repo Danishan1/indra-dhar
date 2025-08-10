@@ -13,4 +13,5 @@ initSockets(server);
 
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
+  console.log(`API docs available at ${PORT}/docs`);
 });

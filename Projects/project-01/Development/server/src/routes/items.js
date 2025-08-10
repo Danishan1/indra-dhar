@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { authMiddleware } from "../middleware/auth.js";
 import { permit } from "../middleware/roles.js";
-import Item from "../models/Item.js";
+import { Item } from "../models/Item.js";
 import { generateTrackingId } from "../utils/idGenerator.js";
-import Phase from "../models/Phase.js";
+import { Phase } from "../models/Phase.js";
 
 const router = Router();
 

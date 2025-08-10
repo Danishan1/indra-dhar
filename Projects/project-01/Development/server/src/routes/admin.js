@@ -1,50 +1,47 @@
 import { Router } from "express";
+import {
+  createPhase,
+  updatePhase,
+  deletePhase,
+  createUser,
+  updateUser,
+  deleteUser,
+  createFormTemplate,
+  getGlobalDashboard,
+} from "../controllers/adminController.js";
+
 import { authMiddleware } from "../middleware/auth.js";
 import { permit } from "../middleware/roles.js";
-import Phase from "../models/Phase.js";
-import ItemFormTemplate from "../models/ItemFormTemplate.js";
+import { validate } from "../middleware/validate.js";
+
+import {
+  createPhaseSchema,
+  updatePhaseSchema,
+  createUserSchema,
+  updateUserSchema,
+  createFormTemplateSchema,
+} from "../validations/admin.validation.js";
 
 const router = Router();
 
-// create phase
-router.post(
-  "/phase",
-  authMiddleware,
-  permit("ADMIN"),
-  async (req, res, next) => {
-    try {
-      const { name, sequenceOrder } = req.body;
-      const phase = await Phase.create({
-        tenantId: req.user.tenantId,
-        name,
-        sequenceOrder,
-        users: [],
-      });
-      res.status(201).json(phase);
-    } catch (err) {
-      next(err);
-    }
-  }
-);
+// All admin routes require auth + ADMIN role
+router.use(authMiddleware);
+router.use(permit("ADMIN"));
 
-// create template
-router.post(
-  "/form-template",
-  authMiddleware,
-  permit("ADMIN"),
-  async (req, res, next) => {
-    try {
-      const { name, fields } = req.body;
-      const tpl = await ItemFormTemplate.create({
-        tenantId: req.user.tenantId,
-        name,
-        fields,
-      });
-      res.status(201).json(tpl);
-    } catch (err) {
-      next(err);
-    }
-  }
-);
+// ---- Phase management ----
+router.post("/phases", validate(createPhaseSchema), createPhase);
+router.put("/phases/:id", validate(updatePhaseSchema), updatePhase);
+router.delete("/phases/:id", deletePhase);
+
+// ---- User management ----
+router.post("/users", validate(createUserSchema), createUser);
+router.put("/users/:id", validate(updateUserSchema), updateUser);
+router.delete("/users/:id", deleteUser);
+
+// ---- Form management ----
+router.post("/forms", validate(createFormTemplateSchema), createFormTemplate);
+
+// ---- Dashboard ----
+router.get("/dashboard", getGlobalDashboard);
 
 export const adminRoutes = router;

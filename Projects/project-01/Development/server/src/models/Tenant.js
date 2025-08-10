@@ -1,8 +1,8 @@
-import { Schema, model } from 'mongoose';
+import mongoose, { Schema, model } from "mongoose";
 
 const tenantSchema = new Schema({
   name: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
 });
 
-export default model('Tenant', tenantSchema);
+export const Tenant = mongoose.models.Tenant || model("Tenant", tenantSchema);

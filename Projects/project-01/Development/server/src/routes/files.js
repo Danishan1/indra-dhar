@@ -4,7 +4,7 @@ import { existsSync } from "fs";
 import { authMiddleware } from "../middleware/auth.js";
 import { permit } from "../middleware/roles.js";
 import { upload, processImage } from "../utils/fileStorage.js";
-import Item from "../models/Item.js";
+import { Item } from "../models/Item.js";
 
 const router = Router();
 

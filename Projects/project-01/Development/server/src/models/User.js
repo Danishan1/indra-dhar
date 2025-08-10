@@ -1,14 +1,31 @@
-import { Schema, model } from 'mongoose';
+import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 
-const userSchema = new Schema({
-  tenantId: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
-  username: { type: String, required: true },
+const userSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
   passwordHash: { type: String, required: true },
-  role: { type: String, enum: ['ADMIN', 'PHASE_HEAD', 'OPERATOR'], default: 'OPERATOR' },
-  phaseId: { type: Schema.Types.ObjectId, ref: 'Phase', default: null },
-  createdAt: { type: Date, default: Date.now }
+  role: {
+    type: String,
+    enum: ["admin", "phase_head", "operator"],
+    required: true,
+  },
+  phases: [{ type: mongoose.Schema.Types.ObjectId, ref: "Phase" }],
+  tenantId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Tenant",
+    required: true,
+  },
+  createdAt: { type: Date, default: Date.now },
 });
 
-userSchema.index({ username: 1, tenantId: 1 }, { unique: true });
+// Password helper
+userSchema.methods.setPassword = async function (password) {
+  this.passwordHash = await bcrypt.hash(password, 10);
+};
 
-export default model('User', userSchema);
+userSchema.methods.validatePassword = async function (password) {
+  return bcrypt.compare(password, this.passwordHash);
+};
+
+export const User =  mongoose.models.User ||  mongoose.model("User", userSchema);
