@@ -3,6 +3,7 @@ import styles from "../css/Dashboard.module.css";
 import PhaseCard from "../../dashboard/jsx/PhaseCard";
 import { useAuth } from "../../../context/AuthContext";
 import { api } from "../../../api/api";
+import ActionButtons from "../../admin/jsx/ActionButtons";
 
 export default function Dashboard() {
   const [data, setData] = useState(null);
@@ -13,7 +14,6 @@ export default function Dashboard() {
     const fetchData = async () => {
       try {
         const res = await api.get("/items/dashboard");
-        console.log("Dashboard data:", res.data);
         setData(res.data);
       } catch (err) {
         console.error("Failed to fetch dashboard", err);
@@ -32,6 +32,14 @@ export default function Dashboard() {
   if (!data || !data.phases?.length) {
     return <div className={styles.message}>No data available</div>;
   }
+
+  const ActionByProfile = (role) => {
+    const t = { admin: ActionButtons };
+
+    return t[role] || <></>;
+  };
+
+  const ActionButtonsComponent = ActionByProfile(data.user.role);
 
   return (
     <div className={styles.dashboard}>
@@ -52,6 +60,8 @@ export default function Dashboard() {
           <strong>Tenant:</strong> {data.user.tenantName}
         </p>
       </div>
+
+      <ActionButtonsComponent onAction={(action) => console.log(action)} />
 
       {/* Phases */}
       <div className={styles.grid}>
