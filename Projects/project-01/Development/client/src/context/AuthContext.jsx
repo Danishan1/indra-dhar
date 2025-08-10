@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { verifyToken } from "../api/auth";
 
 const AuthContext = createContext(null);
 
@@ -7,11 +8,26 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const saved = localStorage.getItem("auth");
-    if (saved) {
-      setAuth(JSON.parse(saved));
-    }
-    setLoading(false);
+
+    const verifyAuth = async () => {
+      const saved = localStorage.getItem("auth");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setAuth(parsed);
+
+        try {
+          await verifyToken();
+        } catch (err) {
+          console.warn("Token invalid, logging out");
+          logout();
+          window.location.href = "/login";
+        }
+      }
+      setLoading(false);
+    };
+
+    verifyAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const login = (user, token) => {

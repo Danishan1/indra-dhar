@@ -1,11 +1,5 @@
-import axios from "axios";
-import { baseUrl } from "../util/baseUrl";
+import { api } from "./api.js";
 
-
-export async function registerUser(data) {
-  return axios.post(`${baseUrl}/auth/register`, data);
-}
-
-export async function loginUser(data) {
-  return axios.post(`${baseUrl}/auth/login`, data);
-}
+export const verifyToken = () => api.get("/auth/verify");
+export const loginUser = (data) => api.post("/auth/login", data);
+export const registerUser = (data) => api.post("/auth/register", data);
