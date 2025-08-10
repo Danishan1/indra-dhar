@@ -1,21 +1,22 @@
 import mongoose from "mongoose";
 import { Phase } from "../models/Phase.js";
 import { Item } from "../models/Item.js";
+import { Tenant } from "../models/Tenant.js";
+import { User } from "../models/User.js";
 
-/**
- * Dashboard API
- * Shows all phases with items summary
- */
 export const getDashboardData = async (req, res) => {
   try {
-    const tenantId = req.user.tenantId;
+    const { tenantId, _id: userId, name, role, email } = req.user;
 
-    console.log("Fetching dashboard data for tenant:", tenantId);
+    console.log("Fetching dashboard data for user:", req.user);
 
-    // Get all phases
+    // Fetch tenant name
+    const tenant = await Tenant.findById(tenantId).lean();
+
+    // Get all phases for this tenant
     const phases = await Phase.find({ tenantId }).lean();
 
-    // Aggregate item data per phase
+    // Aggregate items by phase
     const itemsByPhase = await Item.aggregate([
       { $match: { tenantId: new mongoose.Types.ObjectId(tenantId) } },
       {
@@ -34,17 +35,16 @@ export const getDashboardData = async (req, res) => {
       },
     ]);
 
-    // Convert aggregation into map for fast lookup
+    // Map items to phase ID
     const phaseItemMap = {};
     itemsByPhase.forEach((p) => {
       phaseItemMap[p._id?.toString()] = p.items;
     });
 
-    // Prepare dashboard data
-    const dashboardData = phases.map((phase) => {
+    // Prepare dashboard phase data
+    const phaseSummary = phases.map((phase, idx) => {
       const phaseItems = phaseItemMap[phase._id.toString()] || [];
 
-      // Summarize data
       const summary = phaseItems.reduce((acc, item) => {
         const key = item.bulkGroupId || item.name || "UNKNOWN";
         if (!acc[key]) {
@@ -60,13 +60,22 @@ export const getDashboardData = async (req, res) => {
       }, {});
 
       return {
+        phaseNumber: idx + 1,
         phaseId: phase._id,
         phaseName: phase.name,
         items: Object.values(summary),
       };
     });
 
-    res.json(dashboardData);
+    res.json({
+      user: {
+        name,
+        role,
+        email,
+        tenantName: tenant?.name || "",
+      },
+      phases: phaseSummary,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });

@@ -24,6 +24,17 @@ async function seed() {
     // Create Tenant
     const tenant = await Tenant.create({ name: "IndraDhar" });
 
+    // Tanent Admin User
+
+    const user = new User({
+        name: `Admin User`,
+        email: `admin@indradhar.com`,
+        role: "admin",
+        tenantId: tenant._id,
+      });
+      await user.setPassword("password123"); // default password
+      await user.save();
+
     // Phase names in order
     const phaseNames = [
       "Kora",
