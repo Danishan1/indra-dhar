@@ -7,7 +7,7 @@ import {
   updateUser,
   deleteUser,
   createFormTemplate,
-  getGlobalDashboard,
+  listUsers,
 } from "../controllers/adminController.js";
 
 import { authMiddleware } from "../middleware/auth.js";
@@ -26,7 +26,7 @@ const router = Router();
 
 // All admin routes require auth + ADMIN role
 router.use(authMiddleware);
-router.use(permit("ADMIN"));
+router.use(permit("admin"));
 
 // ---- Phase management ----
 router.post("/phases", validate(createPhaseSchema), createPhase);
@@ -35,13 +35,11 @@ router.delete("/phases/:id", deletePhase);
 
 // ---- User management ----
 router.post("/users", validate(createUserSchema), createUser);
+router.get("/users", listUsers);
 router.put("/users/:id", validate(updateUserSchema), updateUser);
 router.delete("/users/:id", deleteUser);
 
 // ---- Form management ----
 router.post("/forms", validate(createFormTemplateSchema), createFormTemplate);
-
-// ---- Dashboard ----
-router.get("/dashboard", getGlobalDashboard);
 
 export const adminRoutes = router;

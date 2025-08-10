@@ -16,22 +16,36 @@ const historySchema = new Schema({
     ],
   },
   note: { type: String },
+  count: { type: Number }, // For count-based tracking
+  itemIds: [{ type: Schema.Types.ObjectId, ref: "Item" }], // For ID-based tracking
   createdAt: { type: Date, default: Date.now },
 });
 
 const itemSchema = new Schema({
   tenantId: { type: Schema.Types.ObjectId, ref: "Tenant", required: true },
-  trackingId: { type: String, required: true, unique: true }, // e.g. 000123
+
+  // Optional for count-based bulk
+  trackingId: { type: String, unique: true, sparse: true },
+
+  isBulkCountBased: { type: Boolean, default: false }, // true => only quantity is tracked
+
+  quantity: { type: Number, default: 1 }, // relevant only if isBulkCountBased=true
+
+  bulkGroupId: { type: String }, // UUID or custom string for grouping same-lot items
+
   templateId: { type: Schema.Types.ObjectId, ref: "ItemFormTemplate" },
-  formData: { type: Object }, // store key-value per template
+  formData: { type: Object },
   currentPhaseId: { type: Schema.Types.ObjectId, ref: "Phase" },
-  images: [String], // relative paths or URLs
+  images: [String],
+
   status: {
     type: String,
     enum: ["IN_PROGRESS", "RETURNED", "COMPLETED"],
     default: "IN_PROGRESS",
   },
+
   history: [historySchema],
+
   createdAt: { type: Date, default: Date.now },
 });
 

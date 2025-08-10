@@ -1,6 +1,6 @@
 import { ItemFormTemplate } from "../models/ItemFormTemplate.js";
-import { Phase } from "../models/phase.js";
-import { User } from "../models/user.js";
+import { Phase } from "../models/Phase.js";
+import { User } from "../models/User.js";
 
 // ---- Phase Management ----
 export const createPhase = async (req, res) => {
@@ -82,12 +82,28 @@ export const createFormTemplate = async (req, res) => {
   }
 };
 
-// ---- Global Dashboard ----
-export const getGlobalDashboard = async (req, res) => {
+export const listUsers = async (req, res) => {
   try {
-    const phases = await Phase.find().populate("users", "name email role");
-    res.json({ phases });
+    const tenantId = req.user.tenantId;
+
+    const users = await User.find({ tenantId })
+      .select("name email role phases")
+      .populate("phases", "name") // Get phase name only
+      .lean();
+
+    const formattedUsers = users.map((user) => ({
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      phases: user.phases.map((phase) => ({
+        phaseId: phase._id,
+        phaseName: phase.name,
+      })),
+    }));
+
+    res.json(formattedUsers);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
   }
 };

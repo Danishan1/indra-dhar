@@ -243,3 +243,50 @@
  *       200:
  *         description: Dashboard data retrieved successfully
  */
+
+// docs/admin.doc.js
+/**
+ * @swagger
+ * /admin/users:
+ *   get:
+ *     summary: Get list of all users in the tenant
+ *     tags:
+ *       - Admin
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of users with role and phase info
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   name:
+ *                     type: string
+ *                     example: John Doe
+ *                   email:
+ *                     type: string
+ *                     example: john.doe@example.com
+ *                   role:
+ *                     type: string
+ *                     enum: [admin, phase_head, operator]
+ *                     example: phase_head
+ *                   phases:
+ *                     type: array
+ *                     items:
+ *                       type: object
+ *                       properties:
+ *                         phaseId:
+ *                           type: string
+ *                           example: 64d1234abcd5678ef9012345
+ *                         phaseName:
+ *                           type: string
+ *                           example: Cutting Phase
+ *       401:
+ *         description: Unauthorized - Missing or invalid token
+ *       500:
+ *         description: Internal server error
+ */

@@ -9,5 +9,5 @@ export function permit(...allowed) {
 }
 
 export function isAdmin(req, res, next) {
-  return permit('ADMIN')(req, res, next);
+  return permit('admin')(req, res, next);
 }

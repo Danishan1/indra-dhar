@@ -6,7 +6,6 @@ import { join } from "path";
 import dotenv from "dotenv";
 import swaggerUi from "swagger-ui-express";
 
-
 import { connectDB } from "./config/db.js";
 import { authRoutes } from "./routes/auth.js";
 import { adminRoutes } from "./routes/admin.js";
@@ -25,7 +24,8 @@ const app = express();
 app.use(helmet());
 app.use(cors());
 app.use(morgan("dev"));
-app.use(express.json({ limit: "5mb" }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // public var for serving uploaded files but access routed through files router
 app.use(

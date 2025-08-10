@@ -1,93 +1,31 @@
-import { Router } from "express";
+// routes/item.route.js
+import express from "express";
+import * as itemController from "../controllers/itemController.js";
+import * as returnController from "../controllers/returnController.js";
 import { authMiddleware } from "../middleware/auth.js";
-import { permit } from "../middleware/roles.js";
-import { Item } from "../models/Item.js";
-import { generateTrackingId } from "../utils/idGenerator.js";
-import { Phase } from "../models/Phase.js";
+import { getDashboardData } from "../controllers/dashboardController.js";
 
-const router = Router();
+const router = express.Router();
 
-// create single item at Kora (start)
-router.post(
-  "/",
-  authMiddleware,
-  permit("ADMIN", "PHASE_HEAD", "OPERATOR"),
-  async (req, res, next) => {
-    try {
-      const tenantId = req.user.tenantId;
-      const { templateId, formData } = req.body;
+router.use(authMiddleware);
 
-      // set currentPhaseId = sequenceOrder==1 phase for tenant (Kora)
-      const koraPhase = await Phase.findOne({ tenantId, sequenceOrder: 1 });
+// ---------------------
+// ITEM ROUTES
+// ---------------------
+router.post("/", itemController.createItem); // Create single item
+router.get("/", itemController.listItems); // Get all items (with filters: phase, status, trackingId, etc.)
+router.get("/:id", itemController.getItem); // Get single item by ID
+// router.put("/items/:id", itemController.updateItem); // Update item (e.g., formData, images)
+router.post("/:id/move-forward", itemController.moveItem); // Move item forward to next phase
+router.post("/:id/move-backward", itemController.requestItemReturn); // Move item backward (non-sequential return)
+router.post("/dashboard", getDashboardData); // Move item backward (non-sequential return)
 
-      const trackingId = await generateTrackingId("global", 6); // returns padded number
-
-      const item = await Item.create({
-        tenantId,
-        trackingId,
-        templateId,
-        formData,
-        currentPhaseId: koraPhase ? koraPhase._id : null,
-        history: [
-          {
-            phaseId: koraPhase ? koraPhase._id : null,
-            userId: req.user._id,
-            action: "CREATE",
-          },
-        ],
-      });
-
-      res.status(201).json(item);
-    } catch (err) {
-      next(err);
-    }
-  }
-);
-
-// move forward
-router.put(
-  "/:id/move-forward",
-  authMiddleware,
-  permit("ADMIN", "PHASE_HEAD", "OPERATOR"),
-  async (req, res, next) => {
-    try {
-      const item = await Item.findById(req.params.id);
-      if (!item) return res.status(404).json({ message: "Item not found" });
-
-      // find next phase for this tenant by sequenceOrder > current
-      const currPhase = await Phase.findById(item.currentPhaseId);
-
-      const next = await Phase.findOne({
-        tenantId: item.tenantId,
-        sequenceOrder: { $gt: currPhase ? currPhase.sequenceOrder : 0 },
-      }).sort({ sequenceOrder: 1 });
-
-      if (!next) {
-        item.status = "COMPLETED";
-        item.history.push({
-          phaseId: item.currentPhaseId,
-          userId: req.user._id,
-          action: "MOVE_FORWARD",
-          note: "Completed",
-        });
-        await item.save();
-        return res.json({ message: "Item completed", item });
-      }
-
-      item.currentPhaseId = next._id;
-      item.history.push({
-        phaseId: next._id,
-        userId: req.user._id,
-        action: "MOVE_FORWARD",
-      });
-      await item.save();
-
-      // TODO: emit socket event via socket manager
-      res.json(item);
-    } catch (err) {
-      next(err);
-    }
-  }
-);
+// ---------------------
+// RETURN ROUTES
+// ---------------------
+// router.post("/returns/request", returnController.listPendingReturns); // Request a return (single or bulk)
+router.get("/returns/pending", returnController.listPendingReturns); // Get all pending return requests
+router.put("/returns/:returnRequestId/approve", returnController.approveReturn); // Approve a return request
+router.put("/returns/:returnRequestId/reject", returnController.rejectReturn); // Reject a return request
 
 export const itemRoutes = router;
