@@ -7,7 +7,7 @@ import { AdminActions } from "../pages/jsx/AdminActions";
 export default function ProtectedAppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Dashboard />} />
+      <Route path="/" element={<AdminActions />} />
       <Route path="/admin/*" element={<AdminActions />} />
       <Route path="/user/*" element={<Dashboard />} />
       <Route path="*" element={<ErrorPage />} />

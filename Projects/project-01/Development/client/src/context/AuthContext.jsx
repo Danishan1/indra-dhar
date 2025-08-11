@@ -8,7 +8,6 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-
     const verifyAuth = async () => {
       const saved = localStorage.getItem("auth");
       if (saved) {
@@ -39,6 +38,7 @@ export function AuthProvider({ children }) {
   const logout = () => {
     setAuth({ user: null, token: null });
     localStorage.removeItem("auth");
+    window.location.href = "/login";
   };
 
   return (

@@ -8,23 +8,26 @@ import { useState } from "react";
 import { CreateUserForm } from "../../admin/jsx/CreateUserForm";
 import ViewUsers from "../../admin/jsx/ViewUsers";
 import { UserActions } from "./UserActions";
+import Dashboard from "./Dashboard";
+import Button from "../../common/jsx/Button";
+import { useAuth } from "../../../context/AuthContext";
 
 const actions = [
   { label: "Create New Phase", id: "create-phase", variant: "primary" },
   { label: "View Phase", id: "view-phase", variant: "primary" },
   { label: "Create User", id: "create-user", variant: "primary" },
   { label: "View User", id: "view-user", variant: "primary" },
-  { label: "View Form", id: "view-item-form", variant: "primary" },
-  { label: "Create Item Form", id: "create-item-form", variant: "primary" },
+  // { label: "View Form", id: "view-item-form", variant: "primary" },
+  // { label: "Create Item Form", id: "create-item-form", variant: "primary" },
   { label: "View Dashboard", id: "view-dashboard", variant: "secondary" },
 ];
 
 export const AdminActions = () => {
   const navigate = useNavigate();
   const [data, setData] = useState(null);
+  const { logout } = useAuth();
   const handleSuccess = (success) => {
     setData(success);
-
   };
 
   const handleAction = (action) => {
@@ -34,10 +37,12 @@ export const AdminActions = () => {
   return (
     <div>
       <h1>Admin Actions</h1>
+      <Button onClick={() => logout()}> Logout </Button>
       <ActionButtons actions={actions} onAction={handleAction} />
 
       <Routes>
-        <Route path="/" element={<></>} />
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/view-dashboard" element={<Dashboard />} />
         <Route
           path="/create-phase"
           element={<CreatePhaseForm onSuccess={handleSuccess} />}
