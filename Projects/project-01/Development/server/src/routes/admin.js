@@ -9,6 +9,7 @@ import {
   createFormTemplate,
   listUsers,
   getPhasesByTenant,
+  getUserByEmail,
 } from "../controllers/adminController.js";
 
 import { authMiddleware } from "../middleware/auth.js";
@@ -39,8 +40,9 @@ router.delete("/phases/:id", deletePhase);
 // ---- User management ----
 router.post("/users", validate(createUserSchema), createUser);
 router.get("/users", listUsers);
+router.get("/users/:email", getUserByEmail);
 router.put("/users/:id", validate(updateUserSchema), updateUser);
-router.delete("/users/:id", deleteUser);
+router.delete("/users/:email", deleteUser);
 
 // ---- Form management ----
 router.post("/forms", validate(createFormTemplateSchema), createFormTemplate);

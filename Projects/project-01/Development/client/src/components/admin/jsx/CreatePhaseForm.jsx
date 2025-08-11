@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import { api } from "../../../api/api";
 import GenericForm from "../../common/jsx/GenericForm";
 import { useToast } from "../../../context/ToastContext";
+import { useNavigate } from "react-router-dom";
 
 export function CreatePhaseForm({ onSuccess }) {
   const { addToast } = useToast();
+  const navigate = useNavigate();
   const [formConfig, setFormConfig] = useState({
     submitVariant: "primary",
     title: "Create New Phase",
@@ -65,6 +67,7 @@ export function CreatePhaseForm({ onSuccess }) {
       const { data: res } = await api.post("/admin/phases", payload);
       addToast(res.message || "Phase created successfully.", "success");
       onSuccess?.(res);
+      navigate("/admin/view-phase");
     } catch (err) {
       console.error("Error creating phase:", err);
       const message =

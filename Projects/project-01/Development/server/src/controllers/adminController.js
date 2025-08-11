@@ -133,13 +133,21 @@ export const createUser = async (req, res) => {
     }
 
     const { password, ...rest } = req.body;
-    const user = new User(...rest, tenantId);
+
+    const user = new User({
+      ...rest,
+      tenantId,
+    });
+
     await user.setPassword(password);
     await user.save();
-    res
-      .status(201)
-      .json({ data: {}, message: `${user.name} created successfully.` });
+
+    res.status(201).json({
+      data: {},
+      message: `${user.name} created successfully.`,
+    });
   } catch (err) {
+    console.error("Error creating user:", err);
     res.status(400).json({ error: err.message });
   }
 };
@@ -162,9 +170,21 @@ export const updateUser = async (req, res) => {
 
 export const deleteUser = async (req, res) => {
   try {
-    await User.findByIdAndDelete(req.params.id);
-    res.json({ message: "User deleted" });
+    const { email } = req.params;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    const deletedUser = await User.findOneAndDelete({ email });
+
+    if (!deletedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({ message: `User with email ${email} deleted successfully.` });
   } catch (err) {
+    console.error("Error deleting user:", err);
     res.status(400).json({ error: err.message });
   }
 };
@@ -215,9 +235,40 @@ export const listUsers = async (req, res) => {
       })),
     }));
 
-    res.json(formattedUsers);
+    res.json({ data: formattedUsers });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const getUserByEmail = async (req, res) => {
+  try {
+    const { email } = req.params;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    const user = await User.findOne({ email }).populate("phases", "_id name");
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const formattedUser = {
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      phases: user.phases.map((phase) => ({
+        phaseId: phase._id,
+        phaseName: phase.name,
+      })),
+    };
+
+    res.json({ data: formattedUser });
+  } catch (err) {
+    console.error("Error fetching user by email:", err);
+    res.status(400).json({ error: err.message });
   }
 };

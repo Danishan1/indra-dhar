@@ -57,7 +57,7 @@ export default function GenericForm({
               label={field.label}
               items={field.options}
               selected={formData[field.name]}
-              onChange={(value) => handleDropdownChange(field.name, value)}
+              onSelect={(value) => handleDropdownChange(field.name, value)}
               error={errors[field.name]}
             />
           );
