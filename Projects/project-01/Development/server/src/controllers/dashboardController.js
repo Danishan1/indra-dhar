@@ -8,7 +8,6 @@ export const getDashboardData = async (req, res) => {
   try {
     const { tenantId, _id: userId, name, role, email } = req.user;
 
-    console.log("Fetching dashboard data for user:", req.user);
 
     // Fetch tenant name
     const tenant = await Tenant.findById(tenantId).lean();

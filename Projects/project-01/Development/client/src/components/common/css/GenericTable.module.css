@@ -1,0 +1,81 @@
+/* GenericTable.module.css */
+
+.tableWrapper {
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.searchRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.searchInput {
+  padding: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  width: 250px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.thead {
+  background-color: #f9fafb;
+}
+
+.th {
+  text-align: left;
+  padding: 10px;
+  font-weight: 600;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.td {
+  padding: 10px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.tr:hover {
+  background-color: #f3f4f6;
+}
+
+.filterInput {
+  margin-top: 6px;
+  padding: 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 100%;
+}
+
+.noData {
+  text-align: center;
+  padding: 20px;
+  color: #6b7280;
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.button {
+  padding: 6px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

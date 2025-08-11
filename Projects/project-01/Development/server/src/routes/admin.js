@@ -8,6 +8,7 @@ import {
   deleteUser,
   createFormTemplate,
   listUsers,
+  getPhasesByTenant,
 } from "../controllers/adminController.js";
 
 import { authMiddleware } from "../middleware/auth.js";
@@ -30,6 +31,7 @@ router.use(permit("admin"));
 
 // ---- Phase management ----
 router.post("/phases", validate(createPhaseSchema), createPhase);
+router.get("/phases", getPhasesByTenant);
 router.put("/phases/:id", validate(updatePhaseSchema), updatePhase);
 router.delete("/phases/:id", deletePhase);
 

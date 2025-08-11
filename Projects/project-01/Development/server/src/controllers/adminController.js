@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { ItemFormTemplate } from "../models/ItemFormTemplate.js";
 import { Phase } from "../models/Phase.js";
 import { User } from "../models/User.js";
@@ -5,11 +6,50 @@ import { User } from "../models/User.js";
 // ---- Phase Management ----
 export const createPhase = async (req, res) => {
   try {
-    const phase = new Phase(req.body);
+    const { tenantId } = req.user;
+    const { name, order, users, description } = req.body;
+
+    // Check if phase name exists (case-insensitive)
+    const nameExists = await Phase.findOne({
+      tenantId,
+      name: { $regex: `^${name}$`, $options: "i" },
+    });
+
+    if (nameExists) {
+      return res.status(400).json({
+        error: `Phase name "${name}" already exists. Please choose a different name.`,
+      });
+    }
+
+    // Check if phase order exists
+    const orderExists = await Phase.findOne({
+      tenantId,
+      order,
+    });
+
+    if (orderExists) {
+      return res.status(400).json({
+        error: `Phase order "${order}" already exists. Please choose a different order.`,
+      });
+    }
+
+    const phase = new Phase({
+      tenantId,
+      name,
+      order,
+      users,
+      description,
+    });
+
     await phase.save();
-    res.status(201).json(phase);
+
+    res.status(201).json({
+      data: {},
+      message: `${phase.name} created successfully.`,
+    });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    console.error("Error creating phase:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -33,14 +73,47 @@ export const deletePhase = async (req, res) => {
   }
 };
 
+export const getPhasesByTenant = async (req, res) => {
+  try {
+    const { tenantId } = req.user;
+
+    if (!mongoose.Types.ObjectId.isValid(tenantId)) {
+      return res.status(400).json({ error: "Invalid tenantId" });
+    }
+
+    const phases = await Phase.find({ tenantId })
+      .populate("users", "name email")
+      .sort({ order: 1, createdAt: -1 });
+
+    const data = phases.map((phase) => ({
+      label: phase.name,
+      value: phase._id,
+      order: phase.order,
+      users: phase.users,
+    }));
+
+    res.status(200).json({ data });
+  } catch (err) {
+    console.error("Error fetching phases:", err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
 // ---- User Management ----
 export const createUser = async (req, res) => {
   try {
+    const { tenantId } = req.user;
+    if (!mongoose.Types.ObjectId.isValid(tenantId)) {
+      return res.status(400).json({ error: "Invalid tenantId" });
+    }
+
     const { password, ...rest } = req.body;
-    const user = new User(rest);
+    const user = new User(...rest, tenantId);
     await user.setPassword(password);
     await user.save();
-    res.status(201).json(user);
+    res
+      .status(201)
+      .json({ data: {}, message: `${user.name} created successfully.` });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -85,10 +158,26 @@ export const createFormTemplate = async (req, res) => {
 export const listUsers = async (req, res) => {
   try {
     const tenantId = req.user.tenantId;
+    const format = req.query.format; // 'dropdown' or 'full'
 
+    if (format === "dropdown") {
+      // Minimal data for dropdown
+      const users = await User.find({ tenantId })
+        .select("name") // Only what's needed
+        .lean();
+
+      const formattedUsers = users.map((user) => ({
+        label: user.name,
+        value: user._id,
+      }));
+
+      return res.json(formattedUsers);
+    }
+
+    // Full detail mode
     const users = await User.find({ tenantId })
       .select("name email role phases")
-      .populate("phases", "name") // Get phase name only
+      .populate("phases", "name")
       .lean();
 
     const formattedUsers = users.map((user) => ({

@@ -1,0 +1,39 @@
+.multiSelect {
+  font-family: sans-serif;
+  width: 100%;
+}
+
+.label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+.selectedList {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  background: #e0e7ff;
+  color: #1e3a8a;
+  padding: 4px 8px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+}
+
+.removeBtn {
+  background: transparent;
+  border: none;
+  margin-left: 4px;
+  cursor: pointer;
+  color: #1e3a8a;
+  font-weight: bold;
+}
+.removeBtn:hover {
+  color: #dc2626;
+}

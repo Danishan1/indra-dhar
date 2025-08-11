@@ -6,11 +6,10 @@ export const createPhaseSchema = Joi.object({
   order: Joi.number().integer().min(1).required(),
   description: Joi.string().allow(""),
   users: Joi.array().items(Joi.string().hex().length(24)),
-  tenantId: Joi.string().hex().length(24).required(),
 });
 
 export const updatePhaseSchema = createPhaseSchema.fork(
-  ["name", "order", "tenantId"],
+  ["name", "order", "description", "users"],
   (schema) => schema.optional()
 );
 
@@ -21,11 +20,10 @@ export const createUserSchema = Joi.object({
   password: Joi.string().min(6).required(),
   role: Joi.string().valid("admin", "phase_head", "operator").required(),
   phases: Joi.array().items(Joi.string().hex().length(24)),
-  tenantId: Joi.string().hex().length(24).required(),
 });
 
 export const updateUserSchema = createUserSchema.fork(
-  ["name", "email", "password", "role", "tenantId"],
+  ["name", "email", "password", "role"],
   (schema) => schema.optional()
 );
 

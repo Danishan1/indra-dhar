@@ -3,14 +3,17 @@ import Button from "../../common/jsx/Button";
 
 export default function ActionButtons({ onAction }) {
   const actions = [
-    { label: "Create New Phase", id: "createPhase", variant: "primary" },
-    { label: "Update Phase", id: "updatePhase", variant: "secondary" },
-    { label: "Delete Phase", id: "deletePhase", variant: "danger" },
-    { label: "Create User", id: "createUser", variant: "primary" },
-    { label: "Update User", id: "updateUser", variant: "secondary" },
-    { label: "Delete User", id: "deleteUser", variant: "danger" },
-    { label: "Create Item Form", id: "createItemForm", variant: "primary" },
-    { label: "View Dashboard", id: "viewDashboard", variant: "secondary" },
+    { label: "Create New Phase", id: "create-phase", variant: "primary" },
+    { label: "Update Phase", id: "update-phase", variant: "secondary" },
+    { label: "Delete Phase", id: "delete-phase", variant: "danger" },
+    { label: "View Phase", id: "view-phase", variant: "primary" },
+    { label: "Create User", id: "create-user", variant: "primary" },
+    { label: "View User", id: "view-user", variant: "primary" },
+    { label: "Update User", id: "update-user", variant: "secondary" },
+    { label: "Delete User", id: "delete-user", variant: "danger" },
+    { label: "View Form", id: "view-item-form", variant: "primary" },
+    { label: "Create Item Form", id: "create-item-form", variant: "primary" },
+    { label: "View Dashboard", id: "view-dashboard", variant: "secondary" },
   ];
 
   return (

@@ -4,11 +4,13 @@ import PhaseCard from "../../dashboard/jsx/PhaseCard";
 import { useAuth } from "../../../context/AuthContext";
 import { api } from "../../../api/api";
 import ActionButtons from "../../admin/jsx/ActionButtons";
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const { token } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,6 +43,11 @@ export default function Dashboard() {
 
   const ActionButtonsComponent = ActionByProfile(data.user.role);
 
+  const handleAction = (action) => {
+    const base = data.user.role === "admin" ? "/admin" : "/user";
+    navigate(`${base}/${action}`);
+  };
+
   return (
     <div className={styles.dashboard}>
       <h1 className={styles.title}>Dashboard</h1>
@@ -61,7 +68,7 @@ export default function Dashboard() {
         </p>
       </div>
 
-      <ActionButtonsComponent onAction={(action) => console.log(action)} />
+      <ActionButtonsComponent onAction={handleAction} />
 
       {/* Phases */}
       <div className={styles.grid}>

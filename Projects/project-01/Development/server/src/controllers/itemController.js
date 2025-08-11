@@ -87,7 +87,6 @@ export const getItem = async (req, res) => {
     const tenantId = req.user.tenantId;
     const { id } = req.params;
 
-    console.log("Fetching item with ID:", id);
 
     if (!mongoose.isValidObjectId(id))
       return res.status(400).json({ error: "Invalid ID" });
