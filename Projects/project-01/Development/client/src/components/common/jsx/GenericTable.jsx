@@ -6,6 +6,7 @@ export default function GenericTable({
   data,
   searchPlaceholder = "Search...",
   pageSize = 10,
+  onClickRow,
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({});
@@ -45,6 +46,7 @@ export default function GenericTable({
   return (
     <div>
       {/* Search bar */}
+      {/* Uncomment if you want a search field */}
       {/* <div className={styles.searchRow}>
         <input
           type="text"
@@ -84,7 +86,12 @@ export default function GenericTable({
           <tbody>
             {paginatedData.length > 0 ? (
               paginatedData.map((row, idx) => (
-                <tr key={idx} className={styles.tr}>
+                <tr
+                  key={idx}
+                  className={styles.tr}
+                  onClick={() => onClickRow?.(row)}
+                  style={{ cursor: onClickRow ? "pointer" : "default" }}
+                >
                   {columns.map((col) => (
                     <td key={col.accessor} className={styles.td}>
                       {col.Cell ? col.Cell(row) : row[col.accessor]}
@@ -129,9 +136,7 @@ export default function GenericTable({
   );
 }
 
-
 /*
-
 
 import React from "react";
 import GenericTable from "./GenericTable";
@@ -154,13 +159,19 @@ export default function UsersPage() {
     { name: "Mark Lee", email: "mark@example.com", role: "Manager" },
   ];
 
+  const handleRowClick = (row) => {
+    console.log("Row clicked:", row);
+    alert(`You clicked on ${row.name}`);
+  };
+
   return (
     <div style={{ padding: 20 }}>
       <h1>User List</h1>
-      <GenericTable columns={columns} data={data} />
+      <GenericTable columns={columns} data={data} onClickRow={handleRowClick} />
     </div>
   );
 }
+
 
 
 

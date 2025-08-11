@@ -2,6 +2,7 @@ import mongoose, { Schema, model } from "mongoose";
 
 const phaseSchema = new Schema({
   tenantId: { type: Schema.Types.ObjectId, ref: "Tenant", required: true },
+  description: { type: String },
   name: { type: String, required: true },
   order: { type: Number, required: true },
   users: [{ type: Schema.Types.ObjectId, ref: "User" }],

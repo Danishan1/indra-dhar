@@ -76,9 +76,33 @@ export const deletePhase = async (req, res) => {
 export const getPhasesByTenant = async (req, res) => {
   try {
     const { tenantId } = req.user;
+    const { phaseId } = req.params; // optional
 
     if (!mongoose.Types.ObjectId.isValid(tenantId)) {
       return res.status(400).json({ error: "Invalid tenantId" });
+    }
+
+    if (phaseId) {
+      if (!mongoose.Types.ObjectId.isValid(phaseId)) {
+        return res.status(400).json({ error: "Invalid phaseId" });
+      }
+
+      const phase = await Phase.findOne({ _id: phaseId, tenantId }).populate(
+        "users",
+        "name email"
+      );
+
+      if (!phase) {
+        return res.status(404).json({ error: "Phase not found" });
+      }
+
+      return res.status(200).json({
+        label: phase.name,
+        value: phase._id,
+        order: phase.order,
+        users: phase.users,
+        description: phase.description || "Description not provided",
+      });
     }
 
     const phases = await Phase.find({ tenantId })
@@ -90,6 +114,7 @@ export const getPhasesByTenant = async (req, res) => {
       value: phase._id,
       order: phase.order,
       users: phase.users,
+      description: phase.description,
     }));
 
     res.status(200).json({ data });

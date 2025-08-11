@@ -32,6 +32,7 @@ router.use(permit("admin"));
 // ---- Phase management ----
 router.post("/phases", validate(createPhaseSchema), createPhase);
 router.get("/phases", getPhasesByTenant);
+router.get("/phases/:phaseId", getPhasesByTenant);
 router.put("/phases/:id", validate(updatePhaseSchema), updatePhase);
 router.delete("/phases/:id", deletePhase);
 
