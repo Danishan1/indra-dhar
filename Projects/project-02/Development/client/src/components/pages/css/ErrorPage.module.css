@@ -1,0 +1,37 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f9fafb;
+  text-align: center;
+  padding: 20px;
+}
+
+.status {
+  font-size: 6rem;
+  font-weight: bold;
+  color: #ef4444; /* red-500 */
+}
+
+.message {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  color: #374151; /* gray-700 */
+}
+
+.button {
+  padding: 10px 20px;
+  background-color: #3b82f6; /* blue-500 */
+  color: white;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.button:hover {
+  background-color: #2563eb; /* blue-600 */
+}

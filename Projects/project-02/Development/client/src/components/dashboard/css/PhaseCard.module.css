@@ -1,0 +1,18 @@
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  padding: 16px;
+  border: 1px solid #eee;
+}
+
+.phaseName {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.noItems {
+  color: gray;
+  font-size: 14px;
+}

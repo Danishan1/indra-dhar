@@ -1,0 +1,25 @@
+.dashboard {
+  padding: 2rem;
+}
+
+.title {
+  margin-bottom: 1rem;
+}
+
+.userInfo {
+  background: #f5f5f5;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  border-radius: 8px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.message {
+  text-align: center;
+  margin-top: 2rem;
+}
