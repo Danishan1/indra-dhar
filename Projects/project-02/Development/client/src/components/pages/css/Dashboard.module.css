@@ -4,14 +4,14 @@
   height: 100%;
 }
 
-.header{
+.header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
 }
 
-.actionsButtons{
+.actionsButtons {
   display: flex;
   gap: 1rem;
 }
@@ -29,9 +29,10 @@
 }
 
 .grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .message {

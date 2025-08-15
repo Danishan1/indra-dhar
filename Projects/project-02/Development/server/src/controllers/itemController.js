@@ -134,119 +134,175 @@ export const getItem = async (req, res) => {
   }
 };
 
+export const getPhasesBefore = async (req, res) => {
+  try {
+    const { phaseName } = req.params;
+    const { tenantId } = req.user; // Assuming tenantId is part of the user session or token
+
+    // Step 1: Find the current phase based on phaseName and tenantId
+    const currentPhase = await Phase.findOne({
+      tenantId,
+      name: phaseName,
+    }).lean();
+
+    if (!currentPhase) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Phase not found." });
+    }
+
+    // Step 2: Get all phases for this tenant ordered by 'order' (ascending)
+    const allPhases = await Phase.find({ tenantId }).sort({ order: 1 }).lean();
+
+    // Step 3: Filter out phases that come before the current phase based on the order
+    const phasesBefore = allPhases
+      .filter((phase) => phase.order < currentPhase.order) // Only include phases that come before
+      .map((phase) => ({
+        label: phase.name, // Phase name as the label
+        value: phase._id.toString(), // Phase ID as the value
+      }));
+
+    // Step 4: Send the phases before the current phase
+    return res.status(200).json({
+      success: true,
+      data: phasesBefore, // List of { label, value } pairs for phases before current phase
+    });
+  } catch (err) {
+    console.error("Error fetching phases before:", err);
+    return res
+      .status(500)
+      .json({ success: false, error: "Internal server error" });
+  }
+};
+
 /**
  * Move item forward
  */
 export const moveItem = async (req, res) => {
   try {
     const tenantId = req.user.tenantId;
-    const { id } = req.params; // bulkGroupId or itemId
-    const { toPhaseId, quantity, itemIds } = req.body;
+    const { phaseName, itemIds, quantity, type } = req.body;
 
-    if (!mongoose.isValidObjectId(toPhaseId)) {
-      return res.status(400).json({ error: "Invalid phase ID" });
+    // 1. Retrieve the current phase ID from the database based on phaseName
+    const currentPhase = await Phase.findOne({ tenantId, name: phaseName });
+
+    if (!currentPhase) {
+      return res.status(400).json({
+        success: false,
+        message: `Phase "${phaseName}" not found for tenant.`,
+      });
     }
 
-    // If it's a count-based bulk movement
-    const bulkItem = await Item.findOne({
+    const currentPhaseId = currentPhase._id;
+    const currentPhaseIndex = currentPhase.order; // Assuming phase order is stored in the "order" field.
+
+    // 2. Retrieve the next phase ID dynamically
+    const nextPhase = await Phase.findOne({
       tenantId,
-      bulkGroupId: id,
-      isBulkCountBased: true,
+      order: currentPhaseIndex + 1,
     });
 
-    if (bulkItem) {
+    if (!nextPhase) {
+      return res.status(400).json({
+        success: false,
+        message: `No next phase found after "${phaseName}".`,
+      });
+    }
+
+    const nextPhaseId = nextPhase._id;
+
+    // 3. Find the BulkItem for the current phase
+    const bulkItem = await BulkItem.findOne({
+      tenantId,
+      phaseId: currentPhaseId,
+    });
+
+    if (!bulkItem) {
+      return res.status(404).json({
+        success: false,
+        message: `No bulk item found for phase "${phaseName}".`,
+      });
+    }
+
+    // 4. Handle the two types of operations (quantity-based or itemId-based)
+    let selectedItems = [];
+
+    if (type === "quantity") {
       if (!quantity || quantity <= 0) {
-        return res
-          .status(400)
-          .json({ error: "Quantity must be greater than zero" });
-      }
-      if (bulkItem.quantity < quantity) {
-        return res.status(400).json({ error: "Not enough quantity available" });
-      }
-
-      // Deduct from current bulk
-      bulkItem.quantity -= quantity;
-      bulkItem.history.push({
-        phaseId: bulkItem.currentPhaseId,
-        userId: req.user._id,
-        action: "MOVE_FORWARD",
-        count: -quantity,
-        note: `Moved ${quantity} to next phase`,
-      });
-      await bulkItem.save();
-
-      // Add to next phase bulk (create or update)
-      let nextPhaseBulk = await Item.findOne({
-        tenantId,
-        bulkGroupId: id,
-        isBulkCountBased: true,
-        currentPhaseId: toPhaseId,
-      });
-
-      if (!nextPhaseBulk) {
-        nextPhaseBulk = new Item({
-          tenantId,
-          isBulkCountBased: true,
-          bulkGroupId: id,
-          quantity: quantity,
-          currentPhaseId: toPhaseId,
-          status: "IN_PROGRESS",
-          history: [],
+        return res.status(400).json({
+          success: false,
+          message: "Quantity should be a positive number.",
         });
-      } else {
-        nextPhaseBulk.quantity += quantity;
       }
 
-      nextPhaseBulk.history.push({
-        phaseId: toPhaseId,
-        userId: req.user._id,
-        action: "MOVE_FORWARD",
-        count: quantity,
-      });
-      await nextPhaseBulk.save();
-
-      return res.json({
-        message: "Bulk moved successfully",
-        fromPhaseId: bulkItem.currentPhaseId,
-        toPhaseId,
-        quantity,
-      });
-    }
-
-    // If it's an ID-based movement
-    if (!itemIds || !Array.isArray(itemIds) || itemIds.length === 0) {
-      return res
-        .status(400)
-        .json({ error: "itemIds must be provided for ID-based movement" });
-    }
-
-    const updated = await Item.updateMany(
-      { _id: { $in: itemIds }, tenantId, isBulkCountBased: false },
-      {
-        $set: { currentPhaseId: toPhaseId },
-        $push: {
-          history: {
-            phaseId: toPhaseId,
-            userId: req.user._id,
-            action: "MOVE_FORWARD",
-            itemIds: itemIds,
-          },
-        },
+      // Validate that the bulk item has enough pending items
+      if (bulkItem.pendingItemIds.length < quantity) {
+        return res.status(400).json({
+          success: false,
+          message: "Not enough pending items to fulfill the quantity request.",
+        });
       }
-    );
 
-    if (updated.modifiedCount === 0) {
-      return res.status(404).json({ error: "No items found to move" });
+      // Select `quantity` items either sequentially or randomly
+      const pendingItems = [...bulkItem.pendingItemIds]; // Copy array to prevent mutation
+
+      selectedItems = pendingItems.splice(0, quantity);
+
+      // Update pendingItemIds and completedItemIds in the current BulkItem
+      bulkItem.pendingItemIds = pendingItems;
+      bulkItem.completedItemIds.push(...selectedItems);
+      await bulkItem.save();
+    } else if (type === "itemId" && itemIds && Array.isArray(itemIds)) {
+      // Validate that the provided itemIds exist in the pending items
+      const invalidItemIds = itemIds.filter(
+        (id) => !bulkItem.pendingItemIds.includes(id)
+      );
+
+      if (invalidItemIds.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: `The following itemIds are not in the pending list: ${invalidItemIds.join(
+            ", "
+          )}`,
+        });
+      }
+
+      // Move the provided itemIds from pending to completed
+      selectedItems = itemIds;
+      bulkItem.pendingItemIds = bulkItem.pendingItemIds.filter(
+        (id) => !itemIds.includes(id)
+      );
+      bulkItem.completedItemIds.push(...selectedItems);
+      await bulkItem.save();
+    } else {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Invalid operation type. Please specify 'quantity' or 'itemId'.",
+      });
     }
 
-    return res.json({
-      message: "Items moved successfully",
-      toPhaseId,
-      movedCount: updated.modifiedCount,
+    // 5. Create a new BulkItem for the next phase
+    const newBulkItem = new BulkItem({
+      tenantId,
+      phaseId: nextPhaseId,
+      pendingItemIds: selectedItems,
+      status: "IN_PROGRESS", // Default status for new BulkItem
+    });
+
+    await newBulkItem.save();
+
+    return res.status(200).json({
+      success: true,
+      message: `Items successfully moved to the next phase (${nextPhase.name})`,
+      data: selectedItems,
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Error moving items:", err);
+    return res.status(500).json({
+      success: false,
+      error: "Server error. Failed to move items.",
+    });
   }
 };
 

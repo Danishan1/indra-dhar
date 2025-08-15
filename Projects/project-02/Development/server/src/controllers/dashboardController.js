@@ -1,13 +1,11 @@
 import mongoose from "mongoose";
+import { BulkItem } from "../models/BulkItem.js";
 import { Phase } from "../models/Phase.js";
-import { Item } from "../models/Item.js";
 import { Tenant } from "../models/Tenant.js";
-import { User } from "../models/User.js";
 
 export const getDashboardData = async (req, res) => {
   try {
     const { tenantId, _id: userId, name, role, email } = req.user;
-
 
     // Fetch tenant name
     const tenant = await Tenant.findById(tenantId).lean();
@@ -15,57 +13,73 @@ export const getDashboardData = async (req, res) => {
     // Get all phases for this tenant
     const phases = await Phase.find({ tenantId }).lean();
 
-    // Aggregate items by phase
-    const itemsByPhase = await Item.aggregate([
-      { $match: { tenantId: new mongoose.Types.ObjectId(tenantId) } },
+    // Aggregate BulkItem data by phase
+    const bulkItems = await BulkItem.aggregate([
+      {
+        $match: {
+          tenantId: new mongoose.Types.ObjectId(tenantId),  // Match tenantId
+        }
+      },
+      {
+        $lookup: {
+          from: 'phases',   // Reference to the 'Phase' collection
+          localField: 'phaseId',
+          foreignField: '_id',
+          as: 'phaseDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$phaseDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
       {
         $group: {
-          _id: "$currentPhaseId",
-          items: {
-            $push: {
-              bulkGroupId: "$bulkGroupId",
-              quantity: "$quantity",
-              name: "$formData.name",
-              status: "$status",
-              isBulkCountBased: "$isBulkCountBased",
-            },
+          _id: '$phaseId',
+          totalPending: { $sum: { $size: '$pendingItemIds' } },     // Count of items in pending state
+          totalCompleted: { $sum: { $size: '$completedItemIds' } },   // Count of items in completed state
+          totalOrders: { $sum: 1 },  // Count of BulkItem records
+          pendingOrders: {
+            $sum: { $cond: [{ $gt: [{ $size: '$pendingItemIds' }, 0] }, 1, 0] }  // Count of BulkItem records with pending items
           },
-        },
-      },
+          completedOrders: {
+            $sum: { $cond: [{ $gt: [{ $size: '$completedItemIds' }, 0] }, 1, 0] } // Count of BulkItem records with completed items
+          }
+        }
+      }
     ]);
 
-    // Map items to phase ID
-    const phaseItemMap = {};
-    itemsByPhase.forEach((p) => {
-      phaseItemMap[p._id?.toString()] = p.items;
+    // Map bulk item data to phase data
+    const bulkItemMap = {};
+    bulkItems.forEach((item) => {
+      bulkItemMap[item._id.toString()] = item;
     });
 
-    // Prepare dashboard phase data
+    // Prepare phase summary data
     const phaseSummary = phases.map((phase, idx) => {
-      const phaseItems = phaseItemMap[phase._id.toString()] || [];
-
-      const summary = phaseItems.reduce((acc, item) => {
-        const key = item.bulkGroupId || item.name || "UNKNOWN";
-        if (!acc[key]) {
-          acc[key] = {
-            bulkGroupId: item.bulkGroupId || null,
-            name: item.name || null,
-            status: item.status,
-            quantity: 0,
-          };
-        }
-        acc[key].quantity += item.isBulkCountBased ? item.quantity : 1;
-        return acc;
-      }, {});
+      const bulkData = bulkItemMap[phase._id.toString()] || {};
 
       return {
         phaseNumber: idx + 1,
-        phaseId: phase._id,
+        phaseId: phase._id.toString(),
         phaseName: phase.name,
-        items: Object.values(summary),
+        items: {
+          total: (bulkData.totalPending || 0) + (bulkData.totalCompleted || 0),
+          pending: bulkData.totalPending || 0,
+          completed: bulkData.totalCompleted || 0,
+        },
+        orders: {
+          totalOrders: bulkData.totalOrders || 0,
+          pendingOrders: bulkData.pendingOrders || 0,
+          completedOrders: bulkData.completedOrders || 0,
+        }
       };
     });
 
+    console.log(phaseSummary)
+
+    // Send response
     res.json({
       user: {
         name,
@@ -76,7 +90,7 @@ export const getDashboardData = async (req, res) => {
       phases: phaseSummary,
     });
   } catch (err) {
-    console.error(err);
+    console.error("Error fetching dashboard data:", err);
     res.status(500).json({ error: "Internal server error" });
   }
 };

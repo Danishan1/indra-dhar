@@ -14,8 +14,9 @@ router.get("/dashboard", getDashboardData); // Dashboard (GET)
 router.post("/", itemController.createItem); // Create single item
 router.get("/", itemController.listItems); // Get all items
 router.get("/:id", itemController.getItem); // Get single item by ID
-router.post("/:id/move-forward", itemController.moveItem);
+router.post("/move-forward", itemController.moveItem);
 router.post("/:id/move-backward", itemController.requestItemReturn);
+router.get("/get-phases-before/:phaseName", itemController.getPhasesBefore);
 
 // --- RETURN ROUTES ---
 router.get("/returns/pending", returnController.listPendingReturns);

@@ -5,6 +5,7 @@ import { useAuth } from "../../../context/AuthContext";
 import { api } from "../../../api/api";
 import { useNavigate } from "react-router-dom";
 import Button from "../../common/jsx/Button";
+import io from "socket.io-client"; // Import socket.io-client
 
 export default function Dashboard() {
   const [data, setData] = useState(null);
@@ -13,6 +14,15 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const socket = io("http://localhost:5173"); // Adjust the URL if necessary
+
+    // Listen for phase update events
+    socket.on("phaseUpdated", async ({ tenantId }) => {
+      console.log("Phase updated, fetching new data...");
+      fetchData(); // Refresh the dashboard data when phase updates
+    });
+
+    // Fetch initial data
     const fetchData = async () => {
       try {
         const res = await api.get("/items/dashboard");
@@ -25,6 +35,11 @@ export default function Dashboard() {
     };
 
     if (token) fetchData();
+
+    // Clean up on unmount
+    return () => {
+      socket.disconnect();
+    };
   }, [token]);
 
   if (loading) {

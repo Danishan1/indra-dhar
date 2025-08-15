@@ -2,20 +2,36 @@ import React, { useEffect, useState } from "react";
 import { api } from "../../../api/api";
 import GenericForm from "../../common/jsx/GenericForm";
 import { useToast } from "../../../context/ToastContext";
+import { useNavigate, useParams } from "react-router-dom";
 
-export function AddToKora({ onSuccess }) {
+export function MoveToPhases({ onSuccess }) {
   const { addToast } = useToast();
+  const { move, phaseName } = useParams();
+  const navigate = useNavigate();
+  const title =
+    move === "move-forward" ? "Move to Next phase" : "Move to other phase";
+  const buttonLabel = move === "move-forward" ? "Move to Next Phase" : "Return";
 
   const [formConfig, setFormConfig] = useState({
     submitVariant: "primary",
-    title: "Add To Kora",
+    title: title,
     fields: [
+      ...(move === "move-backward" && phaseName !== "Kora"
+        ? [
+            {
+              name: "list",
+              label: "Add Item to Kora",
+              type: "dropdown",
+              required: true,
+              options: [],
+            },
+          ]
+        : []),
       {
-        name: "list",
-        label: "Add Item to Kora",
-        type: "multi-dropdown",
+        name: "quantity",
+        label: "Quantity",
+        type: "text",
         required: true,
-        options: [],
       },
     ],
   });
@@ -24,7 +40,7 @@ export function AddToKora({ onSuccess }) {
   useEffect(() => {
     const fetchPhases = async () => {
       try {
-        const response = await api.get("/items");
+        const response = await api.get(`/items/get-phases-before/${phaseName}`);
         const data = response.data.data;
 
         setFormConfig((prev) => ({
@@ -44,8 +60,15 @@ export function AddToKora({ onSuccess }) {
   const handleSubmit = async (data) => {
     try {
       console.log(data);
-    //   const { data: res } = await api.post("/admin/users", data);
-      addToast(res.message || "User created successfully.", "success");
+
+      const payload = {
+        phaseName: phaseName,
+        quantity: data.quantity,
+        type: "quantity",
+      };
+
+      const { data: res } = await api.post("/items/move-forward", payload);
+      addToast(res.message || "Successfully Moved.", "success");
       onSuccess?.(res);
       navigate("/user");
     } catch (err) {
@@ -60,7 +83,7 @@ export function AddToKora({ onSuccess }) {
     <GenericForm
       config={formConfig}
       onSubmit={handleSubmit}
-      submitLabel="Add to Kora"
+      submitLabel={buttonLabel}
     />
   );
 }
