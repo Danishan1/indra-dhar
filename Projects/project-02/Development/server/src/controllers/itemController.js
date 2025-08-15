@@ -2,23 +2,16 @@
 import { Item } from "../models/Item.js";
 import { ReturnRequest } from "../models/ReturnRequest.js";
 import mongoose from "mongoose";
-import Joi from "joi";
 import { ItemDetails } from "../models/ItemDetails.js";
+import { itemDetailsSchema } from "./helper/itemDetailsSchema.js";
+import { Phase } from "../models/Phase.js";
+import { BulkItem } from "../models/BulkItem.js";
 
-/**
- * Create single or bulk items
- */
 export const createItem = async (req, res) => {
-  const itemDetailsSchema = Joi.object({
-    name: Joi.string().trim().required().label("Product Name"),
-    description: Joi.string().trim().required(),
-    code: Joi.string().trim().required(),
-    buyerName: Joi.string().trim().required(),
-    vendorName: Joi.string().trim().required(),
-    color: Joi.string().trim().required(),
-    items: Joi.number().integer().min(1).required().label("No. of Items"),
-  });
   try {
+    // Extract tenantId from authenticated user
+    const tenantId = req.user.tenantId;
+
     // Validate and sanitize input
     const { error, value } = itemDetailsSchema.validate(req.body, {
       abortEarly: false,
@@ -29,24 +22,72 @@ export const createItem = async (req, res) => {
         field: detail.path[0],
         message: detail.message,
       }));
-      return res.status(400).json({ success: "joi", message: errorMessages });
+      return res.status(400).json({ success: false, message: errorMessages });
     }
 
-    // Save to DB
-    const item = new ItemDetails(value);
-    const savedItem = await item.save();
-    return res
-      .status(201)
-      .json({
-        success: true,
-        message: "Item saved successfully",
-        data: savedItem,
+    // 1. Save ItemDetails first
+    const itemDetails = new ItemDetails(value);
+    const savedItemDetails = await itemDetails.save(); // No session here
+
+    // 2. Find the 'phaseId' for the phase "kora" using tenantId
+    const phase = await Phase.findOne({ tenantId, name: "Kora" });
+    if (!phase) {
+      return res.status(404).json({
+        success: false,
+        message: 'Phase "kora" not found for this tenant',
       });
+    }
+    const phaseId = phase._id;
+
+    // 3. Create and save 'Item' instances based on the quantity (req.body.items)
+    const quantity = req.body.items;
+    const itemsToCreate = [];
+
+    for (let i = 0; i < quantity; i++) {
+      const item = new Item({
+        tenantId,
+        phaseId, // Use the phaseId found from "kora"
+        itemDetailId: savedItemDetails._id,
+        status: "IN_PROGRESS", // Default status
+      });
+      itemsToCreate.push(item);
+    }
+
+    // 4. Save all the created items to the database
+    const savedItems = await Item.insertMany(itemsToCreate); // No session here
+
+    // 5. Add the saved items to the BulkItem's pending list
+    const bulkItem = await BulkItem.findOne({
+      tenantId,
+      phaseId: req.body.phaseId,
+    });
+
+    if (!bulkItem) {
+      // If no BulkItem exists for the phase, create a new one
+      const newBulkItem = new BulkItem({
+        tenantId,
+        phaseId,
+        pendingItemIds: savedItems.map((item) => item._id),
+        status: "IN_PROGRESS", // Default status
+      });
+      await newBulkItem.save(); // No session here
+    } else {
+      // Add the items to the existing BulkItem's pending list
+      bulkItem.pendingItemIds.push(...savedItems.map((item) => item._id));
+      await bulkItem.save(); // No session here
+    }
+
+    return res.status(201).json({
+      success: true,
+      message: "Item and Bulk items saved successfully",
+      data: savedItemDetails,
+    });
   } catch (err) {
     console.error("Error saving item:", err);
-    return res
-      .status(500)
-      .json({ success: false, error: "Server error. Failed to save item." });
+    return res.status(500).json({
+      success: false,
+      error: "Server error. Failed to save item.",
+    });
   }
 };
 
@@ -55,18 +96,17 @@ export const createItem = async (req, res) => {
  */
 export const listItems = async (req, res) => {
   try {
-    const tenantId = req.user.tenantId;
-    const { phaseId, status, bulkGroupId } = req.query;
+    const items = await ItemDetails.find({}, "name _id"); // Only select name and _id
 
-    const filter = { tenantId };
-    if (phaseId) filter.currentPhaseId = phaseId;
-    if (status) filter.status = status;
-    if (bulkGroupId) filter.trackingId = new RegExp(`^${bulkGroupId}`);
+    const formattedItems = items.map((item) => ({
+      label: item.name,
+      value: item._id,
+    }));
 
-    const items = await Item.find(filter).lean();
-    res.json(items);
+    return res.status(200).json({ data: formattedItems });
   } catch (err) {
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Error fetching item details list:", err);
+    return res.status(500).json({ error: "Failed to fetch item list" });
   }
 };
 

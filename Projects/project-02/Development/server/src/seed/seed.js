@@ -6,6 +6,7 @@ import { connectDB } from "../config/db.js";
 import { Item } from "../models/Item.js";
 import { ReturnRequest } from "../models/ReturnRequest.js";
 import { ItemDetails } from "../models/ItemDetails.js";
+import { BulkItem } from "../models/BulkItem.js";
 
 async function seed() {
   try {
@@ -19,6 +20,7 @@ async function seed() {
       Item.deleteMany({}),
       ReturnRequest.deleteMany({}),
       ItemDetails.deleteMany({}),
+      BulkItem.deleteMany({}),
     ]);
 
     // Create Tenant

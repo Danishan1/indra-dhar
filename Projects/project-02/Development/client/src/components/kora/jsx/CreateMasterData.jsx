@@ -82,7 +82,7 @@ export function CreateMasterData({ onSuccess }) {
     <GenericForm
       config={formConfig}
       onSubmit={handleSubmit}
-      submitLabel="Create Master Data"
+      submitLabel="Add to Kora"
     />
   );
 }
