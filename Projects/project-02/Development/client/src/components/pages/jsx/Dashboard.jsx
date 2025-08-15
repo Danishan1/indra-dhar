@@ -3,13 +3,13 @@ import styles from "../css/Dashboard.module.css";
 import PhaseCard from "../../dashboard/jsx/PhaseCard";
 import { useAuth } from "../../../context/AuthContext";
 import { api } from "../../../api/api";
-import ActionButtons from "../../common/jsx/ActionButtons";
 import { useNavigate } from "react-router-dom";
+import Button from "../../common/jsx/Button";
 
 export default function Dashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { token } = useAuth();
+  const { token, logout, user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,14 +35,28 @@ export default function Dashboard() {
     return <div className={styles.message}>No data available</div>;
   }
 
-  const handleAction = (action) => {
-    const base = "/user";
-    navigate(`${base}/${action}`);
-  };
+  if (!user) {
+    navigate("/login");
+  }
 
   return (
     <div className={styles.dashboard}>
-      <h1 className={styles.title}>Dashboard</h1>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Dashboard</h1>
+        <div className={styles.actionsButtons}>
+          {user.role === "kora" && (
+            <Button
+              variant="primary"
+              onClick={() => navigate("/user/create-master")}
+            >
+              Create Master Data
+            </Button>
+          )}
+          <Button variant="danger" onClick={logout}>
+            Logout
+          </Button>
+        </div>
+      </div>
 
       {/* User Info */}
       <div className={styles.userInfo}>
@@ -59,8 +73,6 @@ export default function Dashboard() {
           <strong>Tenant:</strong> {data.user.tenantName}
         </p>
       </div>
-
-      <ActionButtons onAction={handleAction} />
 
       {/* Phases */}
       <div className={styles.grid}>

@@ -2,60 +2,51 @@
 import { Item } from "../models/Item.js";
 import { ReturnRequest } from "../models/ReturnRequest.js";
 import mongoose from "mongoose";
+import Joi from "joi";
+import { ItemDetails } from "../models/ItemDetails.js";
 
 /**
  * Create single or bulk items
  */
 export const createItem = async (req, res) => {
+  const itemDetailsSchema = Joi.object({
+    name: Joi.string().trim().required().label("Product Name"),
+    description: Joi.string().trim().required(),
+    code: Joi.string().trim().required(),
+    buyerName: Joi.string().trim().required(),
+    vendorName: Joi.string().trim().required(),
+    color: Joi.string().trim().required(),
+    items: Joi.number().integer().min(1).required().label("No. of Items"),
+  });
   try {
-    const {
-      isBulkCountBased,
-      quantity,
-      trackingId,
-      bulkGroupId,
-      formData,
-      templateId,
-      images,
-    } = req.body;
+    // Validate and sanitize input
+    const { error, value } = itemDetailsSchema.validate(req.body, {
+      abortEarly: false,
+    });
 
-    const tenantId = req.user.tenantId; // from auth middleware
-
-    if (isBulkCountBased) {
-      if (!quantity || quantity <= 0) {
-        return res.status(400).json({ error: "Quantity must be > 0" });
-      }
-      // Create bulk as count-based
-      const bulkItems = [];
-      for (let i = 0; i < quantity; i++) {
-        bulkItems.push({
-          tenantId,
-          trackingId: `${bulkGroupId}-${i + 1}`,
-          templateId,
-          formData,
-          currentPhaseId: null,
-          images,
-        });
-      }
-      await Item.insertMany(bulkItems);
-      return res
-        .status(201)
-        .json({ message: "Bulk items created", count: quantity });
-    } else {
-      if (!trackingId)
-        return res.status(400).json({ error: "Tracking ID required" });
-      const item = await Item.create({
-        tenantId,
-        trackingId,
-        templateId,
-        formData,
-        currentPhaseId: null,
-        images,
-      });
-      return res.status(201).json(item);
+    if (error) {
+      const errorMessages = error.details.map((detail) => ({
+        field: detail.path[0],
+        message: detail.message,
+      }));
+      return res.status(400).json({ success: "joi", message: errorMessages });
     }
+
+    // Save to DB
+    const item = new ItemDetails(value);
+    const savedItem = await item.save();
+    return res
+      .status(201)
+      .json({
+        success: true,
+        message: "Item saved successfully",
+        data: savedItem,
+      });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Error saving item:", err);
+    return res
+      .status(500)
+      .json({ success: false, error: "Server error. Failed to save item." });
   }
 };
 
@@ -86,7 +77,6 @@ export const getItem = async (req, res) => {
   try {
     const tenantId = req.user.tenantId;
     const { id } = req.params;
-
 
     if (!mongoose.isValidObjectId(id))
       return res.status(400).json({ error: "Invalid ID" });

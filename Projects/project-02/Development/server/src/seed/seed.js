@@ -4,8 +4,8 @@ import { User } from "../models/User.js";
 import { Phase } from "../models/Phase.js";
 import { connectDB } from "../config/db.js";
 import { Item } from "../models/Item.js";
-import { ItemFormTemplate } from "../models/ItemFormTemplate.js";
 import { ReturnRequest } from "../models/ReturnRequest.js";
+import { ItemDetails } from "../models/ItemDetails.js";
 
 async function seed() {
   try {
@@ -17,8 +17,8 @@ async function seed() {
       Phase.deleteMany({}),
       User.deleteMany({}),
       Item.deleteMany({}),
-      ItemFormTemplate.deleteMany({}),
       ReturnRequest.deleteMany({}),
+      ItemDetails.deleteMany({}),
     ]);
 
     // Create Tenant
@@ -27,31 +27,31 @@ async function seed() {
     // Tanent Admin User
 
     const user = new User({
-        name: `Admin User`,
-        email: `admin@indradhar.com`,
-        role: "admin",
-        tenantId: tenant._id,
-      });
-      await user.setPassword("password123"); // default password
-      await user.save();
+      name: `Admin User`,
+      email: `admin@indradhar.com`,
+      role: "admin",
+      tenantId: tenant._id,
+    });
+    await user.setPassword("password123"); // default password
+    await user.save();
 
     // Phase names in order
     const phaseNames = [
-      "Kora",
-      "Paint",
-      "Finishing",
-      "Stock",
-      "Export",
-      "E-commerce",
+      { role: "kora", name: "Kora" },
+      { role: "paint", name: "Paint" },
+      { role: "finishing", name: "Finishing" },
+      { role: "stock", name: "Stock" },
+      { role: "dispach-ecommerce", name: "Export" },
+      { role: "dispach-bulk", name: "E-commerce" },
     ];
 
     // Create Users (one for each phase)
     const users = [];
     for (let i = 0; i < phaseNames.length; i++) {
       const user = new User({
-        name: `${phaseNames[i]} Head`,
-        email: `${phaseNames[i].toLowerCase()}@indradhar.com`,
-        role: "phase_head",
+        name: `${phaseNames[i].name} Head`,
+        email: `${phaseNames[i].name.toLowerCase()}@indradhar.com`,
+        role: phaseNames[i].role,
         tenantId: tenant._id,
       });
       await user.setPassword("password123"); // default password
@@ -64,7 +64,7 @@ async function seed() {
     for (let i = 0; i < phaseNames.length; i++) {
       const phase = await Phase.create({
         tenantId: tenant._id,
-        name: phaseNames[i],
+        name: phaseNames[i].name,
         order: i + 1,
         users: [users[i]._id],
       });

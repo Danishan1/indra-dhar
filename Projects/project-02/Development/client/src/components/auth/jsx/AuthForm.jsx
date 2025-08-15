@@ -6,7 +6,7 @@ export function AuthForm({ onSubmit, buttonText }) {
   const isRegister = buttonText === "Register";
 
   const [formData, setFormData] = useState({
-    tenantName: "",
+    tenantName: "IndraDhar",
     name: "",
     email: "",
     password: "",
@@ -46,13 +46,6 @@ export function AuthForm({ onSubmit, buttonText }) {
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
-      <Input
-        label="Tenant Name"
-        name="tenantName"
-        value={formData.tenantName}
-        onChange={handleChange}
-        error={errors.tenantName}
-      />
       {isRegister && (
         <Input
           label="Full Name"

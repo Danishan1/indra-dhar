@@ -7,7 +7,15 @@ const userSchema = new mongoose.Schema({
   passwordHash: { type: String, required: true },
   role: {
     type: String,
-    enum: ["admin", "phase_head", "operator"],
+    enum: [
+      "admin",
+      "kora",
+      "paint",
+      "finishing",
+      "stock",
+      "dispach-ecommerce",
+      "dispach-bulk",
+    ],
     required: true,
   },
   phases: [{ type: mongoose.Schema.Types.ObjectId, ref: "Phase" }],
@@ -28,4 +36,4 @@ userSchema.methods.validatePassword = async function (password) {
   return bcrypt.compare(password, this.passwordHash);
 };
 
-export const User =  mongoose.models.User ||  mongoose.model("User", userSchema);
+export const User = mongoose.models.User || mongoose.model("User", userSchema);

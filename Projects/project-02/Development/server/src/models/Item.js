@@ -33,7 +33,6 @@ const itemSchema = new Schema({
 
   bulkGroupId: { type: String }, // UUID or custom string for grouping same-lot items
 
-  templateId: { type: Schema.Types.ObjectId, ref: "ItemFormTemplate" },
   formData: { type: Object },
   currentPhaseId: { type: Schema.Types.ObjectId, ref: "Phase" },
   images: [String],
