@@ -6,6 +6,7 @@ import { ItemDetails } from "../models/ItemDetails.js";
 import { itemDetailsSchema } from "./helper/itemDetailsSchema.js";
 import { Phase } from "../models/Phase.js";
 import { BulkItem } from "../models/BulkItem.js";
+import { emitPhaseUpdate } from "../../server.js";
 
 export const createItem = async (req, res) => {
   try {
@@ -116,20 +117,32 @@ export const listItems = async (req, res) => {
 export const getItem = async (req, res) => {
   try {
     const tenantId = req.user.tenantId;
-    const { id } = req.params;
+    const { bulkId } = req.params;
 
-    if (!mongoose.isValidObjectId(id))
-      return res.status(400).json({ error: "Invalid ID" });
+    // Find the bulk item by ID and tenant
+    const bulkItem = await BulkItem.findOne({ _id: bulkId, tenantId });
 
-    const item = await Item.findOne({ _id: id, tenantId })
-      .populate("currentPhaseId")
-      .populate("history.userId", "name")
-      .lean();
+    if (!bulkItem) {
+      return res.status(404).json({ error: "Bulk item not found" });
+    }
 
-    if (!item) return res.status(404).json({ error: "Item not found" });
+    // Fetch related item details
+    const pendingItems = bulkItem.pendingItemIds.map((k) => k.toString());
+    const completedItems = bulkItem.completedItemIds.map((k) => k.toString());
 
-    res.json(item);
+    return res.json({
+      bulkItem: {
+        _id: bulkItem._id,
+        tenantId: bulkItem.tenantId,
+        phaseId: bulkItem.phaseId,
+        status: bulkItem.status,
+        createdAt: bulkItem.createdAt,
+      },
+      pendingItems,
+      completedItems,
+    });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -194,8 +207,6 @@ export const getBulkItems = async (req, res) => {
         incompleteOrders.push(simplified);
       }
     });
-
-    console.log(incompleteOrders);
 
     return res.status(200).json({
       success: true,
@@ -337,6 +348,7 @@ export const moveItem = async (req, res) => {
       bulkItem.completedItemIds.push(...selectedItems);
 
       await bulkItem.save();
+      emitPhaseUpdate(tenantId);
     } else if (type === "itemId" && itemIds && Array.isArray(itemIds)) {
       // Validate that the provided itemIds exist in the pending items
       const invalidItemIds = itemIds.filter(
@@ -359,6 +371,7 @@ export const moveItem = async (req, res) => {
       );
       bulkItem.completedItemIds.push(...selectedItems);
       await bulkItem.save();
+      emitPhaseUpdate(tenantId);
     } else {
       return res.status(400).json({
         success: false,

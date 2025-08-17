@@ -9,11 +9,19 @@ const PORT = process.env.PORT || 4000;
 const server = createServer(app);
 
 // Initialize Socket.io
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173", // React app URL
+    methods: ["GET", "POST"],
+  },
+});
 
 // Emit events when phases are updated
 export const emitPhaseUpdate = (tenantId) => {
   // Emit an event to all connected clients for this tenant
+
+  console.log("DDDDD Emit", tenantId);
+
   io.emit("phaseUpdated", { tenantId });
 };
 

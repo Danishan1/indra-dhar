@@ -37,7 +37,7 @@ const BulkItemsTable = () => {
   }, [phaseName]);
 
   const handleView = (id) => {
-    alert(`View bulk item ${id}`);
+    navigate(`/user/view-item/${id}`);
   };
 
   const handleMoveForward = (id) => {

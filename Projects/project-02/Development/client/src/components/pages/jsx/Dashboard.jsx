@@ -14,7 +14,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const socket = io("http://localhost:5173"); // Adjust the URL if necessary
+    const socket = io("http://localhost:4000"); // Adjust the URL if necessary
 
     // Listen for phase update events
     socket.on("phaseUpdated", async ({ tenantId }) => {

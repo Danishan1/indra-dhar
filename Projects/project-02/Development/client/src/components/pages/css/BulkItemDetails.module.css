@@ -1,0 +1,108 @@
+.bulkItemDetails {
+  height: 100vh;
+  width: 100vw;
+  padding: 10px;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 10px;
+  font-family: sans-serif;
+  background: #f9f9f9;
+  border-radius: 8px;
+}
+
+.title {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: #333;
+}
+
+.bulkInfo {
+  background: #ffffff;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+.section h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #444;
+}
+
+.itemList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.itemCard {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 1rem;
+  width: 300px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s;
+}
+
+.itemCard:hover {
+  transform: scale(1.02);
+}
+
+.itemCard h4 {
+  margin-top: 0;
+  color: #222;
+}
+
+.loading,
+.error {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #999;
+}
+
+.idList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: start;
+  gap: 10px;
+  max-height: 25vh;
+  overflow: auto;
+}
+
+.idBox {
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  padding: 10px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-family: monospace;
+  user-select: none;
+}
+
+.idBox:hover {
+  background-color: #e6f7ff;
+  border-color: #1890ff;
+}
+
+.emptyText {
+  color: #777;
+  font-style: italic;
+}
+
+.buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: end;
+}
