@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../../../api/api";
 import { useToast } from "../../../context/ToastContext";
 import Button from "../../common/jsx/Button";
+import { useAuth } from "../../../context/AuthContext";
 
 export const BulkItemDetails = () => {
   const [data, setData] = useState(null);
@@ -11,6 +12,7 @@ export const BulkItemDetails = () => {
   const { bulkId } = useParams();
   const { addToast } = useToast();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchBulkItem = async () => {
@@ -26,6 +28,8 @@ export const BulkItemDetails = () => {
 
     fetchBulkItem();
   }, [bulkId]);
+
+  if (!user) return <></>;
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
@@ -111,7 +115,9 @@ export const BulkItemDetails = () => {
               List
             </Button>
           </div>
-          <h3>Pending Items</h3>
+          <h3>
+            {["export", "e-commerce"].includes(user.role) ? "Dispach IDs" : "Pending Items"}
+          </h3>
           <div className={styles.idList}>
             {pendingItems.length > 0 ? (
               pendingItems.map((id) => (
@@ -131,7 +137,9 @@ export const BulkItemDetails = () => {
         </div>
 
         <div className={styles.section}>
-          <h3>Completed Items</h3>
+          {!["export", "e-commerce"].includes(user.role) && (
+            <h3>Completed Items</h3>
+          )}
           <div className={styles.idList}>
             {completedItems.length > 0 ? (
               completedItems.map((id) => (

@@ -27,6 +27,20 @@ export function MoveToPhases({ onSuccess }) {
             },
           ]
         : []),
+      ...(move === "move-forward" && phaseName === "Stock"
+        ? [
+            {
+              name: "dispatchTo",
+              label: "Dispach to",
+              type: "dropdown",
+              required: true,
+              options: [
+                { label: "E-commerce", value: "E-commerce" },
+                { label: "Export", value: "Export" },
+              ],
+            },
+          ]
+        : []),
       {
         name: "quantity",
         label: "Quantity",
@@ -58,12 +72,20 @@ export function MoveToPhases({ onSuccess }) {
   }, [addToast]);
 
   const handleSubmit = async (data) => {
+    if (data?.dispatchTo?.value && data?.dispatchTo?.value === "E-commarce") {
+      if (parseInt(data.quantity) !== 1) {
+        addToast("Quantity Must be one for E-commarce Dispatch", "success");
+        return;
+      }
+    }
+
     try {
       const payload = {
         phaseName: phaseName,
         quantity: data.quantity,
         bulkId,
         type: "quantity",
+        dispatchTo: data?.dispatchTo?.value,
       };
 
       const { data: res } =

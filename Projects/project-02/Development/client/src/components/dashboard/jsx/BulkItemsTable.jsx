@@ -48,6 +48,9 @@ const BulkItemsTable = () => {
     navigate(`/user/move-backward/${phaseName}/${id}`);
   };
 
+  const isButtonRender = (isCompleted) =>
+    !isCompleted && phaseName !== "E-commerce" && phaseName !== "Export";
+
   const renderRow = (item, isCompleted) => (
     <tr key={item._id}>
       <td>{item.itemName || "N/A"}</td>
@@ -61,7 +64,7 @@ const BulkItemsTable = () => {
       <td>{new Date(item.createdAt).toLocaleString()}</td>
       <td className={styles.actions}>
         <button onClick={() => handleView(item._id)}>View</button>
-        {!isCompleted && (
+        {isButtonRender(isCompleted) && (
           <>
             <button onClick={() => handleMoveForward(item._id)}>
               Move Forward
@@ -100,22 +103,26 @@ const BulkItemsTable = () => {
   return (
     <div className={styles.container}>
       <div className={styles.toggleButtons}>
-        <button
-          className={`${styles.toggleButton} ${
-            viewType === "incomplete" ? styles.active : ""
-          }`}
-          onClick={() => setViewType("incomplete")}
-        >
-          Incomplete Orders
-        </button>
-        <button
-          className={`${styles.toggleButton} ${
-            viewType === "completed" ? styles.active : ""
-          }`}
-          onClick={() => setViewType("completed")}
-        >
-          Completed Orders
-        </button>
+        {phaseName !== "E-commerce" && phaseName !== "Export" && (
+          <button
+            className={`${styles.toggleButton} ${
+              viewType === "incomplete" ? styles.active : ""
+            }`}
+            onClick={() => setViewType("incomplete")}
+          >
+            Incomplete Orders
+          </button>
+        )}
+        {phaseName !== "E-commerce" && phaseName !== "Export" && (
+          <button
+            className={`${styles.toggleButton} ${
+              viewType === "completed" ? styles.active : ""
+            }`}
+            onClick={() => setViewType("completed")}
+          >
+            Completed Orders
+          </button>
+        )}
         <button
           className={`${styles.toggleButton}`}
           onClick={() => navigate("/user")}

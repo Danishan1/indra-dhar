@@ -272,7 +272,7 @@ export const getPhasesBefore = async (req, res) => {
 export const moveItem = async (req, res) => {
   try {
     const tenantId = req.user.tenantId;
-    const { phaseName, itemIds, quantity, type, bulkId } = req.body;
+    const { phaseName, itemIds, quantity, type, bulkId, dispatchTo } = req.body;
 
     // 1. Retrieve the current phase ID from the database based on phaseName
     const currentPhase = await Phase.findOne({ tenantId, name: phaseName });
@@ -288,11 +288,18 @@ export const moveItem = async (req, res) => {
     const currentPhaseIndex = currentPhase.order; // Assuming phase order is stored in the "order" field.
 
     // 2. Retrieve the next phase ID dynamically
-    const nextPhase = await Phase.findOne({
-      tenantId,
-      order: currentPhaseIndex + 1,
-    });
-
+    let nextPhase;
+    if (dispatchTo) {
+      nextPhase = await Phase.findOne({
+        tenantId,
+        name: dispatchTo,
+      });
+    } else {
+      nextPhase = await Phase.findOne({
+        tenantId,
+        order: currentPhaseIndex + 1,
+      });
+    }
     if (!nextPhase) {
       return res.status(400).json({
         success: false,

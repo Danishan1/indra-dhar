@@ -18,7 +18,7 @@ export default function Dashboard() {
 
     // Listen for phase update events
     socket.on("phaseUpdated", async ({ tenantId }) => {
-      console.log("Phase updated, fetching new data...");
+      // console.log("Phase updated, fetching new data...");
       fetchData(); // Refresh the dashboard data when phase updates
     });
 

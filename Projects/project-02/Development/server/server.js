@@ -20,8 +20,6 @@ const io = new Server(server, {
 export const emitPhaseUpdate = (tenantId) => {
   // Emit an event to all connected clients for this tenant
 
-  console.log("DDDDD Emit", tenantId);
-
   io.emit("phaseUpdated", { tenantId });
 };
 

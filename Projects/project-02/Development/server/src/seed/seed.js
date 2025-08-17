@@ -43,8 +43,8 @@ async function seed() {
       { role: "paint", name: "Paint" },
       { role: "finishing", name: "Finishing" },
       { role: "stock", name: "Stock" },
-      { role: "dispach-ecommerce", name: "Export" },
-      { role: "dispach-bulk", name: "E-commerce" },
+      { role: "export", name: "Export" },
+      { role: "e-commerce", name: "E-commerce" },
     ];
 
     // Create Users (one for each phase)
