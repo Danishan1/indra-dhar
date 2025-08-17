@@ -16,7 +16,7 @@ router.get("/", itemController.listItems); // Get all items
 router.get("/get-bulk-items/:phaseName", itemController.getBulkItems); // Get all items
 router.get("/:bulkId", itemController.getItem); // Get single item by ID
 router.post("/move-forward", itemController.moveItem);
-router.post("/:id/move-backward", itemController.requestItemReturn);
+router.post("/move-backward", itemController.moveItemBackward);
 router.get("/get-phases-before/:phaseName", itemController.getPhasesBefore);
 
 // --- RETURN ROUTES ---

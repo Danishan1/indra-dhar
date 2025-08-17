@@ -16,17 +16,17 @@ export function MoveToPhases({ onSuccess }) {
     submitVariant: "primary",
     title: title,
     fields: [
-      // ...(move === "move-backward" && phaseName !== "Kora"
-      //   ? [
-      //       {
-      //         name: "list",
-      //         label: "Add Item to Kora",
-      //         type: "dropdown",
-      //         required: true,
-      //         options: [],
-      //       },
-      //     ]
-      //   : []),
+      ...(move === "move-backward" && phaseName !== "Kora"
+        ? [
+            {
+              name: "list",
+              label: "Add Item to Kora",
+              type: "dropdown",
+              required: true,
+              options: [],
+            },
+          ]
+        : []),
       {
         name: "quantity",
         label: "Quantity",
@@ -36,26 +36,26 @@ export function MoveToPhases({ onSuccess }) {
     ],
   });
 
-  // // Fetch dropdown data for phases
-  // useEffect(() => {
-  //   const fetchPhases = async () => {
-  //     try {
-  //       const response = await api.get(`/items/get-phases-before/${phaseName}`);
-  //       const data = response.data.data;
+  // Fetch dropdown data for phases
+  useEffect(() => {
+    const fetchPhases = async () => {
+      try {
+        const response = await api.get(`/items/get-phases-before/${phaseName}`);
+        const data = response.data.data;
 
-  //       setFormConfig((prev) => ({
-  //         ...prev,
-  //         fields: prev.fields.map((field) =>
-  //           field.name === "list" ? { ...field, options: data } : field
-  //         ),
-  //       }));
-  //     } catch (err) {
-  //       console.error("Error fetching phases:", err);
-  //       addToast("Failed to load phases list.", "error");
-  //     }
-  //   };
-  //   fetchPhases();
-  // }, [addToast]);
+        setFormConfig((prev) => ({
+          ...prev,
+          fields: prev.fields.map((field) =>
+            field.name === "list" ? { ...field, options: data } : field
+          ),
+        }));
+      } catch (err) {
+        console.error("Error fetching phases:", err);
+        addToast("Failed to load phases list.", "error");
+      }
+    };
+    fetchPhases();
+  }, [addToast]);
 
   const handleSubmit = async (data) => {
     try {
@@ -66,14 +66,21 @@ export function MoveToPhases({ onSuccess }) {
         type: "quantity",
       };
 
-      const { data: res } = await api.post("/items/move-forward", payload);
+      const { data: res } =
+        move === "move-forward"
+          ? await api.post("/items/move-forward", payload)
+          : await api.post("/items/move-backward", {
+              ...payload,
+              toPhase: data.list.label,
+            });
+
       addToast(res.message || "Successfully Moved.", "success");
       onSuccess?.(res);
       navigate("/user");
     } catch (err) {
       console.error("Error creating user:", err);
       const message =
-        err.response?.data?.error || "An unexpected error occurred.";
+        err.response?.data?.message || "An unexpected error occurred.";
       addToast(message, "error");
     }
   };

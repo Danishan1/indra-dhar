@@ -341,7 +341,8 @@ export const moveItem = async (req, res) => {
       selectedItems = pendingItems.splice(0, quantity);
 
       if (bulkItem.pendingItemIds.length === parseInt(quantity))
-        bulkItem.status = "COMPLETED";
+        bulkItem.status =
+          bulkItem.status === "RETURNED" ? "RETURNED_COMPLETED" : "COMPLETED";
 
       // Update pendingItemIds and completedItemIds in the current BulkItem
       bulkItem.pendingItemIds = pendingItems;
@@ -399,7 +400,7 @@ export const moveItem = async (req, res) => {
     console.error("Error moving items:", err);
     return res.status(500).json({
       success: false,
-      error: "Server error. Failed to move items.",
+      message: "Server error. Failed to move items.",
     });
   }
 };
@@ -407,144 +408,120 @@ export const moveItem = async (req, res) => {
 /**
  * Request return for an item
  */
-export const requestItemReturn = async (req, res) => {
+/**
+ * Move item backward
+ */
+export const moveItemBackward = async (req, res) => {
   try {
     const tenantId = req.user.tenantId;
-    const { id } = req.params; // bulkGroupId or itemId
-    const { toPhaseId, note, quantity, itemIds } = req.body;
+    const { phaseName, itemIds, quantity, type, bulkId, toPhase } = req.body;
 
-    if (!mongoose.isValidObjectId(toPhaseId)) {
-      return res.status(400).json({ error: "Invalid phase ID" });
+    // 1. Get current phase and toPhase info
+    const currentPhase = await Phase.findOne({ tenantId, name: phaseName });
+    const targetPhase = await Phase.findOne({ tenantId, name: toPhase });
+
+    if (!currentPhase || !targetPhase) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid current or target phase.`,
+      });
     }
 
-    // Handle count-based bulk
-    const bulkItem = await Item.findOne({
+    if (targetPhase.order >= currentPhase.order) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot move to a same or later phase. toPhase must be earlier than current phase.`,
+      });
+    }
+
+    const currentPhaseId = currentPhase._id;
+    const toPhaseId = targetPhase._id;
+
+    // 2. Find the BulkItem for the current phase
+    const currentBulkItem = await BulkItem.findOne({
       tenantId,
-      bulkGroupId: id,
-      isBulkCountBased: true,
+      phaseId: currentPhaseId,
+      _id: bulkId,
     });
 
-    if (bulkItem) {
+    if (!currentBulkItem) {
+      return res.status(404).json({
+        success: false,
+        message: `Bulk item not found in phase "${phaseName}".`,
+      });
+    }
+
+    let selectedItems = [];
+
+    if (type === "quantity") {
       if (!quantity || quantity <= 0) {
-        return res
-          .status(400)
-          .json({ error: "Quantity must be greater than zero" });
-      }
-      if (bulkItem.quantity < quantity) {
-        return res
-          .status(400)
-          .json({ error: "Not enough quantity available to return" });
-      }
-
-      // Create a return request log
-      const returnRequest = await ReturnRequest.create({
-        tenantId,
-        bulkGroupId: id,
-        isBulkCountBased: true,
-        fromPhaseId: bulkItem.currentPhaseId,
-        toPhaseId,
-        quantity,
-        requestedBy: req.user._id,
-        note,
-      });
-
-      // Deduct from current phase
-      bulkItem.quantity -= quantity;
-      bulkItem.history.push({
-        phaseId: bulkItem.currentPhaseId,
-        userId: req.user._id,
-        action: "RETURN",
-        count: -quantity,
-        note,
-      });
-      await bulkItem.save();
-
-      // Add to target phase bulk
-      let targetBulk = await Item.findOne({
-        tenantId,
-        bulkGroupId: id,
-        isBulkCountBased: true,
-        currentPhaseId: toPhaseId,
-      });
-
-      if (!targetBulk) {
-        targetBulk = new Item({
-          tenantId,
-          isBulkCountBased: true,
-          bulkGroupId: id,
-          quantity: quantity,
-          currentPhaseId: toPhaseId,
-          status: "IN_PROGRESS",
-          history: [],
+        return res.status(400).json({
+          success: false,
+          message: "Quantity should be a positive number.",
         });
-      } else {
-        targetBulk.quantity += quantity;
       }
 
-      targetBulk.history.push({
-        phaseId: toPhaseId,
-        userId: req.user._id,
-        action: "RETURN",
-        count: quantity,
-      });
-      await targetBulk.save();
-
-      return res.status(201).json({
-        message: "Bulk return request created successfully",
-        returnRequest,
-      });
-    }
-
-    // Handle ID-based return
-    if (!itemIds || !Array.isArray(itemIds) || itemIds.length === 0) {
-      return res
-        .status(400)
-        .json({ error: "itemIds must be provided for ID-based return" });
-    }
-
-    const items = await Item.find({
-      _id: { $in: itemIds },
-      tenantId,
-      isBulkCountBased: false,
-    });
-
-    if (items.length === 0) {
-      return res.status(404).json({ error: "No items found to return" });
-    }
-
-    // Create a return request log
-    const returnRequest = await ReturnRequest.create({
-      tenantId,
-      itemIds: items.map((it) => it._id),
-      fromPhaseId: items[0].currentPhaseId,
-      toPhaseId,
-      requestedBy: req.user._id,
-      note,
-    });
-
-    // Update items to new phase
-    await Item.updateMany(
-      { _id: { $in: itemIds }, tenantId },
-      {
-        $set: { currentPhaseId: toPhaseId },
-        $push: {
-          history: {
-            phaseId: toPhaseId,
-            userId: req.user._id,
-            action: "RETURN",
-            itemIds: itemIds,
-            note,
-          },
-        },
+      if (currentBulkItem.pendingItemIds.length < quantity) {
+        return res.status(400).json({
+          success: false,
+          message: "Not enough completed items to move backward.",
+        });
       }
-    );
 
-    return res.status(201).json({
-      message: "Return request created successfully",
-      returnRequest,
+      const pendingItems = [...currentBulkItem.pendingItemIds];
+      selectedItems = pendingItems.splice(0, quantity);
+
+      currentBulkItem.pendingItemIds = pendingItems;
+      await currentBulkItem.save();
+    } else if (type === "itemId" && itemIds && Array.isArray(itemIds)) {
+      const invalidItemIds = itemIds.filter(
+        (id) => !currentBulkItem.pendingItemIds.includes(id)
+      );
+
+      if (invalidItemIds.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: `The following itemIds are not in the completed list: ${invalidItemIds.join(
+            ", "
+          )}`,
+        });
+      }
+
+      selectedItems = itemIds;
+      currentBulkItem.pendingItemIds = currentBulkItem.pendingItemIds.filter(
+        (id) => !itemIds.includes(id)
+      );
+      await currentBulkItem.save();
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid operation type. Use 'quantity' or 'itemId'.",
+      });
+    }
+
+    // 3. Add items to the target phase BulkItem (or create if not exists)
+    let targetBulkItem;
+    targetBulkItem = new BulkItem({
+      tenantId,
+      phaseId: toPhaseId,
+      pendingItemIds: selectedItems,
+      completedItemIds: [],
+      status: "RETURNED",
+    });
+
+    await targetBulkItem.save();
+    emitPhaseUpdate(tenantId);
+
+    return res.status(200).json({
+      success: true,
+      message: `Items moved backward to phase "${toPhase}" with status 'RETURNED'.`,
+      data: selectedItems,
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Error moving items backward:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Server error. Failed to move items backward.",
+    });
   }
 };

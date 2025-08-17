@@ -14,7 +14,7 @@ const bulkItem = new Schema({
 
   status: {
     type: String,
-    enum: ["IN_PROGRESS", "RETURNED", "COMPLETED"],
+    enum: ["IN_PROGRESS", "RETURNED", "COMPLETED", "RETURNED_COMPLETED"],
     default: "IN_PROGRESS",
   },
   createdAt: { type: Date, default: Date.now },
