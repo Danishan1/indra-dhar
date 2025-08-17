@@ -67,6 +67,12 @@ export default function Dashboard() {
               Create Master Data
             </Button>
           )}
+          <Button
+            variant="primary"
+            onClick={() => navigate("/user/view-items")}
+          >
+            View Items
+          </Button>
           <Button variant="danger" onClick={logout}>
             Logout
           </Button>

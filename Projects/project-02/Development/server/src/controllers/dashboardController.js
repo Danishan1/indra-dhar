@@ -17,37 +17,39 @@ export const getDashboardData = async (req, res) => {
     const bulkItems = await BulkItem.aggregate([
       {
         $match: {
-          tenantId: new mongoose.Types.ObjectId(tenantId),  // Match tenantId
-        }
+          tenantId: new mongoose.Types.ObjectId(tenantId), // Match tenantId
+        },
       },
       {
         $lookup: {
-          from: 'phases',   // Reference to the 'Phase' collection
-          localField: 'phaseId',
-          foreignField: '_id',
-          as: 'phaseDetails'
-        }
+          from: "phases", // Reference to the 'Phase' collection
+          localField: "phaseId",
+          foreignField: "_id",
+          as: "phaseDetails",
+        },
       },
       {
         $unwind: {
-          path: '$phaseDetails',
-          preserveNullAndEmptyArrays: true
-        }
+          path: "$phaseDetails",
+          preserveNullAndEmptyArrays: true,
+        },
       },
       {
         $group: {
-          _id: '$phaseId',
-          totalPending: { $sum: { $size: '$pendingItemIds' } },     // Count of items in pending state
-          totalCompleted: { $sum: { $size: '$completedItemIds' } },   // Count of items in completed state
-          totalOrders: { $sum: 1 },  // Count of BulkItem records
+          _id: "$phaseId",
+          totalPending: { $sum: { $size: "$pendingItemIds" } }, // Count of items in pending state
+          totalCompleted: { $sum: { $size: "$completedItemIds" } }, // Count of items in completed state
+          totalOrders: { $sum: 1 }, // Count of BulkItem records
           pendingOrders: {
-            $sum: { $cond: [{ $gt: [{ $size: '$pendingItemIds' }, 0] }, 1, 0] }  // Count of BulkItem records with pending items
+            $sum: { $cond: [{ $gt: [{ $size: "$pendingItemIds" }, 0] }, 1, 0] }, // Count of BulkItem records with pending items
           },
           completedOrders: {
-            $sum: { $cond: [{ $gt: [{ $size: '$completedItemIds' }, 0] }, 1, 0] } // Count of BulkItem records with completed items
-          }
-        }
-      }
+            $sum: {
+              $cond: [{ $gt: [{ $size: "$completedItemIds" }, 0] }, 1, 0],
+            }, // Count of BulkItem records with completed items
+          },
+        },
+      },
     ]);
 
     // Map bulk item data to phase data
@@ -73,11 +75,9 @@ export const getDashboardData = async (req, res) => {
           totalOrders: bulkData.totalOrders || 0,
           pendingOrders: bulkData.pendingOrders || 0,
           completedOrders: bulkData.completedOrders || 0,
-        }
+        },
       };
     });
-
-    console.log(phaseSummary)
 
     // Send response
     res.json({

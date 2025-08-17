@@ -134,6 +134,86 @@ export const getItem = async (req, res) => {
   }
 };
 
+export const getBulkItems = async (req, res) => {
+  try {
+    const tenantId = req.user.tenantId;
+    const { phaseName } = req.params;
+
+    // 1. Get phase by name for this tenant
+    const phase = await Phase.findOne({ tenantId, name: phaseName });
+
+    if (!phase) {
+      return res.status(404).json({
+        success: false,
+        message: `Phase "${phaseName}" not found for this tenant.`,
+      });
+    }
+
+    // 2. Get bulk items for this phase/tenant
+    const bulkItems = await BulkItem.find({
+      tenantId,
+      phaseId: phase._id,
+    })
+      .populate({
+        path: "pendingItemIds",
+        populate: { path: "itemDetailId" },
+      })
+      .populate({
+        path: "completedItemIds",
+        populate: { path: "itemDetailId" },
+      })
+      .sort({ createdAt: -1 });
+
+    // 3. Split into completed/incomplete
+    const completedOrders = [];
+    const incompleteOrders = [];
+
+    bulkItems.forEach((item) => {
+      const firstPendingItem = item.pendingItemIds[0];
+      const firstCompletedItem = item.completedItemIds[0];
+
+      const itemDetails =
+        firstPendingItem?.itemDetailId || firstCompletedItem?.itemDetailId;
+
+      const simplified = {
+        _id: item._id,
+        itemName: itemDetails?.name || "Unnamed Item",
+        vendorName: itemDetails?.vendorName,
+        buyerName: itemDetails?.buyerName,
+        color: itemDetails?.color,
+        quantity: item.pendingItemIds.length + item.completedItemIds.length,
+        pendingItemCount: item.pendingItemIds.length,
+        completedItemCount: item.completedItemIds.length,
+        status: item.status,
+        createdAt: item.createdAt,
+      };
+
+      if (item.pendingItemIds.length === 0) {
+        completedOrders.push(simplified);
+      } else {
+        incompleteOrders.push(simplified);
+      }
+    });
+
+    console.log(incompleteOrders);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        completedOrders,
+        incompleteOrders,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching bulk items:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch bulk items",
+      error: error.message,
+    });
+  }
+};
+
 export const getPhasesBefore = async (req, res) => {
   try {
     const { phaseName } = req.params;
@@ -181,7 +261,7 @@ export const getPhasesBefore = async (req, res) => {
 export const moveItem = async (req, res) => {
   try {
     const tenantId = req.user.tenantId;
-    const { phaseName, itemIds, quantity, type } = req.body;
+    const { phaseName, itemIds, quantity, type, bulkId } = req.body;
 
     // 1. Retrieve the current phase ID from the database based on phaseName
     const currentPhase = await Phase.findOne({ tenantId, name: phaseName });
@@ -215,6 +295,7 @@ export const moveItem = async (req, res) => {
     const bulkItem = await BulkItem.findOne({
       tenantId,
       phaseId: currentPhaseId,
+      _id: bulkId,
     });
 
     if (!bulkItem) {
@@ -248,9 +329,13 @@ export const moveItem = async (req, res) => {
 
       selectedItems = pendingItems.splice(0, quantity);
 
+      if (bulkItem.pendingItemIds.length === parseInt(quantity))
+        bulkItem.status = "COMPLETED";
+
       // Update pendingItemIds and completedItemIds in the current BulkItem
       bulkItem.pendingItemIds = pendingItems;
       bulkItem.completedItemIds.push(...selectedItems);
+
       await bulkItem.save();
     } else if (type === "itemId" && itemIds && Array.isArray(itemIds)) {
       // Validate that the provided itemIds exist in the pending items
