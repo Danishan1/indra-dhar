@@ -45,7 +45,7 @@ export const getDashboardData = async (req, res) => {
           },
           completedOrders: {
             $sum: {
-              $cond: [{ $gt: [{ $size: "$completedItemIds" }, 0] }, 1, 0],
+              $cond: [{ $eq: [{ $size: "$pendingItemIds" }, 0] }, 1, 0],
             }, // Count of BulkItem records with completed items
           },
         },

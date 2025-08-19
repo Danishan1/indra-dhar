@@ -69,9 +69,11 @@ const BulkItemsTable = () => {
             <button onClick={() => handleMoveForward(item._id)}>
               Move Forward
             </button>
-            <button onClick={() => handleMoveBackward(item._id)}>
-              Move Backward
-            </button>
+            {phaseName !== "Kora" && (
+              <button onClick={() => handleMoveBackward(item._id)}>
+                Move Backward
+              </button>
+            )}
           </>
         )}
       </td>
