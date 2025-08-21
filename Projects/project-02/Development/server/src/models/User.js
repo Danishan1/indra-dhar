@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: [
       "admin",
+      "po",
       "kora",
       "paint",
       "finishing",

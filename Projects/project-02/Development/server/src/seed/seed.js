@@ -39,6 +39,7 @@ async function seed() {
 
     // Phase names in order
     const phaseNames = [
+      { role: "po", name: "PO" },
       { role: "kora", name: "Kora" },
       { role: "paint", name: "Paint" },
       { role: "finishing", name: "Finishing" },

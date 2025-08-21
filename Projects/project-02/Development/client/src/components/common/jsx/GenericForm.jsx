@@ -4,6 +4,7 @@ import Input from "./Input";
 import Button from "./Button";
 import Dropdown from "./Dropdown";
 import MultiSelectDropdown from "./MultiSelectDropdown";
+import { ImageInput } from "./ImageInput";
 
 export default function GenericForm({
   config,
@@ -23,8 +24,13 @@ export default function GenericForm({
   const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, type, files, value } = e.target;
+
+    if (type === "file") {
+      setFormData((prev) => ({ ...prev, [name]: Array.from(files) })); // Store single file
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleDropdownChange = (name, value) => {
@@ -71,6 +77,18 @@ export default function GenericForm({
               items={field.options}
               selectedValues={formData[field.name]}
               onChange={(values) => handleDropdownChange(field.name, values)}
+              error={errors[field.name]}
+            />
+          );
+        }
+
+        if (field.type === "image") {
+          return (
+            <ImageInput
+              key={field.name}
+              label={field.label}
+              name={field.name}
+              onChange={handleChange}
               error={errors[field.name]}
             />
           );

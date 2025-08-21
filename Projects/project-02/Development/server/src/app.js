@@ -39,6 +39,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/items", itemRoutes);
 app.use("/api/files", fileRoutes);
 
+app.use("/uploads", express.static("uploads"));
+
 // health
 app.get("/health", (req, res) => res.json({ ok: true }));
 

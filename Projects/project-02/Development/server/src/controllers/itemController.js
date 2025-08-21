@@ -10,10 +10,10 @@ import { emitPhaseUpdate } from "../../server.js";
 
 export const createItem = async (req, res) => {
   try {
-    // Extract tenantId from authenticated user
     const tenantId = req.user.tenantId;
+    const userId = req.user.userId;
 
-    // Validate and sanitize input
+    // Handle validation
     const { error, value } = itemDetailsSchema.validate(req.body, {
       abortEarly: false,
     });
@@ -26,11 +26,11 @@ export const createItem = async (req, res) => {
       return res.status(400).json({ success: false, message: errorMessages });
     }
 
-    // 1. Save ItemDetails first
+    // 1. Save item details
     const itemDetails = new ItemDetails(value);
-    const savedItemDetails = await itemDetails.save(); // No session here
+    const savedItemDetails = await itemDetails.save();
 
-    // 2. Find the 'phaseId' for the phase "kora" using tenantId
+    // 2. Get phaseId
     const phase = await Phase.findOne({ tenantId, name: "Kora" });
     if (!phase) {
       return res.status(404).json({
@@ -40,47 +40,40 @@ export const createItem = async (req, res) => {
     }
     const phaseId = phase._id;
 
-    // 3. Create and save 'Item' instances based on the quantity (req.body.items)
-    const quantity = req.body.items;
+    // 3. Create multiple items
+    const quantity = parseInt(req.body.items, 10); // Ensure it's a number
     const itemsToCreate = [];
-
     for (let i = 0; i < quantity; i++) {
-      const item = new Item({
-        tenantId,
-        phaseId, // Use the phaseId found from "kora"
-        itemDetailId: savedItemDetails._id,
-        status: "IN_PROGRESS", // Default status
-      });
-      itemsToCreate.push(item);
+      itemsToCreate.push(
+        new Item({
+          tenantId,
+          phaseId,
+          itemDetailId: savedItemDetails._id,
+          status: "IN_PROGRESS",
+        })
+      );
     }
+    const savedItems = await Item.insertMany(itemsToCreate);
 
-    // 4. Save all the created items to the database
-    const savedItems = await Item.insertMany(itemsToCreate); // No session here
+    // 4. Get uploaded image paths
+    const imagePaths =
+      req.files?.map((file) => `/uploads/${file.filename}`) || [];
 
-    // 5. Add the saved items to the BulkItem's pending list
-    const bulkItem = await BulkItem.findOne({
+    // 5. Create BulkItem
+    const newBulkItem = new BulkItem({
       tenantId,
-      phaseId: req.body.phaseId,
+      phaseId,
+      pendingItemIds: savedItems.map((item) => item._id),
+      status: "IN_PROGRESS",
+      createdBy: userId,
+      images: imagePaths,
     });
 
-    if (!bulkItem) {
-      // If no BulkItem exists for the phase, create a new one
-      const newBulkItem = new BulkItem({
-        tenantId,
-        phaseId,
-        pendingItemIds: savedItems.map((item) => item._id),
-        status: "IN_PROGRESS", // Default status
-      });
-      await newBulkItem.save(); // No session here
-    } else {
-      // Add the items to the existing BulkItem's pending list
-      bulkItem.pendingItemIds.push(...savedItems.map((item) => item._id));
-      await bulkItem.save(); // No session here
-    }
+    await newBulkItem.save();
 
     return res.status(201).json({
       success: true,
-      message: "Item and Bulk items saved successfully",
+      message: "Item and bulk items saved successfully",
       data: savedItemDetails,
     });
   } catch (err) {
@@ -88,6 +81,46 @@ export const createItem = async (req, res) => {
     return res.status(500).json({
       success: false,
       error: "Server error. Failed to save item.",
+    });
+  }
+};
+
+export const acceptedBy = async (req, res) => {
+  try {
+    const { id, role: requestedRole } = req.body;
+    const { tenantId, role: userRole, userId } = req.user;
+
+    if (userRole !== requestedRole) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized for this Acceptence",
+      });
+    }
+
+    // 1. Find the BulkItem
+    const bulkItem = await BulkItem.findOne({ tenantId, _id: id });
+
+    if (!bulkItem) {
+      return res.status(404).json({
+        success: false,
+        message: "Bulk item not found",
+      });
+    }
+
+    // 2. Update and save
+    bulkItem.acceptedBy = bulkItem.acceptedBy || userId;
+    await bulkItem.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Item updated successfully",
+      data: bulkItem,
+    });
+  } catch (err) {
+    console.error("Error in acceptedBy:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
     });
   }
 };
@@ -162,7 +195,6 @@ export const getBulkItems = async (req, res) => {
       });
     }
 
-    // 2. Get bulk items for this phase/tenant
     const bulkItems = await BulkItem.find({
       tenantId,
       phaseId: phase._id,
@@ -175,7 +207,10 @@ export const getBulkItems = async (req, res) => {
         path: "completedItemIds",
         populate: { path: "itemDetailId" },
       })
-      .sort({ createdAt: -1 });
+      .populate("createdBy", "name")
+      .populate("acceptedBy", "name")
+      .sort({ createdAt: -1 })
+      .lean();
 
     // 3. Split into completed/incomplete
     const completedOrders = [];
@@ -199,6 +234,8 @@ export const getBulkItems = async (req, res) => {
         completedItemCount: item.completedItemIds.length,
         status: item.status,
         createdAt: item.createdAt,
+        createdBy: item.createdBy?.name || "Unknown",
+        acceptedBy: item.acceptedBy?.name || "Pending",
       };
 
       if (item.pendingItemIds.length === 0) {
@@ -247,7 +284,9 @@ export const getPhasesBefore = async (req, res) => {
 
     // Step 3: Filter out phases that come before the current phase based on the order
     const phasesBefore = allPhases
-      .filter((phase) => phase.order < currentPhase.order) // Only include phases that come before
+      .filter(
+        (phase) => phase.order < currentPhase.order && phase.name !== "PO"
+      ) // Only include phases that come before
       .map((phase) => ({
         label: phase.name, // Phase name as the label
         value: phase._id.toString(), // Phase ID as the value
@@ -272,6 +311,7 @@ export const getPhasesBefore = async (req, res) => {
 export const moveItem = async (req, res) => {
   try {
     const tenantId = req.user.tenantId;
+    const userId = req.user.userId;
     const { phaseName, itemIds, quantity, type, bulkId, dispatchTo } = req.body;
 
     // 1. Retrieve the current phase ID from the database based on phaseName
@@ -394,6 +434,7 @@ export const moveItem = async (req, res) => {
       phaseId: nextPhaseId,
       pendingItemIds: selectedItems,
       status: "IN_PROGRESS", // Default status for new BulkItem
+      createdBy: userId,
     });
 
     await newBulkItem.save();
@@ -421,6 +462,7 @@ export const moveItem = async (req, res) => {
 export const moveItemBackward = async (req, res) => {
   try {
     const tenantId = req.user.tenantId;
+    const userId = req.user.userId;
     const { phaseName, itemIds, quantity, type, bulkId, toPhase } = req.body;
 
     // 1. Get current phase and toPhase info
@@ -514,6 +556,7 @@ export const moveItemBackward = async (req, res) => {
       pendingItemIds: selectedItems,
       completedItemIds: [],
       status: "RETURNED",
+      createdBy: userId,
     });
 
     await targetBulkItem.save();

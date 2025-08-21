@@ -53,12 +53,39 @@ export function CreateMasterData({ onSuccess }) {
         type: "text",
         required: true,
       },
+      { name: "images", label: "Upload Images", type: "image" },
     ],
   };
 
   const handleSubmit = async (data) => {
     try {
-      const { data: res } = await api.post("/items", data);
+      let payload;
+
+      // Check if images are present and of FileList or array of Files
+      if (data.images && data.images.length > 0) {
+        payload = new FormData();
+
+        // Append all fields
+        Object.entries(data).forEach(([key, value]) => {
+          if (key === "images" && Array.isArray(value)) {
+            value.forEach((file) => {
+              payload.append("images", file); 
+            });
+          } else {
+            payload.append(key, value);
+          }
+        });
+      } else {
+        payload = data; // fallback for non-image forms
+      }
+
+      const { data: res } = await api.post("/items", payload, {
+        headers:
+          payload instanceof FormData
+            ? { "Content-Type": "multipart/form-data" }
+            : undefined,
+      });
+
       addToast(res.message || "User created successfully.", "success");
       onSuccess?.(res);
       navigate("/user");
@@ -66,7 +93,7 @@ export function CreateMasterData({ onSuccess }) {
       const data = err.response?.data;
 
       if (data?.success === "joi") {
-        data.message.map((err) =>
+        data.message.forEach((err) =>
           addToast(`${err.field}: ${err.message}`, "error")
         );
       }

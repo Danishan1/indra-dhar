@@ -59,25 +59,28 @@ export const getDashboardData = async (req, res) => {
     });
 
     // Prepare phase summary data
-    const phaseSummary = phases.map((phase, idx) => {
-      const bulkData = bulkItemMap[phase._id.toString()] || {};
+    const phaseSummary = phases
+      .filter((p) => p.name !== "PO")
+      .map((phase, idx) => {
+        const bulkData = bulkItemMap[phase._id.toString()] || {};
 
-      return {
-        phaseNumber: idx + 1,
-        phaseId: phase._id.toString(),
-        phaseName: phase.name,
-        items: {
-          total: (bulkData.totalPending || 0) + (bulkData.totalCompleted || 0),
-          pending: bulkData.totalPending || 0,
-          completed: bulkData.totalCompleted || 0,
-        },
-        orders: {
-          totalOrders: bulkData.totalOrders || 0,
-          pendingOrders: bulkData.pendingOrders || 0,
-          completedOrders: bulkData.completedOrders || 0,
-        },
-      };
-    });
+        return {
+          phaseNumber: idx + 1,
+          phaseId: phase._id.toString(),
+          phaseName: phase.name,
+          items: {
+            total:
+              (bulkData.totalPending || 0) + (bulkData.totalCompleted || 0),
+            pending: bulkData.totalPending || 0,
+            completed: bulkData.totalCompleted || 0,
+          },
+          orders: {
+            totalOrders: bulkData.totalOrders || 0,
+            pendingOrders: bulkData.pendingOrders || 0,
+            completedOrders: bulkData.completedOrders || 0,
+          },
+        };
+      });
 
     // Send response
     res.json({

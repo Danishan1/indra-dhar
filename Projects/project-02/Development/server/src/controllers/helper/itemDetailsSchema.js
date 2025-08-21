@@ -8,4 +8,4 @@ export const itemDetailsSchema = Joi.object({
   vendorName: Joi.string().trim().required(),
   color: Joi.string().trim().required(),
   items: Joi.number().integer().min(1).required().label("No. of Items"),
-});
+}).unknown(true);

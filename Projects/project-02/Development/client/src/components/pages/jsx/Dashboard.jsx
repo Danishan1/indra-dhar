@@ -59,14 +59,14 @@ export default function Dashboard() {
       <div className={styles.header}>
         <h1 className={styles.title}>Dashboard</h1>
         <div className={styles.actionsButtons}>
-          {user.role === "kora" && (
+          {/* {user.role === "kora" && (
             <Button
               variant="primary"
               onClick={() => navigate("/user/create-master")}
             >
               Create Master Data
             </Button>
-          )}
+          )} */}
           <Button
             variant="primary"
             onClick={() => navigate("/user/view-items")}

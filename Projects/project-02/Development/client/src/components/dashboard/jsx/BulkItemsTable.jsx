@@ -36,6 +36,24 @@ const BulkItemsTable = () => {
     phaseName && fetchData();
   }, [phaseName]);
 
+  const handleAcceptedBy = async (id) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to accept this item?"
+    );
+
+    if (!confirmed) return;
+    try {
+      const payload = {
+        id,
+        role: user?.role,
+      };
+      const res = await api.post(`/items/acceptedby`, payload);
+      window.location.reload();
+    } catch (err) {
+      console.error("Fetch error:", err);
+    }
+  };
+
   const handleView = (id) => {
     navigate(`/user/view-item/${id}`);
   };
@@ -62,7 +80,12 @@ const BulkItemsTable = () => {
       <td>{item.completedItemCount}</td>
       <td>{item.status}</td>
       <td>{new Date(item.createdAt).toLocaleString()}</td>
+      <td>{item.createdBy}</td>
+      <td>{item.acceptedBy}</td>
       <td className={styles.actions}>
+        {item.acceptedBy === "Pending" && (
+          <button onClick={() => handleAcceptedBy(item._id)}>Accept</button>
+        )}
         <button onClick={() => handleView(item._id)}>View</button>
         {isButtonRender(isCompleted) && (
           <>
@@ -93,6 +116,8 @@ const BulkItemsTable = () => {
           <th>Completed</th>
           <th>Status</th>
           <th>Created At</th>
+          <th>Created By</th>
+          <th>Accepted By</th>
           <th>Actions</th>
         </tr>
       </thead>

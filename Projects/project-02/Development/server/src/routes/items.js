@@ -4,6 +4,7 @@ import * as itemController from "../controllers/itemController.js";
 import * as returnController from "../controllers/returnController.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { getDashboardData } from "../controllers/dashboardController.js";
+import { uploadFile } from "../middleware/uploadFile.js";
 
 const router = express.Router();
 
@@ -11,13 +12,14 @@ router.use(authMiddleware);
 
 // --- ITEM ROUTES ---
 router.get("/dashboard", getDashboardData); // Dashboard (GET)
-router.post("/", itemController.createItem); // Create single item
+router.post("/", uploadFile.array("images", 5), itemController.createItem); // Create single item
 router.get("/", itemController.listItems); // Get all items
 router.get("/get-bulk-items/:phaseName", itemController.getBulkItems); // Get all items
 router.get("/:bulkId", itemController.getItem); // Get single item by ID
 router.post("/move-forward", itemController.moveItem);
 router.post("/move-backward", itemController.moveItemBackward);
 router.get("/get-phases-before/:phaseName", itemController.getPhasesBefore);
+router.post("/acceptedby", itemController.acceptedBy);
 
 // --- RETURN ROUTES ---
 router.get("/returns/pending", returnController.listPendingReturns);

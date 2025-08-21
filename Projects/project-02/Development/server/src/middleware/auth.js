@@ -20,7 +20,13 @@ export async function authMiddleware(req, res, next) {
       return res.status(401).json({ message: "User not found" });
     }
 
-    req.user = user;
+    req.user = {
+      userId: payload.userId,
+      tenantId: payload.tenantId,
+      role: payload.role,
+      name: payload.name,
+      email: payload.email,
+    };
     next();
   } catch (err) {
     return res.status(401).json({ message: "Invalid token" });

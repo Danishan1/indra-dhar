@@ -11,6 +11,8 @@ const bulkItem = new Schema({
   completedItemIds: [
     { type: Schema.Types.ObjectId, ref: "Item", required: true },
   ],
+  
+  images: [{ type: String }],
 
   status: {
     type: String,
@@ -18,6 +20,8 @@ const bulkItem = new Schema({
     default: "IN_PROGRESS",
   },
   createdAt: { type: Date, default: Date.now },
+  createdBy: { type: Schema.Types.ObjectId, ref: "User" },
+  acceptedBy: { type: Schema.Types.ObjectId, ref: "User" },
 });
 
 export const BulkItem = mongoose.models.BulkItem || model("BulkItem", bulkItem);
