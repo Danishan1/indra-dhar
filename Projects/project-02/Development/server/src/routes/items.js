@@ -16,8 +16,16 @@ router.post("/", uploadFile.array("images", 5), itemController.createItem); // C
 router.get("/", itemController.listItems); // Get all items
 router.get("/get-bulk-items/:phaseName", itemController.getBulkItems); // Get all items
 router.get("/:bulkId", itemController.getItem); // Get single item by ID
-router.post("/move-forward", itemController.moveItem);
-router.post("/move-backward", itemController.moveItemBackward);
+router.post(
+  "/move-forward",
+  uploadFile.array("images"),
+  itemController.moveItem
+);
+router.post(
+  "/move-backward",
+  uploadFile.array("images"),
+  itemController.moveItemBackward
+);
 router.get("/get-phases-before/:phaseName", itemController.getPhasesBefore);
 router.post("/acceptedby", itemController.acceptedBy);
 

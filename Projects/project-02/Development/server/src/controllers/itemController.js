@@ -396,6 +396,8 @@ export const moveItem = async (req, res) => {
       bulkItem.pendingItemIds = pendingItems;
       bulkItem.completedItemIds.push(...selectedItems);
 
+      // 4. Get uploaded image paths
+
       await bulkItem.save();
       emitPhaseUpdate(tenantId);
     } else if (type === "itemId" && itemIds && Array.isArray(itemIds)) {
@@ -429,6 +431,9 @@ export const moveItem = async (req, res) => {
       });
     }
 
+    const imagePaths =
+      req.files?.map((file) => `/uploads/${file.filename}`) || [];
+
     // 5. Create a new BulkItem for the next phase
     const newBulkItem = new BulkItem({
       tenantId,
@@ -436,6 +441,7 @@ export const moveItem = async (req, res) => {
       pendingItemIds: selectedItems,
       status: "IN_PROGRESS", // Default status for new BulkItem
       createdBy: userId,
+      images: [...bulkItem.images, ...imagePaths],
     });
 
     await newBulkItem.save();
@@ -549,6 +555,10 @@ export const moveItemBackward = async (req, res) => {
       });
     }
 
+    // 4. Get uploaded image paths
+    const imagePaths =
+      req.files?.map((file) => `/uploads/${file.filename}`) || [];
+
     // 3. Add items to the target phase BulkItem (or create if not exists)
     let targetBulkItem;
     targetBulkItem = new BulkItem({
@@ -558,6 +568,7 @@ export const moveItemBackward = async (req, res) => {
       completedItemIds: [],
       status: "RETURNED",
       createdBy: userId,
+      images: [...currentBulkItem.images, ...imagePaths],
     });
 
     await targetBulkItem.save();

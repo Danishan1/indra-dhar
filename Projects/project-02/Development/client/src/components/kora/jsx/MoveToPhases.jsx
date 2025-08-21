@@ -47,6 +47,7 @@ export function MoveToPhases({ onSuccess }) {
         type: "text",
         required: true,
       },
+      { name: "images", label: "Upload Images", type: "image" },
     ],
   });
 
@@ -72,35 +73,67 @@ export function MoveToPhases({ onSuccess }) {
   }, [addToast]);
 
   const handleSubmit = async (data) => {
-    if (data?.dispatchTo?.value && data?.dispatchTo?.value === "E-commarce") {
+    if (data?.dispatchTo?.value === "E-commarce") {
       if (parseInt(data.quantity) !== 1) {
-        addToast("Quantity Must be one for E-commarce Dispatch", "success");
+        addToast("Quantity must be one for E-commarce Dispatch", "error");
         return;
       }
     }
 
     try {
-      const payload = {
-        phaseName: phaseName,
-        quantity: data.quantity,
-        bulkId,
-        type: "quantity",
-        dispatchTo: data?.dispatchTo?.value,
-      };
+      let payload;
+      let isFormData = false;
 
-      const { data: res } =
+      // Check for image uploads
+      const hasImages = data.images && data.images.length > 0;
+
+      if (hasImages) {
+        // Build FormData
+        payload = new FormData();
+        isFormData = true;
+
+        // Manually append fields
+        payload.append("phaseName", phaseName);
+        payload.append("quantity", data.quantity);
+        payload.append("bulkId", bulkId);
+        payload.append("type", "quantity");
+        payload.append("dispatchTo", data.dispatchTo?.value || "");
+        payload.append("toPhase", data?.list?.label || "");
+
+        // Append images
+        data.images.forEach((file) => {
+          payload.append("images", file);
+        });
+      } else {
+        // Standard JSON payload
+        payload = {
+          phaseName,
+          quantity: data.quantity,
+          bulkId,
+          type: "quantity",
+          dispatchTo: data?.dispatchTo?.value,
+        };
+      }
+
+      // Choose API route
+      const res =
         move === "move-forward"
-          ? await api.post("/items/move-forward", payload)
-          : await api.post("/items/move-backward", {
-              ...payload,
-              toPhase: data.list.label,
+          ? await api.post("/items/move-forward", payload, {
+              headers: isFormData
+                ? { "Content-Type": "multipart/form-data" }
+                : {},
+            })
+          : await api.post("/items/move-backward", payload, {
+              headers: isFormData
+                ? { "Content-Type": "multipart/form-data" }
+                : {},
             });
 
-      addToast(res.message || "Successfully Moved.", "success");
-      onSuccess?.(res);
+      addToast(res.data.message || "Successfully Moved.", "success");
+      onSuccess?.(res.data);
       navigate("/user");
     } catch (err) {
-      console.error("Error creating user:", err);
+      console.error("Error moving item:", err);
       const message =
         err.response?.data?.message || "An unexpected error occurred.";
       addToast(message, "error");
