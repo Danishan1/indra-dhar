@@ -170,6 +170,7 @@ export const getItem = async (req, res) => {
         phaseId: bulkItem.phaseId,
         status: bulkItem.status,
         createdAt: bulkItem.createdAt,
+        images: bulkItem.images || [],
       },
       pendingItems,
       completedItems,

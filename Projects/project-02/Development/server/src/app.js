@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
-import { join } from "path";
+import path, { join } from "path";
 import dotenv from "dotenv";
 import swaggerUi from "swagger-ui-express";
 
@@ -20,8 +20,13 @@ connectDB();
 
 const app = express();
 
-app.use(helmet());
-app.use(cors());
+// app.use(helmet()); // Uncommenting this will not serving images
+app.use(
+  cors({
+    origin: "http://localhost:5173", // your frontend
+    credentials: true,
+  })
+);
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -39,7 +44,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/items", itemRoutes);
 app.use("/api/files", fileRoutes);
 
-app.use("/uploads", express.static("uploads"));
+app.use("/api/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // health
 app.get("/health", (req, res) => res.json({ ok: true }));

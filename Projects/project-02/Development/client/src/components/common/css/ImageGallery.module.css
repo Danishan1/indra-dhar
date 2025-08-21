@@ -1,0 +1,48 @@
+/* css/ImageGallery.module.css */
+
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 20px;
+}
+
+.imageWrapper {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  overflow: hidden;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  background: #fafafa;
+  transition: transform 0.2s ease;
+}
+
+.imageWrapper:hover {
+  transform: scale(1.03);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.deleteButton {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  color: white;
+  font-size: 16px;
+  padding: 2px 6px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.deleteButton:hover {
+  background: #ff0000b3;
+}

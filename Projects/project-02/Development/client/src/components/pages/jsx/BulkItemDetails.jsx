@@ -5,6 +5,7 @@ import { api } from "../../../api/api";
 import { useToast } from "../../../context/ToastContext";
 import Button from "../../common/jsx/Button";
 import { useAuth } from "../../../context/AuthContext";
+import ImageGallery from "../../common/jsx/ImageGallery";
 
 export const BulkItemDetails = () => {
   const [data, setData] = useState(null);
@@ -18,6 +19,7 @@ export const BulkItemDetails = () => {
     const fetchBulkItem = async () => {
       try {
         const res = await api.get(`/items/${bulkId}`);
+        console.log(res.data);
         setData(res.data);
       } catch (error) {
         console.error("Failed to load bulk item:", error);
@@ -115,8 +117,11 @@ export const BulkItemDetails = () => {
               List
             </Button>
           </div>
+          <ImageGallery images={data?.bulkItem?.images} />
           <h3>
-            {["export", "e-commerce"].includes(user.role) ? "Dispach IDs" : "Pending Items"}
+            {["export", "e-commerce"].includes(user.role)
+              ? "Dispach IDs"
+              : "Pending Items"}
           </h3>
           <div className={styles.idList}>
             {pendingItems.length > 0 ? (

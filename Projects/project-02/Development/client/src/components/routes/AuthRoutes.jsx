@@ -18,7 +18,7 @@ export default function ProtectedAppRoutes() {
     return (
       <Routes>
         <Route path="/po" element={<CreateMasterData />} />
-        <Route path="/po/list" element={<BulkItemsTable />} />
+        {/* <Route path="/po/list" element={<BulkItemsTable />} /> */}
 
         <Route path="*" element={<ErrorPage />} />
 
