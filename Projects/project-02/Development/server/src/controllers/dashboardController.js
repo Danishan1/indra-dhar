@@ -60,7 +60,7 @@ export const getDashboardData = async (req, res) => {
 
     // Prepare phase summary data
     const phaseSummary = phases
-      .filter((p) => p.name !== "PO")
+      .filter((p) => p.name !== "Po")
       .map((phase, idx) => {
         const bulkData = bulkItemMap[phase._id.toString()] || {};
 

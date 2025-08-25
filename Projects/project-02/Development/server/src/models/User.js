@@ -16,6 +16,8 @@ const userSchema = new mongoose.Schema({
       "stock",
       "e-commerce",
       "export",
+      "temporary stock",
+      "store",
     ],
     required: true,
   },

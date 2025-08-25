@@ -15,6 +15,9 @@ export const BulkItemDetails = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  const phaseName = user?.role.slice(0, 1).toUpperCase() + user?.role.slice(1);
+  const isPoPhase = "Po" === phaseName;
+
   useEffect(() => {
     const fetchBulkItem = async () => {
       try {
@@ -101,17 +104,18 @@ export const BulkItemDetails = () => {
               CSV - Completed
             </Button>
             <Button onClick={() => handleExport("all")}>CSV - All</Button>
-
+            {!isPoPhase && (
+              <Button
+                onClick={() => {
+                  navigate("/user/");
+                }}
+              >
+                Home
+              </Button>
+            )}
             <Button
               onClick={() => {
-                navigate("/user/");
-              }}
-            >
-              Home
-            </Button>
-            <Button
-              onClick={() => {
-                navigate("/user/view-items");
+                navigate(`/user/view-item-list/${phaseName}`);
               }}
             >
               List

@@ -12,6 +12,8 @@ export function MoveToPhases({ onSuccess }) {
     move === "move-forward" ? "Move to Next phase" : "Move to other phase";
   const buttonLabel = move === "move-forward" ? "Move to Next Phase" : "Return";
 
+  const isPoPhase = "Po" === phaseName;
+
   const [formConfig, setFormConfig] = useState({
     submitVariant: "primary",
     title: title,
@@ -131,7 +133,7 @@ export function MoveToPhases({ onSuccess }) {
 
       addToast(res.data.message || "Successfully Moved.", "success");
       onSuccess?.(res.data);
-      navigate("/user");
+      navigate(isPoPhase ? `/user/view-item-list${phaseName}` : "/user");
     } catch (err) {
       console.error("Error moving item:", err);
       const message =

@@ -1,10 +1,10 @@
-// import { useNavigate } from "react-router-dom";
-// import Button from "../../common/jsx/Button";
+import { useNavigate } from "react-router-dom";
+import Button from "../../common/jsx/Button";
 import styles from "../css/PhaseCard.module.css";
 
 export default function PhaseCard({ phase }) {
   const { phaseName, items, orders } = phase;
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   return (
     <div className={styles.card}>
@@ -35,6 +35,13 @@ export default function PhaseCard({ phase }) {
           <strong>Completed Orders:</strong> {orders.completedOrders}
         </div>
       </div>
+
+      <Button
+        onClick={() => navigate(`/user/view-item-list/${phaseName}`)}
+        style={{ width: "150px" }}
+      >
+        View
+      </Button>
 
       {/* <div className={styles.buttons}>
         <Button

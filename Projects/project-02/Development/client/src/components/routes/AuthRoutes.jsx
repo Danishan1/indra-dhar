@@ -17,8 +17,13 @@ export default function ProtectedAppRoutes() {
   if (role === "po") {
     return (
       <Routes>
-        <Route path="/po" element={<CreateMasterData />} />
-        {/* <Route path="/po/list" element={<BulkItemsTable />} /> */}
+        <Route path="/user/create-po" element={<CreateMasterData />} />
+        <Route path="/user/view-item-list/:phaseName" element={<BulkItemsTable />} />
+        <Route path="/user/view-item/:bulkId" element={<BulkItemDetails />} />
+        <Route
+          path="/user/:move/:phaseName/:bulkId"
+          element={<MoveToPhases />}
+        />
 
         <Route path="*" element={<ErrorPage />} />
 
@@ -29,8 +34,8 @@ export default function ProtectedAppRoutes() {
     return (
       <Routes>
         <Route path="/user" element={<Dashboard />} />
-        <Route path="/user/create-master" element={<CreateMasterData />} />
-        <Route path="/user/view-items" element={<BulkItemsTable />} />
+        {/* <Route path="/user/create-master" element={<CreateMasterData />} /> */}
+        <Route path="/user/view-item-list/:phaseName" element={<BulkItemsTable />} />
         <Route path="/user/view-item/:bulkId" element={<BulkItemDetails />} />
         <Route
           path="/user/:move/:phaseName/:bulkId"

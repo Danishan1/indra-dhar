@@ -26,7 +26,7 @@ export default function Login() {
       const res = await loginUser(data);
       login(res.data.user, res.data.token);
       const role = res.data.user.role;
-      if (role === "po") navigate("/po");
+      if (role === "po") navigate("/user/view-item-list/Po");
       else navigate("/user");
     } catch (err) {
       alert(err.response?.data?.message || "Login failed");

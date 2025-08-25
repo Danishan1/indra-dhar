@@ -12,6 +12,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const { token, logout, user } = useAuth();
   const navigate = useNavigate();
+  const phaseName = user?.role.slice(0, 1).toUpperCase() + user?.role.slice(1);
 
   useEffect(() => {
     const socket = io("http://localhost:4000"); // Adjust the URL if necessary
@@ -69,7 +70,7 @@ export default function Dashboard() {
           )} */}
           <Button
             variant="primary"
-            onClick={() => navigate("/user/view-items")}
+            onClick={() => navigate(`/user/view-item-list/${phaseName}`)}
           >
             View Items
           </Button>

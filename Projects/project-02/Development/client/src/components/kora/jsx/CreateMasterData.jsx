@@ -69,7 +69,7 @@ export function CreateMasterData({ onSuccess }) {
         Object.entries(data).forEach(([key, value]) => {
           if (key === "images" && Array.isArray(value)) {
             value.forEach((file) => {
-              payload.append("images", file); 
+              payload.append("images", file);
             });
           } else {
             payload.append(key, value);
@@ -88,7 +88,7 @@ export function CreateMasterData({ onSuccess }) {
 
       addToast(res.message || "User created successfully.", "success");
       onSuccess?.(res);
-      navigate("/user");
+      navigate("/user/view-item-list/Po");
     } catch (err) {
       const data = err.response?.data;
 

@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import styles from "../css/BulkItemsTable.module.css";
 import { useAuth } from "../../../context/AuthContext";
 import { api } from "../../../api/api";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import Button from "../../common/jsx/Button";
 
 const BulkItemsTable = () => {
   const [completedOrders, setCompletedOrders] = useState([]);
@@ -10,9 +11,12 @@ const BulkItemsTable = () => {
   const [loading, setLoading] = useState(true);
   const [viewType, setViewType] = useState("incomplete"); // "incomplete" or "completed"
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const { phaseName } = useParams();
+  const userPhaseName =
+    user?.role.slice(0, 1).toUpperCase() + user?.role.slice(1);
 
-  const { user } = useAuth();
-  const phaseName = user?.role.slice(0, 1).toUpperCase() + user?.role.slice(1);
+  const username = user?.name;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -83,19 +87,23 @@ const BulkItemsTable = () => {
       <td>{item.createdBy}</td>
       <td>{item.acceptedBy}</td>
       <td className={styles.actions}>
-        {item.acceptedBy === "Pending" && (
-          <button onClick={() => handleAcceptedBy(item._id)}>Accept</button>
-        )}
         <button onClick={() => handleView(item._id)}>View</button>
-        {isButtonRender(isCompleted) && (
+        {userPhaseName === item.phaseName && (
           <>
-            <button onClick={() => handleMoveForward(item._id)}>
-              Move Forward
-            </button>
-            {phaseName !== "Kora" && (
-              <button onClick={() => handleMoveBackward(item._id)}>
-                Move Backward
-              </button>
+            {item.acceptedBy === "Pending" && username !== item.createdBy && (
+              <button onClick={() => handleAcceptedBy(item._id)}>Accept</button>
+            )}
+            {isButtonRender(isCompleted) && (
+              <>
+                <button onClick={() => handleMoveForward(item._id)}>
+                  Move Forward
+                </button>
+                {!["Kora", "Po"].includes(phaseName) && (
+                  <button onClick={() => handleMoveBackward(item._id)}>
+                    Move Backward
+                  </button>
+                )}
+              </>
             )}
           </>
         )}
@@ -152,10 +160,17 @@ const BulkItemsTable = () => {
         )}
         <button
           className={`${styles.toggleButton}`}
-          onClick={() => navigate("/user")}
+          onClick={() =>
+            navigate(phaseName === "Po" ? "/user/create-po" : "/user")
+          }
         >
-          Home
+          {phaseName === "Po" ? "Create New PO" : "Home"}
         </button>
+        {phaseName === "Po" && (
+          <Button onClick={logout} variant="danger">
+            Log Out
+          </Button>
+        )}
       </div>
 
       {viewType === "incomplete" ? (

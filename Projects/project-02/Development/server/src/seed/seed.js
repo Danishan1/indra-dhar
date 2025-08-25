@@ -39,13 +39,14 @@ async function seed() {
 
     // Phase names in order
     const phaseNames = [
-      { role: "po", name: "PO" },
+      { role: "po", name: "Po" },
       { role: "kora", name: "Kora" },
       { role: "paint", name: "Paint" },
       { role: "finishing", name: "Finishing" },
-      { role: "stock", name: "Stock" },
+      { role: "temporary stock", name: "Temporary Stock" },
       { role: "export", name: "Export" },
       { role: "e-commerce", name: "E-commerce" },
+      { role: "store", name: "Store" },
     ];
 
     // Create Users (one for each phase)

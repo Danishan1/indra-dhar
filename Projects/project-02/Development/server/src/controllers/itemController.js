@@ -31,11 +31,11 @@ export const createItem = async (req, res) => {
     const savedItemDetails = await itemDetails.save();
 
     // 2. Get phaseId
-    const phase = await Phase.findOne({ tenantId, name: "Kora" });
+    const phase = await Phase.findOne({ tenantId, name: "Po" });
     if (!phase) {
       return res.status(404).json({
         success: false,
-        message: 'Phase "kora" not found for this tenant',
+        message: 'Phase "Po" not found for this tenant',
       });
     }
     const phaseId = phase._id;
@@ -209,6 +209,7 @@ export const getBulkItems = async (req, res) => {
         populate: { path: "itemDetailId" },
       })
       .populate("createdBy", "name")
+      .populate("phaseId", "name")
       .populate("acceptedBy", "name")
       .sort({ createdAt: -1 })
       .lean();
@@ -237,7 +238,10 @@ export const getBulkItems = async (req, res) => {
         createdAt: item.createdAt,
         createdBy: item.createdBy?.name || "Unknown",
         acceptedBy: item.acceptedBy?.name || "Pending",
+        phaseName: item.phaseId?.name 
       };
+
+      console.log(simplified)
 
       if (item.pendingItemIds.length === 0) {
         completedOrders.push(simplified);
