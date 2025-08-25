@@ -29,7 +29,7 @@ export function MoveToPhases({ onSuccess }) {
             },
           ]
         : []),
-      ...(move === "move-forward" && phaseName === "Stock"
+      ...(move === "move-forward" && phaseName === "Temporary-stock"
         ? [
             {
               name: "dispatchTo",
@@ -37,6 +37,7 @@ export function MoveToPhases({ onSuccess }) {
               type: "dropdown",
               required: true,
               options: [
+                { label: "Store", value: "Store" },
                 { label: "E-commerce", value: "E-commerce" },
                 { label: "Export", value: "Export" },
               ],
@@ -133,7 +134,7 @@ export function MoveToPhases({ onSuccess }) {
 
       addToast(res.data.message || "Successfully Moved.", "success");
       onSuccess?.(res.data);
-      navigate(isPoPhase ? `/user/view-item-list${phaseName}` : "/user");
+      navigate(isPoPhase ? `/user/view-item-list/${phaseName}` : "/user");
     } catch (err) {
       console.error("Error moving item:", err);
       const message =

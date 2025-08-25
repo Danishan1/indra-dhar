@@ -238,10 +238,8 @@ export const getBulkItems = async (req, res) => {
         createdAt: item.createdAt,
         createdBy: item.createdBy?.name || "Unknown",
         acceptedBy: item.acceptedBy?.name || "Pending",
-        phaseName: item.phaseId?.name 
+        phaseName: item.phaseId?.name,
       };
-
-      console.log(simplified)
 
       if (item.pendingItemIds.length === 0) {
         completedOrders.push(simplified);

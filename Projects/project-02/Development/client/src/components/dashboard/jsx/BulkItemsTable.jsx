@@ -93,12 +93,12 @@ const BulkItemsTable = () => {
             {item.acceptedBy === "Pending" && username !== item.createdBy && (
               <button onClick={() => handleAcceptedBy(item._id)}>Accept</button>
             )}
-            {isButtonRender(isCompleted) && (
+            {isButtonRender(isCompleted) && item.acceptedBy !== "Pending" && (
               <>
                 <button onClick={() => handleMoveForward(item._id)}>
                   Move Forward
                 </button>
-                {!["Kora", "Po"].includes(phaseName) && (
+                {!["Kora", "Po", "Store"].includes(phaseName) && (
                   <button onClick={() => handleMoveBackward(item._id)}>
                     Move Backward
                   </button>

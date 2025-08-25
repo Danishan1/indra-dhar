@@ -32,3 +32,5 @@ Thumbs.db
 .github/
 .npmrc
 .npmignore
+
+uploads/
