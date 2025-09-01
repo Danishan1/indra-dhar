@@ -6,6 +6,7 @@ import { MoveToPhases } from "../kora/jsx/MoveToPhases";
 import BulkItemsTable from "../dashboard/jsx/BulkItemsTable";
 import { BulkItemDetails } from "../pages/jsx/BulkItemDetails";
 import { useAuth } from "../../context/AuthContext";
+import { MoveBulkForward } from "../kora/jsx/MoveBulkFOrward";
 
 export default function ProtectedAppRoutes() {
   const { user } = useAuth();
@@ -18,12 +19,16 @@ export default function ProtectedAppRoutes() {
     return (
       <Routes>
         <Route path="/user/create-po" element={<CreateMasterData />} />
-        <Route path="/user/view-item-list/:phaseName" element={<BulkItemsTable />} />
+        <Route
+          path="/user/view-item-list/:phaseName"
+          element={<BulkItemsTable />}
+        />
         <Route path="/user/view-item/:bulkId" element={<BulkItemDetails />} />
         <Route
           path="/user/:move/:phaseName/:bulkId"
           element={<MoveToPhases />}
         />
+        <Route path="user/move-bulk/:phaseName" element={<MoveBulkForward />} />
 
         <Route path="*" element={<ErrorPage />} />
 
@@ -35,12 +40,16 @@ export default function ProtectedAppRoutes() {
       <Routes>
         <Route path="/user" element={<Dashboard />} />
         {/* <Route path="/user/create-master" element={<CreateMasterData />} /> */}
-        <Route path="/user/view-item-list/:phaseName" element={<BulkItemsTable />} />
+        <Route
+          path="/user/view-item-list/:phaseName"
+          element={<BulkItemsTable />}
+        />
         <Route path="/user/view-item/:bulkId" element={<BulkItemDetails />} />
         <Route
           path="/user/:move/:phaseName/:bulkId"
           element={<MoveToPhases />}
         />
+        <Route path="user/move-bulk/:phaseName" element={<MoveBulkForward />} />
         <Route path="*" element={<ErrorPage />} />
 
         {/* Add more protected routes here */}

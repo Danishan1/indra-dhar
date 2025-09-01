@@ -79,7 +79,11 @@ const BulkItemsTable = () => {
 
   const renderRow = (item, isCompleted) => (
     <tr key={item._id}>
-      <td>{item.image !== "none" && <img className={styles.img} src={`${baseUrl}${item.image}`} />}</td>
+      <td>
+        {item.image !== "none" && (
+          <img className={styles.img} src={`${baseUrl}${item.image}`} />
+        )}
+      </td>
       <td>{item.itemName || "N/A"}</td>
       <td>{item.vendorName || "—"}</td>
       <td>{item.buyerName || "—"}</td>
@@ -172,6 +176,17 @@ const BulkItemsTable = () => {
         >
           {phaseName === "Po" ? "Create New PO" : "Home"}
         </button>
+
+        {phaseName !== "E-commerce" &&
+          phaseName !== "Store" &&
+          phaseName === userPhaseName && (
+            <Button
+              variant="primary"
+              onClick={() => navigate(`/user/move-bulk/${phaseName}`)}
+            >
+              Move Bulk Forward
+            </Button>
+          )}
         {phaseName === "Po" && (
           <Button onClick={logout} variant="danger">
             Log Out

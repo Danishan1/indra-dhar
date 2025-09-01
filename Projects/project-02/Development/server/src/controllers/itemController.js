@@ -297,7 +297,10 @@ export const getPhasesBefore = async (req, res) => {
       }));
 
     // Find the bulk item by ID and tenant
-    const bulkItem = await BulkItem.findOne({ _id: bulkId, tenantId });
+    const bulkItem =
+      bulkId !== "null"
+        ? await BulkItem.findOne({ _id: bulkId, tenantId })
+        : [];
     const images = bulkItem.images || [];
 
     // Step 4: Send the phases before the current phase

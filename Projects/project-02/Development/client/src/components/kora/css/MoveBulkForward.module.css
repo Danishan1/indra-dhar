@@ -1,0 +1,41 @@
+.moveToForwardsWrapper {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  gap: 10px;
+  padding: 20px;
+  flex-wrap: wrap;
+  /* justify-content: start; */
+  overflow-x: hidden;
+}
+
+.moveForwardsStep1 {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.moveForwards {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.img {
+  height: 100px;
+  display: flex;
+  justify-content: center;
+}
+
+.img img {
+  height: 100px;
+  width: auto;
+}
