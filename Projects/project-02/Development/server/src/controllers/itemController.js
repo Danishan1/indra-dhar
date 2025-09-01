@@ -239,6 +239,7 @@ export const getBulkItems = async (req, res) => {
         createdBy: item.createdBy?.name || "Unknown",
         acceptedBy: item.acceptedBy?.name || "Pending",
         phaseName: item.phaseId?.name,
+        image: item.images?.length > 0 ? item.images[0] : "none",
       };
 
       if (item.pendingItemIds.length === 0) {
@@ -267,7 +268,7 @@ export const getBulkItems = async (req, res) => {
 
 export const getPhasesBefore = async (req, res) => {
   try {
-    const { phaseName } = req.params;
+    const { phaseName, bulkId } = req.params;
     const { tenantId } = req.user; // Assuming tenantId is part of the user session or token
 
     // Step 1: Find the current phase based on phaseName and tenantId
@@ -295,10 +296,14 @@ export const getPhasesBefore = async (req, res) => {
         value: phase._id.toString(), // Phase ID as the value
       }));
 
+    // Find the bulk item by ID and tenant
+    const bulkItem = await BulkItem.findOne({ _id: bulkId, tenantId });
+    const images = bulkItem.images || [];
+
     // Step 4: Send the phases before the current phase
     return res.status(200).json({
       success: true,
-      data: phasesBefore, // List of { label, value } pairs for phases before current phase
+      data: { phasesBefore, images }, // List of { label, value } pairs for phases before current phase
     });
   } catch (err) {
     console.error("Error fetching phases before:", err);

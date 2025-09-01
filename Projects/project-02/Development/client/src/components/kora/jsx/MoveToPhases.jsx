@@ -3,6 +3,7 @@ import { api } from "../../../api/api";
 import GenericForm from "../../common/jsx/GenericForm";
 import { useToast } from "../../../context/ToastContext";
 import { useNavigate, useParams } from "react-router-dom";
+import ImageGallery from "../../common/jsx/ImageGallery";
 
 export function MoveToPhases({ onSuccess }) {
   const { addToast } = useToast();
@@ -13,6 +14,7 @@ export function MoveToPhases({ onSuccess }) {
   const buttonLabel = move === "move-forward" ? "Move to Next Phase" : "Return";
 
   const isPoPhase = "Po" === phaseName;
+  const [images, setImages] = useState([]);
 
   const [formConfig, setFormConfig] = useState({
     submitVariant: "primary",
@@ -58,13 +60,19 @@ export function MoveToPhases({ onSuccess }) {
   useEffect(() => {
     const fetchPhases = async () => {
       try {
-        const response = await api.get(`/items/get-phases-before/${phaseName}`);
+        const response = await api.get(
+          `/items/get-phases-before/${phaseName}/${bulkId}`
+        );
         const data = response.data.data;
+
+        setImages(data.images);
 
         setFormConfig((prev) => ({
           ...prev,
           fields: prev.fields.map((field) =>
-            field.name === "list" ? { ...field, options: data } : field
+            field.name === "list"
+              ? { ...field, options: data?.phasesBefore }
+              : field
           ),
         }));
       } catch (err) {
@@ -144,10 +152,13 @@ export function MoveToPhases({ onSuccess }) {
   };
 
   return (
-    <GenericForm
-      config={formConfig}
-      onSubmit={handleSubmit}
-      submitLabel={buttonLabel}
-    />
+    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+      <ImageGallery images={images} />
+      <GenericForm
+        config={formConfig}
+        onSubmit={handleSubmit}
+        submitLabel={buttonLabel}
+      />
+    </div>
   );
 }

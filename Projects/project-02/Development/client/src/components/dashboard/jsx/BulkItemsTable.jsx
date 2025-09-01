@@ -4,6 +4,7 @@ import { useAuth } from "../../../context/AuthContext";
 import { api } from "../../../api/api";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "../../common/jsx/Button";
+import { baseUrl } from "../../../util/baseUrl";
 
 const BulkItemsTable = () => {
   const [completedOrders, setCompletedOrders] = useState([]);
@@ -70,11 +71,15 @@ const BulkItemsTable = () => {
     navigate(`/user/move-backward/${phaseName}/${id}`);
   };
 
-  const isButtonRender = (isCompleted) =>
-    !isCompleted && phaseName !== "E-commerce" && phaseName !== "Export";
+  const isButtonRender = (isCompleted, item) =>
+    !isCompleted &&
+    phaseName !== "E-commerce" &&
+    phaseName !== "Export" &&
+    (phaseName === "Po" || item.acceptedBy !== "Pending");
 
   const renderRow = (item, isCompleted) => (
     <tr key={item._id}>
+      <td>{item.image !== "none" && <img className={styles.img} src={`${baseUrl}${item.image}`} />}</td>
       <td>{item.itemName || "N/A"}</td>
       <td>{item.vendorName || "—"}</td>
       <td>{item.buyerName || "—"}</td>
@@ -93,7 +98,7 @@ const BulkItemsTable = () => {
             {item.acceptedBy === "Pending" && username !== item.createdBy && (
               <button onClick={() => handleAcceptedBy(item._id)}>Accept</button>
             )}
-            {isButtonRender(isCompleted) && item.acceptedBy !== "Pending" && (
+            {isButtonRender(isCompleted, item) && (
               <>
                 <button onClick={() => handleMoveForward(item._id)}>
                   Move Forward
@@ -115,13 +120,14 @@ const BulkItemsTable = () => {
     <table className={styles.table}>
       <thead>
         <tr>
+          <th>Item Image</th>
           <th>Item Name</th>
           <th>Vendor</th>
           <th>Buyer</th>
           <th>Color</th>
-          <th>Quantity</th>
-          <th>Pending</th>
-          <th>Completed</th>
+          <th>Quantity Recieved</th>
+          <th>Balance in Stock</th>
+          <th>Sent Forward</th>
           <th>Status</th>
           <th>Created At</th>
           <th>Created By</th>

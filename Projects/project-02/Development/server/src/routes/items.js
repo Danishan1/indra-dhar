@@ -26,7 +26,7 @@ router.post(
   uploadFile.array("images"),
   itemController.moveItemBackward
 );
-router.get("/get-phases-before/:phaseName", itemController.getPhasesBefore);
+router.get("/get-phases-before/:phaseName/:bulkId", itemController.getPhasesBefore);
 router.post("/acceptedby", itemController.acceptedBy);
 
 // --- RETURN ROUTES ---

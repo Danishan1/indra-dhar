@@ -13,26 +13,26 @@ export default function PhaseCard({ phase }) {
       {/* Item Summary */}
       <div className={styles.summary}>
         <div className={styles.summaryItem}>
-          <strong>Total Items:</strong> {items.total}
+          <strong>Total Quantity Recieved:</strong> {items.total}
         </div>
         <div className={styles.summaryItem}>
-          <strong>Pending Items:</strong> {items.pending}
+          <strong>Balance Quantity in Stock:</strong> {items.pending}
         </div>
         <div className={styles.summaryItem}>
-          <strong>Completed Items:</strong> {items.completed}
+          <strong>Sent Quantity Forward:</strong> {items.completed}
         </div>
       </div>
 
       {/* Order Summary */}
       <div className={styles.summary}>
         <div className={styles.summaryItem}>
-          <strong>Total Orders:</strong> {orders.totalOrders}
+          <strong>Total Orders Recieved:</strong> {orders.totalOrders}
         </div>
         <div className={styles.summaryItem}>
-          <strong>Pending Orders:</strong> {orders.pendingOrders}
+          <strong>Balance Orders in Stock:</strong> {orders.pendingOrders}
         </div>
         <div className={styles.summaryItem}>
-          <strong>Completed Orders:</strong> {orders.completedOrders}
+          <strong>Sent Orders Forwards:</strong> {orders.completedOrders}
         </div>
       </div>
 
