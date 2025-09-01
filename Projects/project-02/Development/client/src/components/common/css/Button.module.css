@@ -5,6 +5,7 @@
   font-size: 0.95rem;
   cursor: pointer;
   transition: background-color 0.2s ease-in-out;
+  text-wrap: nowrap;
 }
 
 .primary {

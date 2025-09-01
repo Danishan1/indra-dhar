@@ -11,7 +11,7 @@ const router = express.Router();
 router.use(authMiddleware);
 
 // --- ITEM ROUTES ---
-router.get("/dashboard", getDashboardData); // Dashboard (GET)
+router.get("/dashboard/:timeRange", getDashboardData); // Dashboard (GET)
 router.post("/", uploadFile.array("images", 5), itemController.createItem); // Create single item
 router.get("/", itemController.listItems); // Get all items
 router.get("/get-bulk-items/:phaseName", itemController.getBulkItems); // Get all items

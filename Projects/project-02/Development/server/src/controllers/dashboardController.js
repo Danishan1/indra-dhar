@@ -3,9 +3,34 @@ import { BulkItem } from "../models/BulkItem.js";
 import { Phase } from "../models/Phase.js";
 import { Tenant } from "../models/Tenant.js";
 
+const timeRangeToDate = (timeRange) => {
+  const now = new Date();
+  switch (timeRange) {
+    case "10 Year":
+      return new Date(now.setFullYear(now.getFullYear() - 10));
+    case "5 Year":
+      return new Date(now.setFullYear(now.getFullYear() - 5));
+    case "2 Year":
+      return new Date(now.setFullYear(now.getFullYear() - 2));
+    case "1 Year":
+      return new Date(now.setFullYear(now.getFullYear() - 1));
+    case "6 Months":
+      return new Date(now.setMonth(now.getMonth() - 6));
+    case "3 Months":
+      return new Date(now.setMonth(now.getMonth() - 3));
+    case "1 Months":
+      return new Date(now.setMonth(now.getMonth() - 1));
+    case "1 Week":
+      return new Date(now.setDate(now.getDate() - 7));
+    default:
+      return null; // no filter
+  }
+};
+
 export const getDashboardData = async (req, res) => {
   try {
     const { tenantId, _id: userId, name, role, email } = req.user;
+    const { timeRange } = req.params;
 
     // Fetch tenant name
     const tenant = await Tenant.findById(tenantId).lean();
@@ -13,12 +38,19 @@ export const getDashboardData = async (req, res) => {
     // Get all phases for this tenant
     const phases = await Phase.find({ tenantId }).lean();
 
+    // Prepare date filter
+    const startDate = timeRangeToDate(timeRange);
+    const matchStage = {
+      tenantId: new mongoose.Types.ObjectId(tenantId),
+    };
+    if (startDate) {
+      matchStage.createdAt = { $gte: startDate };
+    }
+
     // Aggregate BulkItem data by phase
     const bulkItems = await BulkItem.aggregate([
       {
-        $match: {
-          tenantId: new mongoose.Types.ObjectId(tenantId), // Match tenantId
-        },
+        $match: matchStage,
       },
       {
         $lookup: {
@@ -37,16 +69,16 @@ export const getDashboardData = async (req, res) => {
       {
         $group: {
           _id: "$phaseId",
-          totalPending: { $sum: { $size: "$pendingItemIds" } }, // Count of items in pending state
-          totalCompleted: { $sum: { $size: "$completedItemIds" } }, // Count of items in completed state
-          totalOrders: { $sum: 1 }, // Count of BulkItem records
+          totalPending: { $sum: { $size: "$pendingItemIds" } },
+          totalCompleted: { $sum: { $size: "$completedItemIds" } },
+          totalOrders: { $sum: 1 },
           pendingOrders: {
-            $sum: { $cond: [{ $gt: [{ $size: "$pendingItemIds" }, 0] }, 1, 0] }, // Count of BulkItem records with pending items
+            $sum: { $cond: [{ $gt: [{ $size: "$pendingItemIds" }, 0] }, 1, 0] },
           },
           completedOrders: {
             $sum: {
               $cond: [{ $eq: [{ $size: "$pendingItemIds" }, 0] }, 1, 0],
-            }, // Count of BulkItem records with completed items
+            },
           },
         },
       },
@@ -55,7 +87,7 @@ export const getDashboardData = async (req, res) => {
     // Map bulk item data to phase data
     const bulkItemMap = {};
     bulkItems.forEach((item) => {
-      bulkItemMap[item._id.toString()] = item;
+      bulkItemMap[item._id?.toString()] = item;
     });
 
     // Prepare phase summary data

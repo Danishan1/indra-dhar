@@ -6,13 +6,27 @@ import { api } from "../../../api/api";
 import { useNavigate } from "react-router-dom";
 import Button from "../../common/jsx/Button";
 import io from "socket.io-client"; // Import socket.io-client
+import Dropdown from "../../common/jsx/Dropdown";
 
 export default function Dashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [timeRange, setTimeRange] = useState("1 Month");
   const { token, logout, user } = useAuth();
   const navigate = useNavigate();
   const phaseName = user?.role.slice(0, 1).toUpperCase() + user?.role.slice(1);
+
+  // Fetch initial data
+  const fetchData = async () => {
+    try {
+      const res = await api.get(`/items/dashboard/${timeRange}`);
+      setData(res.data);
+    } catch (err) {
+      console.error("Failed to fetch dashboard", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const socket = io("http://localhost:4000"); // Adjust the URL if necessary
@@ -23,18 +37,6 @@ export default function Dashboard() {
       fetchData(); // Refresh the dashboard data when phase updates
     });
 
-    // Fetch initial data
-    const fetchData = async () => {
-      try {
-        const res = await api.get("/items/dashboard");
-        setData(res.data);
-      } catch (err) {
-        console.error("Failed to fetch dashboard", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     if (token) fetchData();
 
     // Clean up on unmount
@@ -42,6 +44,10 @@ export default function Dashboard() {
       socket.disconnect();
     };
   }, [token]);
+
+  useEffect(() => {
+    fetchData();
+  }, [timeRange]);
 
   if (loading) {
     return <div className={styles.message}>Loading dashboard...</div>;
@@ -68,6 +74,20 @@ export default function Dashboard() {
               Create Master Data
             </Button>
           )} */}
+          <Dropdown
+            placeholder={`Time Range : ${timeRange}`}
+            items={[
+              { label: "10 Year", value: "10 Year" },
+              { label: "5 Year", value: "5 Year" },
+              { label: "2 Year", value: "2 Year" },
+              { label: "1 Year", value: "1 Year" },
+              { label: "6 Months", value: "6 Months" },
+              { label: "3 Months", value: "3 Months" },
+              { label: "1 Months", value: "1 Months" },
+              { label: "1 Week", value: "1 Week" },
+            ]}
+            onSelect={(value) => setTimeRange(value.label)}
+          />
           <Button
             variant="primary"
             onClick={() => navigate(`/user/view-item-list/${phaseName}`)}
