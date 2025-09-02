@@ -7,6 +7,7 @@ import BulkItemsTable from "../dashboard/jsx/BulkItemsTable";
 import { BulkItemDetails } from "../pages/jsx/BulkItemDetails";
 import { useAuth } from "../../context/AuthContext";
 import { MoveBulkForward } from "../kora/jsx/MoveBulkFOrward";
+import BulkUpload from "../pages/jsx/BulkUpload";
 
 export default function ProtectedAppRoutes() {
   const { user } = useAuth();
@@ -19,6 +20,7 @@ export default function ProtectedAppRoutes() {
     return (
       <Routes>
         <Route path="/user/create-po" element={<CreateMasterData />} />
+        <Route path="/user/create-bulk-po" element={<BulkUpload />} />
         <Route
           path="/user/view-item-list/:phaseName"
           element={<BulkItemsTable />}

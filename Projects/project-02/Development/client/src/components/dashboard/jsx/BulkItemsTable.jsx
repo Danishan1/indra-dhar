@@ -188,9 +188,20 @@ const BulkItemsTable = () => {
             </Button>
           )}
         {phaseName === "Po" && (
-          <Button onClick={logout} variant="danger">
-            Log Out
-          </Button>
+          <>
+            <Button
+              onClick={() => {
+                navigate("/user/create-bulk-po");
+              }}
+              variant="primary"
+            >
+              Bulk Upload
+            </Button>
+            
+            <Button onClick={logout} variant="danger">
+              Log Out
+            </Button>
+          </>
         )}
       </div>
 

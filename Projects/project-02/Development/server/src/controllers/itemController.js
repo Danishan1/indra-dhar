@@ -85,6 +85,85 @@ export const createItem = async (req, res) => {
   }
 };
 
+export const bulkCreateItems = async (req, res) => {
+  try {
+    const tenantId = req.user.tenantId;
+    const userId = req.user.userId;
+
+    const itemsData = req.body.items; // Array of rows
+
+    if (!Array.isArray(itemsData) || itemsData.length === 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "No items provided." });
+    }
+
+    const phase = await Phase.findOne({ tenantId, name: "Po" });
+    if (!phase) {
+      return res.status(404).json({
+        success: false,
+        message: 'Phase "Po" not found for this tenant.',
+      });
+    }
+    const phaseId = phase._id;
+
+    let createdCount = 0;
+
+    for (const row of itemsData) {
+      // Validate row with Joi
+      const { error, value } = itemDetailsSchema.validate(row, {
+        abortEarly: false,
+      });
+      if (error) {
+        console.warn("Skipping invalid row:", row, error.message);
+        continue; // Skip invalid rows
+      }
+
+      // Save item details
+      const itemDetails = new ItemDetails(value);
+      const savedItemDetails = await itemDetails.save();
+
+      // Create items based on "items" count
+      const quantity = parseInt(row.items, 10);
+      const itemsToCreate = Array.from({ length: quantity }).map(
+        () =>
+          new Item({
+            tenantId,
+            phaseId,
+            itemDetailId: savedItemDetails._id,
+            status: "IN_PROGRESS",
+          })
+      );
+
+      const savedItems = await Item.insertMany(itemsToCreate);
+
+      // BulkItem record (images skipped here – can add later via upload)
+      const bulkItem = new BulkItem({
+        tenantId,
+        phaseId,
+        pendingItemIds: savedItems.map((item) => item._id),
+        status: "IN_PROGRESS",
+        createdBy: userId,
+        images: [], // You could later allow images via ZIP upload
+      });
+
+      await bulkItem.save();
+      createdCount++;
+    }
+
+    return res.status(201).json({
+      success: true,
+      message: `${createdCount} items successfully uploaded.`,
+    });
+  } catch (err) {
+    console.error("Bulk upload error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Server error. Bulk upload failed.",
+    });
+  }
+};
+
 export const acceptedBy = async (req, res) => {
   try {
     const { id, role: requestedRole } = req.body;
