@@ -259,15 +259,14 @@ export const getItem = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
 export const getBulkItems = async (req, res) => {
   try {
     const tenantId = req.user.tenantId;
     const { phaseName } = req.params;
+    const { startDate, endDate, page = 1, limit = 50 } = req.query;
 
     // 1. Get phase by name for this tenant
     const phase = await Phase.findOne({ tenantId, name: phaseName });
-
     if (!phase) {
       return res.status(404).json({
         success: false,
@@ -275,9 +274,28 @@ export const getBulkItems = async (req, res) => {
       });
     }
 
+    // 2. Date filter (default last 6 months)
+    let dateFilter = {};
+    if (startDate && endDate) {
+      dateFilter = {
+        createdAt: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+      };
+    } else {
+      const sixMonthsAgo = new Date();
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+      dateFilter = { createdAt: { $gte: sixMonthsAgo } };
+    }
+
+    // 3. Pagination
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
     const bulkItems = await BulkItem.find({
       tenantId,
       phaseId: phase._id,
+      ...dateFilter,
     })
       .populate({
         path: "pendingItemIds",
@@ -291,9 +309,11 @@ export const getBulkItems = async (req, res) => {
       .populate("phaseId", "name")
       .populate("acceptedBy", "name")
       .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit))
       .lean();
 
-    // 3. Split into completed/incomplete
+    // Split into completed/incomplete
     const completedOrders = [];
     const incompleteOrders = [];
 
@@ -333,6 +353,11 @@ export const getBulkItems = async (req, res) => {
       data: {
         completedOrders,
         incompleteOrders,
+      },
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        hasMore: bulkItems.length === parseInt(limit),
       },
     });
   } catch (error) {

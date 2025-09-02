@@ -10,7 +10,13 @@ const BulkItemsTable = () => {
   const [completedOrders, setCompletedOrders] = useState([]);
   const [incompleteOrders, setIncompleteOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [viewType, setViewType] = useState("incomplete"); // "incomplete" or "completed"
+  const [viewType, setViewType] = useState("incomplete");
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { phaseName } = useParams();
@@ -18,28 +24,57 @@ const BulkItemsTable = () => {
     user?.role.slice(0, 1).toUpperCase() + user?.role.slice(1);
 
   const username = user?.name;
+  const fetchData = async (pageNum = 1, append = false) => {
+    try {
+      setLoading(true);
+
+      const params = {
+        page: pageNum,
+        limit: 5,
+      };
+      if (startDate && endDate) {
+        params.startDate = startDate;
+        params.endDate = endDate;
+      }
+
+      const res = await api.get(`/items/get-bulk-items/${phaseName}`, {
+        params,
+      });
+
+      const data = res.data;
+      if (data.success) {
+        setCompletedOrders((prev) =>
+          append
+            ? [...prev, ...data.data.completedOrders]
+            : data.data.completedOrders
+        );
+        setIncompleteOrders((prev) =>
+          append
+            ? [...prev, ...data.data.incompleteOrders]
+            : data.data.incompleteOrders
+        );
+        setHasMore(data.pagination.hasMore);
+      } else {
+        console.error("API error:", data.message);
+      }
+    } catch (err) {
+      console.error("Fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await api.get(`/items/get-bulk-items/${phaseName}`);
-        const data = res.data;
+    if (phaseName) {
+      fetchData(1, false);
+    }
+  }, [phaseName, startDate, endDate]);
 
-        if (data.success) {
-          setCompletedOrders(data.data.completedOrders);
-          setIncompleteOrders(data.data.incompleteOrders);
-        } else {
-          console.error("API error:", data.message);
-        }
-      } catch (err) {
-        console.error("Fetch error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    phaseName && fetchData();
-  }, [phaseName]);
+  const loadMore = () => {
+    const nextPage = page + 1;
+    fetchData(nextPage, true);
+    setPage(nextPage);
+  };
 
   const handleAcceptedBy = async (id) => {
     const confirmed = window.confirm(
@@ -168,6 +203,27 @@ const BulkItemsTable = () => {
             Completed Orders
           </button>
         )}
+
+        <div className={styles.filters}>
+          <label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+          </label>
+          <label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+          </label>
+          <Button variant="primary" onClick={() => fetchData(1, false)}>
+            Apply
+          </Button>
+        </div>
+
         <button
           className={`${styles.toggleButton}`}
           onClick={() =>
@@ -197,7 +253,7 @@ const BulkItemsTable = () => {
             >
               Bulk Upload
             </Button>
-            
+
             <Button onClick={logout} variant="danger">
               Log Out
             </Button>
@@ -209,7 +265,10 @@ const BulkItemsTable = () => {
         <>
           <h2>Incomplete Orders</h2>
           {incompleteOrders.length > 0 ? (
-            renderTable(incompleteOrders, false)
+            <>
+              {renderTable(incompleteOrders, false)}
+              {hasMore && <Button onClick={loadMore}>Load More</Button>}
+            </>
           ) : (
             <p>No incomplete orders found.</p>
           )}
@@ -218,7 +277,10 @@ const BulkItemsTable = () => {
         <>
           <h2>Completed Orders</h2>
           {completedOrders.length > 0 ? (
-            renderTable(completedOrders, true)
+            <>
+              {renderTable(completedOrders, true)}
+              {hasMore && <Button onClick={loadMore}>Load More</Button>}
+            </>
           ) : (
             <p>No completed orders found.</p>
           )}
