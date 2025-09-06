@@ -31,6 +31,33 @@ export function MoveToPhases({ onSuccess }) {
             },
           ]
         : []),
+      ...(move === "move-forward" && phaseName === "Finishing"
+        ? [
+            {
+              name: "dispatchTo",
+              label: "Move To",
+              type: "dropdown",
+              required: true,
+              options: [
+                { label: "Defective-space", value: "Defective-space" },
+                { label: "Temporary-stock", value: "Temporary-stock" },
+              ],
+            },
+          ]
+        : []),
+      ...(move === "move-forward" && phaseName === "Defective-space"
+        ? [
+            {
+              name: "dispatchTo",
+              label: "Move To",
+              type: "dropdown",
+              required: true,
+              options: [
+                { label: "Temporary-stock", value: "Temporary-stock" },
+              ],
+            },
+          ]
+        : []),
       ...(move === "move-forward" && phaseName === "Temporary-stock"
         ? [
             {
@@ -123,6 +150,7 @@ export function MoveToPhases({ onSuccess }) {
           bulkId,
           type: "quantity",
           dispatchTo: data?.dispatchTo?.value,
+          toPhase: data?.list?.label || "",
         };
       }
 

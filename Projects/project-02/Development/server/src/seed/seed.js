@@ -44,6 +44,7 @@ async function seed() {
       { role: "paint", name: "Paint" },
       { role: "finishing", name: "Finishing" },
       { role: "temporary-stock", name: "Temporary-stock" },
+      { role: "defective-space", name: "Defective-space" },
       { role: "export", name: "Export" },
       { role: "e-commerce", name: "E-commerce" },
       { role: "store", name: "Store" },

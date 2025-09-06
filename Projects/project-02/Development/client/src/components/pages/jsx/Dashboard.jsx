@@ -77,8 +77,6 @@ export default function Dashboard() {
           <Dropdown
             placeholder={`Time Range : ${timeRange}`}
             items={[
-              { label: "10 Year", value: "10 Year" },
-              { label: "5 Year", value: "5 Year" },
               { label: "2 Year", value: "2 Year" },
               { label: "1 Year", value: "1 Year" },
               { label: "6 Months", value: "6 Months" },

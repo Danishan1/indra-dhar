@@ -316,6 +316,7 @@ export const getBulkItems = async (req, res) => {
     // Split into completed/incomplete
     const completedOrders = [];
     const incompleteOrders = [];
+    const returnOrders = [];
 
     bulkItems.forEach((item) => {
       const firstPendingItem = item.pendingItemIds[0];
@@ -346,6 +347,10 @@ export const getBulkItems = async (req, res) => {
       } else {
         incompleteOrders.push(simplified);
       }
+
+      if (item.status === "RETURNED" || item.status === "RETURNED_COMPLETED") {
+        returnOrders.push(simplified);
+      }
     });
 
     return res.status(200).json({
@@ -353,6 +358,7 @@ export const getBulkItems = async (req, res) => {
       data: {
         completedOrders,
         incompleteOrders,
+        returnOrders,
       },
       pagination: {
         page: parseInt(page),

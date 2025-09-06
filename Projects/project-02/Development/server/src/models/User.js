@@ -18,6 +18,7 @@ const userSchema = new mongoose.Schema({
       "export",
       "temporary-stock",
       "store",
+      "defective-space",
     ],
     required: true,
   },

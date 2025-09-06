@@ -1,4 +1,4 @@
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import Dashboard from "../pages/jsx/Dashboard";
 import ErrorPage from "../pages/jsx/ErrorPage";
 import { CreateMasterData } from "../kora/jsx/CreateMasterData";
@@ -19,6 +19,7 @@ export default function ProtectedAppRoutes() {
   if (role === "po") {
     return (
       <Routes>
+        <Route path="/" element={<Navigate to={"/user/view-item-list/Po"} />} />
         <Route path="/user/create-po" element={<CreateMasterData />} />
         <Route path="/user/create-bulk-po" element={<BulkUpload />} />
         <Route
@@ -40,6 +41,8 @@ export default function ProtectedAppRoutes() {
   } else
     return (
       <Routes>
+        <Route path="/" element={<Navigate to={"/user"} />} />
+
         <Route path="/user" element={<Dashboard />} />
         {/* <Route path="/user/create-master" element={<CreateMasterData />} /> */}
         <Route

@@ -9,6 +9,7 @@ import { baseUrl } from "../../../util/baseUrl";
 const BulkItemsTable = () => {
   const [completedOrders, setCompletedOrders] = useState([]);
   const [incompleteOrders, setIncompleteOrders] = useState([]);
+  const [returnOrders, setReturnOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [viewType, setViewType] = useState("incomplete");
   const [page, setPage] = useState(1);
@@ -30,7 +31,7 @@ const BulkItemsTable = () => {
 
       const params = {
         page: pageNum,
-        limit: 5,
+        limit: 50,
       };
       if (startDate && endDate) {
         params.startDate = startDate;
@@ -40,6 +41,8 @@ const BulkItemsTable = () => {
       const res = await api.get(`/items/get-bulk-items/${phaseName}`, {
         params,
       });
+
+      console.log("DDDD", res);
 
       const data = res.data;
       if (data.success) {
@@ -52,6 +55,9 @@ const BulkItemsTable = () => {
           append
             ? [...prev, ...data.data.incompleteOrders]
             : data.data.incompleteOrders
+        );
+        setReturnOrders((prev) =>
+          append ? [...prev, ...data.data.returnOrders] : data.data.returnOrders
         );
         setHasMore(data.pagination.hasMore);
       } else {
@@ -203,6 +209,14 @@ const BulkItemsTable = () => {
             Completed Orders
           </button>
         )}
+        <button
+          className={`${styles.toggleButton} ${
+            viewType === "returned" ? styles.active : ""
+          }`}
+          onClick={() => setViewType("returned")}
+        >
+          Returned Orders
+        </button>
 
         <div className={styles.filters}>
           <label>
@@ -273,7 +287,7 @@ const BulkItemsTable = () => {
             <p>No incomplete orders found.</p>
           )}
         </>
-      ) : (
+      ) : viewType === "complete" ? (
         <>
           <h2>Completed Orders</h2>
           {completedOrders.length > 0 ? (
@@ -285,6 +299,20 @@ const BulkItemsTable = () => {
             <p>No completed orders found.</p>
           )}
         </>
+      ) : viewType === "returned" ? (
+        <>
+          <h2>Returned Orders</h2>
+          {returnOrders.length > 0 ? (
+            <>
+              {renderTable(returnOrders, true)}
+              {hasMore && <Button onClick={loadMore}>Load More</Button>}
+            </>
+          ) : (
+            <p>No returned orders found.</p>
+          )}
+        </>
+      ) : (
+        <>Not Valid Type</>
       )}
     </div>
   );

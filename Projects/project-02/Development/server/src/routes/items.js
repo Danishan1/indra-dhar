@@ -33,9 +33,9 @@ router.get(
 );
 router.post("/acceptedby", itemController.acceptedBy);
 
-// --- RETURN ROUTES ---
-router.get("/returns/pending", returnController.listPendingReturns);
-router.put("/returns/:returnRequestId/approve", returnController.approveReturn);
-router.put("/returns/:returnRequestId/reject", returnController.rejectReturn);
+// // --- RETURN ROUTES ---
+// router.get("/returns/pending", returnController.listPendingReturns);
+// router.put("/returns/:returnRequestId/approve", returnController.approveReturn);
+// router.put("/returns/:returnRequestId/reject", returnController.rejectReturn);
 
 export const itemRoutes = router;
