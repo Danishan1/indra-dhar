@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
-import Login from "./components/pages/jsx/Login";
-import Register from "./components/pages/jsx/Register";
+// import Login from "./components/pages/jsx/Login";
 import ProtectedRoute from "./components/auth/jsx/ProtectedRoute";
 import ProtectedAppRoutes from "./components/routes/AuthRoutes";
 import ErrorPage from "./components/pages/jsx/ErrorPage";
@@ -11,11 +10,11 @@ import "./App.css";
 export default function App() {
   return (
     <ToastProvider>
-      <AuthProvider>
-        <div className="AppRoot">
-          <Router>
+      <div className="AppRoot">
+        <Router>
+          <AuthProvider>
             <Routes>
-              <Route path="/login" element={<Login />} />
+              {/* <Route path="/login" element={<Login />} /> */}
               {/* <Route path="/register" element={<Register />} /> */}
               <Route
                 path="/*"
@@ -27,9 +26,9 @@ export default function App() {
               />
               <Route path="*" element={<ErrorPage />} />
             </Routes>
-          </Router>
-        </div>
-      </AuthProvider>
+          </AuthProvider>
+        </Router>
+      </div>
     </ToastProvider>
   );
 }
