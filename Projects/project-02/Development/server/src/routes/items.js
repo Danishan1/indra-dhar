@@ -1,7 +1,7 @@
 // routes/item.route.js
 import express from "express";
 import * as itemController from "../controllers/itemController.js";
-import * as returnController from "../controllers/returnController.js";
+// import * as returnController from "../controllers/returnController.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { getDashboardData } from "../controllers/dashboardController.js";
 import { uploadFile } from "../middleware/uploadFile.js";
@@ -12,9 +12,9 @@ router.use(authMiddleware);
 
 // --- ITEM ROUTES ---
 router.get("/dashboard/:timeRange", getDashboardData); // Dashboard (GET)
-router.post("/", uploadFile.array("images", 5), itemController.createItem); // Create single item
-router.post("/bulk-create", itemController.bulkCreateItems); // Create single item
-router.get("/", itemController.listItems); // Get all items
+// router.post("/", uploadFile.array("images", 5), itemController.createItem); // Create single item
+// router.post("/bulk-create", itemController.bulkCreateItems); // Create single item
+// router.get("/", itemController.listItems); // Get all items
 router.get("/get-bulk-items/:phaseName", itemController.getBulkItems); // Get all items
 router.get("/:bulkId", itemController.getItem); // Get single item by ID
 router.post(

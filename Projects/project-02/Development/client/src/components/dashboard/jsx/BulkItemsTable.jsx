@@ -204,7 +204,7 @@ const BulkItemsTable = () => {
             className={`${styles.toggleButton} ${
               viewType === "completed" ? styles.active : ""
             }`}
-            onClick={() => setViewType("completed")}
+            onClick={() => setViewType("complete")}
           >
             Completed Orders
           </button>
@@ -312,7 +312,7 @@ const BulkItemsTable = () => {
           )}
         </>
       ) : (
-        <>Not Valid Type</>
+        <>Not Valid Type : {viewType}</>
       )}
     </div>
   );

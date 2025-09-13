@@ -7,162 +7,163 @@ import { itemDetailsSchema } from "./helper/itemDetailsSchema.js";
 import { Phase } from "../models/Phase.js";
 import { BulkItem } from "../models/BulkItem.js";
 import { emitPhaseUpdate } from "../../server.js";
+import { supabase } from "../config/db.js";
 
-export const createItem = async (req, res) => {
-  try {
-    const tenantId = req.user.tenantId;
-    const userId = req.user.userId;
+// export const createItem = async (req, res) => {
+//   try {
+//     const tenantId = req.user.tenantId;
+//     const userId = req.user.userId;
 
-    // Handle validation
-    const { error, value } = itemDetailsSchema.validate(req.body, {
-      abortEarly: false,
-    });
+//     // Handle validation
+//     const { error, value } = itemDetailsSchema.validate(req.body, {
+//       abortEarly: false,
+//     });
 
-    if (error) {
-      const errorMessages = error.details.map((detail) => ({
-        field: detail.path[0],
-        message: detail.message,
-      }));
-      return res.status(400).json({ success: false, message: errorMessages });
-    }
+//     if (error) {
+//       const errorMessages = error.details.map((detail) => ({
+//         field: detail.path[0],
+//         message: detail.message,
+//       }));
+//       return res.status(400).json({ success: false, message: errorMessages });
+//     }
 
-    // 1. Save item details
-    const itemDetails = new ItemDetails(value);
-    const savedItemDetails = await itemDetails.save();
+//     // 1. Save item details
+//     const itemDetails = new ItemDetails(value);
+//     const savedItemDetails = await itemDetails.save();
 
-    // 2. Get phaseId
-    const phase = await Phase.findOne({ tenantId, name: "Po" });
-    if (!phase) {
-      return res.status(404).json({
-        success: false,
-        message: 'Phase "Po" not found for this tenant',
-      });
-    }
-    const phaseId = phase._id;
+//     // 2. Get phaseId
+//     const phase = await Phase.findOne({ tenantId, name: "Po" });
+//     if (!phase) {
+//       return res.status(404).json({
+//         success: false,
+//         message: 'Phase "Po" not found for this tenant',
+//       });
+//     }
+//     const phaseId = phase._id;
 
-    // 3. Create multiple items
-    const quantity = parseInt(req.body.items, 10); // Ensure it's a number
-    const itemsToCreate = [];
-    for (let i = 0; i < quantity; i++) {
-      itemsToCreate.push(
-        new Item({
-          tenantId,
-          phaseId,
-          itemDetailId: savedItemDetails._id,
-          status: "IN_PROGRESS",
-        })
-      );
-    }
-    const savedItems = await Item.insertMany(itemsToCreate);
+//     // 3. Create multiple items
+//     const quantity = parseInt(req.body.items, 10); // Ensure it's a number
+//     const itemsToCreate = [];
+//     for (let i = 0; i < quantity; i++) {
+//       itemsToCreate.push(
+//         new Item({
+//           tenantId,
+//           phaseId,
+//           itemDetailId: savedItemDetails._id,
+//           status: "IN_PROGRESS",
+//         })
+//       );
+//     }
+//     const savedItems = await Item.insertMany(itemsToCreate);
 
-    // 4. Get uploaded image paths
-    const imagePaths =
-      req.files?.map((file) => `/uploads/${file.filename}`) || [];
+//     // 4. Get uploaded image paths
+//     const imagePaths =
+//       req.files?.map((file) => `/uploads/${file.filename}`) || [];
 
-    // 5. Create BulkItem
-    const newBulkItem = new BulkItem({
-      tenantId,
-      phaseId,
-      pendingItemIds: savedItems.map((item) => item._id),
-      status: "IN_PROGRESS",
-      createdBy: userId,
-      images: imagePaths,
-    });
+//     // 5. Create BulkItem
+//     const newBulkItem = new BulkItem({
+//       tenantId,
+//       phaseId,
+//       pendingItemIds: savedItems.map((item) => item._id),
+//       status: "IN_PROGRESS",
+//       createdBy: userId,
+//       images: imagePaths,
+//     });
 
-    await newBulkItem.save();
+//     await newBulkItem.save();
 
-    return res.status(201).json({
-      success: true,
-      message: "Item and bulk items saved successfully",
-      data: savedItemDetails,
-    });
-  } catch (err) {
-    console.error("Error saving item:", err);
-    return res.status(500).json({
-      success: false,
-      error: "Server error. Failed to save item.",
-    });
-  }
-};
+//     return res.status(201).json({
+//       success: true,
+//       message: "Item and bulk items saved successfully",
+//       data: savedItemDetails,
+//     });
+//   } catch (err) {
+//     console.error("Error saving item:", err);
+//     return res.status(500).json({
+//       success: false,
+//       error: "Server error. Failed to save item.",
+//     });
+//   }
+// };
 
-export const bulkCreateItems = async (req, res) => {
-  try {
-    const tenantId = req.user.tenantId;
-    const userId = req.user.userId;
+// export const bulkCreateItems = async (req, res) => {
+//   try {
+//     const tenantId = req.user.tenantId;
+//     const userId = req.user.userId;
 
-    const itemsData = req.body.items; // Array of rows
+//     const itemsData = req.body.items; // Array of rows
 
-    if (!Array.isArray(itemsData) || itemsData.length === 0) {
-      return res
-        .status(400)
-        .json({ success: false, message: "No items provided." });
-    }
+//     if (!Array.isArray(itemsData) || itemsData.length === 0) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "No items provided." });
+//     }
 
-    const phase = await Phase.findOne({ tenantId, name: "Po" });
-    if (!phase) {
-      return res.status(404).json({
-        success: false,
-        message: 'Phase "Po" not found for this tenant.',
-      });
-    }
-    const phaseId = phase._id;
+//     const phase = await Phase.findOne({ tenantId, name: "Po" });
+//     if (!phase) {
+//       return res.status(404).json({
+//         success: false,
+//         message: 'Phase "Po" not found for this tenant.',
+//       });
+//     }
+//     const phaseId = phase._id;
 
-    let createdCount = 0;
+//     let createdCount = 0;
 
-    for (const row of itemsData) {
-      // Validate row with Joi
-      const { error, value } = itemDetailsSchema.validate(row, {
-        abortEarly: false,
-      });
-      if (error) {
-        console.warn("Skipping invalid row:", row, error.message);
-        continue; // Skip invalid rows
-      }
+//     for (const row of itemsData) {
+//       // Validate row with Joi
+//       const { error, value } = itemDetailsSchema.validate(row, {
+//         abortEarly: false,
+//       });
+//       if (error) {
+//         console.warn("Skipping invalid row:", row, error.message);
+//         continue; // Skip invalid rows
+//       }
 
-      // Save item details
-      const itemDetails = new ItemDetails(value);
-      const savedItemDetails = await itemDetails.save();
+//       // Save item details
+//       const itemDetails = new ItemDetails(value);
+//       const savedItemDetails = await itemDetails.save();
 
-      // Create items based on "items" count
-      const quantity = parseInt(row.items, 10);
-      const itemsToCreate = Array.from({ length: quantity }).map(
-        () =>
-          new Item({
-            tenantId,
-            phaseId,
-            itemDetailId: savedItemDetails._id,
-            status: "IN_PROGRESS",
-          })
-      );
+//       // Create items based on "items" count
+//       const quantity = parseInt(row.items, 10);
+//       const itemsToCreate = Array.from({ length: quantity }).map(
+//         () =>
+//           new Item({
+//             tenantId,
+//             phaseId,
+//             itemDetailId: savedItemDetails._id,
+//             status: "IN_PROGRESS",
+//           })
+//       );
 
-      const savedItems = await Item.insertMany(itemsToCreate);
+//       const savedItems = await Item.insertMany(itemsToCreate);
 
-      // BulkItem record (images skipped here – can add later via upload)
-      const bulkItem = new BulkItem({
-        tenantId,
-        phaseId,
-        pendingItemIds: savedItems.map((item) => item._id),
-        status: "IN_PROGRESS",
-        createdBy: userId,
-        images: [], // You could later allow images via ZIP upload
-      });
+//       // BulkItem record (images skipped here – can add later via upload)
+//       const bulkItem = new BulkItem({
+//         tenantId,
+//         phaseId,
+//         pendingItemIds: savedItems.map((item) => item._id),
+//         status: "IN_PROGRESS",
+//         createdBy: userId,
+//         images: [], // You could later allow images via ZIP upload
+//       });
 
-      await bulkItem.save();
-      createdCount++;
-    }
+//       await bulkItem.save();
+//       createdCount++;
+//     }
 
-    return res.status(201).json({
-      success: true,
-      message: `${createdCount} items successfully uploaded.`,
-    });
-  } catch (err) {
-    console.error("Bulk upload error:", err);
-    return res.status(500).json({
-      success: false,
-      message: "Server error. Bulk upload failed.",
-    });
-  }
-};
+//     return res.status(201).json({
+//       success: true,
+//       message: `${createdCount} items successfully uploaded.`,
+//     });
+//   } catch (err) {
+//     console.error("Bulk upload error:", err);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Server error. Bulk upload failed.",
+//     });
+//   }
+// };
 
 export const acceptedBy = async (req, res) => {
   try {
@@ -204,24 +205,24 @@ export const acceptedBy = async (req, res) => {
   }
 };
 
-/**
- * Get all items with filters
- */
-export const listItems = async (req, res) => {
-  try {
-    const items = await ItemDetails.find({}, "name _id"); // Only select name and _id
+// /**
+//  * Get all items with filters
+//  */
+// export const listItems = async (req, res) => {
+//   try {
+//     const items = await ItemDetails.find({}, "name _id"); // Only select name and _id
 
-    const formattedItems = items.map((item) => ({
-      label: item.name,
-      value: item._id,
-    }));
+//     const formattedItems = items.map((item) => ({
+//       label: item.name,
+//       value: item._id,
+//     }));
 
-    return res.status(200).json({ data: formattedItems });
-  } catch (err) {
-    console.error("Error fetching item details list:", err);
-    return res.status(500).json({ error: "Failed to fetch item list" });
-  }
-};
+//     return res.status(200).json({ data: formattedItems });
+//   } catch (err) {
+//     console.error("Error fetching item details list:", err);
+//     return res.status(500).json({ error: "Failed to fetch item list" });
+//   }
+// };
 
 /**
  * Get single item details
@@ -259,18 +260,23 @@ export const getItem = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 export const getBulkItems = async (req, res) => {
   try {
-    const tenantId = req.user.tenantId;
     const { phaseName } = req.params;
     const { startDate, endDate, page = 1, limit = 50 } = req.query;
 
-    // 1. Get phase by name for this tenant
-    const phase = await Phase.findOne({ tenantId, name: phaseName });
-    if (!phase) {
+    // 1. Get phase by name
+    const { data: phase, error: phaseError } = await supabase
+      .from("node_phases")
+      .select("*")
+      .eq("name", phaseName)
+      .single();
+
+    if (phaseError || !phase) {
       return res.status(404).json({
         success: false,
-        message: `Phase "${phaseName}" not found for this tenant.`,
+        message: `Phase "${phaseName}" not found.`,
       });
     }
 
@@ -278,71 +284,106 @@ export const getBulkItems = async (req, res) => {
     let dateFilter = {};
     if (startDate && endDate) {
       dateFilter = {
-        createdAt: {
-          $gte: new Date(startDate),
-          $lte: new Date(endDate),
-        },
+        gte: new Date(startDate).toISOString(),
+        lte: new Date(endDate).toISOString(),
       };
     } else {
       const sixMonthsAgo = new Date();
       sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-      dateFilter = { createdAt: { $gte: sixMonthsAgo } };
+      dateFilter = { gte: sixMonthsAgo.toISOString() };
     }
 
     // 3. Pagination
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const from = (parseInt(page) - 1) * parseInt(limit);
+    const to = from + parseInt(limit) - 1;
 
-    const bulkItems = await BulkItem.find({
-      tenantId,
-      phaseId: phase._id,
-      ...dateFilter,
-    })
-      .populate({
-        path: "pendingItemIds",
-        populate: { path: "itemDetailId" },
-      })
-      .populate({
-        path: "completedItemIds",
-        populate: { path: "itemDetailId" },
-      })
-      .populate("createdBy", "name")
-      .populate("phaseId", "name")
-      .populate("acceptedBy", "name")
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(parseInt(limit))
-      .lean();
+    // 4. Fetch bulk items
+    const { data: bulkItems, error: bulkError } = await supabase
+      .from("node_bulk_items")
+      .select(
+        `
+        id,
+        phase_id,
+        status,
+        images,
+        created_at,
+        created_by (id, name),
+        accepted_by (id, name)
+      `
+      )
+      .eq("phase_id", phase.id)
+      .gte("created_at", dateFilter.gte)
+      .lte("created_at", dateFilter.lte || new Date().toISOString())
+      .order("created_at", { ascending: false })
+      .range(from, to);
 
-    // Split into completed/incomplete
+    if (bulkError) throw bulkError;
+
+    // 5. For each bulkItem, fetch pending/completed items (join tables)
     const completedOrders = [];
     const incompleteOrders = [];
     const returnOrders = [];
 
-    bulkItems.forEach((item) => {
-      const firstPendingItem = item.pendingItemIds[0];
-      const firstCompletedItem = item.completedItemIds[0];
+    for (const item of bulkItems) {
+      // pending items
+      const { data: pendingItems } = await supabase
+        .from("node_bulk_item_pending")
+        .select(
+          `
+          item:node_items (
+            id,
+            item_detail_id (
+              name,
+              vendor_name,
+              buyer_name,
+              color
+            )
+          )
+        `
+        )
+        .eq("bulk_item_id", item.id);
 
-      const itemDetails =
-        firstPendingItem?.itemDetailId || firstCompletedItem?.itemDetailId;
+      // completed items
+      const { data: completedItems } = await supabase
+        .from("node_bulk_item_completed")
+        .select(
+          `
+          item:node_items (
+            id,
+            item_detail_id (
+              name,
+              vendor_name,
+              buyer_name,
+              color
+            )
+          )
+        `
+        )
+        .eq("bulk_item_id", item.id);
+
+      const firstPending = pendingItems?.[0]?.item?.item_detail_id;
+      const firstCompleted = completedItems?.[0]?.item?.item_detail_id;
+
+      const itemDetails = firstPending || firstCompleted || {};
 
       const simplified = {
-        _id: item._id,
-        itemName: itemDetails?.name || "Unnamed Item",
-        vendorName: itemDetails?.vendorName,
-        buyerName: itemDetails?.buyerName,
-        color: itemDetails?.color,
-        quantity: item.pendingItemIds.length + item.completedItemIds.length,
-        pendingItemCount: item.pendingItemIds.length,
-        completedItemCount: item.completedItemIds.length,
+        id: item.id,
+        itemName: itemDetails.name || "Unnamed Item",
+        vendorName: itemDetails.vendor_name,
+        buyerName: itemDetails.buyer_name,
+        color: itemDetails.color,
+        quantity: (pendingItems?.length || 0) + (completedItems?.length || 0),
+        pendingItemCount: pendingItems?.length || 0,
+        completedItemCount: completedItems?.length || 0,
         status: item.status,
-        createdAt: item.createdAt,
-        createdBy: item.createdBy?.name || "Unknown",
-        acceptedBy: item.acceptedBy?.name || "Pending",
-        phaseName: item.phaseId?.name,
+        createdAt: item.created_at,
+        createdBy: item.created_by?.name || "Unknown",
+        acceptedBy: item.accepted_by?.name || "Pending",
+        phaseName: phase.name,
         image: item.images?.length > 0 ? item.images[0] : "none",
       };
 
-      if (item.pendingItemIds.length === 0) {
+      if ((pendingItems?.length || 0) === 0) {
         completedOrders.push(simplified);
       } else {
         incompleteOrders.push(simplified);
@@ -351,8 +392,9 @@ export const getBulkItems = async (req, res) => {
       if (item.status === "RETURNED" || item.status === "RETURNED_COMPLETED") {
         returnOrders.push(simplified);
       }
-    });
+    }
 
+    // 6. Response
     return res.status(200).json({
       success: true,
       data: {
@@ -375,6 +417,7 @@ export const getBulkItems = async (req, res) => {
     });
   }
 };
+
 
 export const getPhasesBefore = async (req, res) => {
   try {
