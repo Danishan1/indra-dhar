@@ -1,12 +1,12 @@
 // controllers/item.controller.js
-import { Item } from "../models/Item.js";
+// import { Item } from "../models/Item.js";
 // import { ReturnRequest } from "../models/ReturnRequest.js";
 // import mongoose from "mongoose";
-import { ItemDetails } from "../models/ItemDetails.js";
-import { itemDetailsSchema } from "./helper/itemDetailsSchema.js";
-import { Phase } from "../models/Phase.js";
-import { BulkItem } from "../models/BulkItem.js";
-import { emitPhaseUpdate } from "../../server.js";
+// import { ItemDetails } from "../models/ItemDetails.js";
+// import { itemDetailsSchema } from "./helper/itemDetailsSchema.js";
+// import { Phase } from "../models/Phase.js";
+// import { BulkItem } from "../models/BulkItem.js";
+// import { emitPhaseUpdate } from "../../server.js";
 import { supabase } from "../config/db.js";
 
 // export const createItem = async (req, res) => {
@@ -168,32 +168,58 @@ import { supabase } from "../config/db.js";
 export const acceptedBy = async (req, res) => {
   try {
     const { id, role: requestedRole } = req.body;
-    const { tenantId, role: userRole, userId } = req.user;
+    const { role: userRole, userId } = req.user;
 
+    // 1. Check if user role matches the requested role
     if (userRole !== requestedRole) {
       return res.status(403).json({
         success: false,
-        message: "You are not authorized for this Acceptence",
+        message: "You are not authorized for this acceptance",
       });
     }
 
-    // 1. Find the BulkItem
-    const bulkItem = await BulkItem.findOne({ tenantId, _id: id });
+    // 2. Fetch the bulk item
+    const { data: bulkItem, error: fetchError } = await supabase
+      .from("node_bulk_items")
+      .select("*")
+      .eq("id", id)
+      .single();
 
-    if (!bulkItem) {
+    if (fetchError || !bulkItem) {
       return res.status(404).json({
         success: false,
         message: "Bulk item not found",
       });
     }
 
-    // 2. Update and save
-    bulkItem.acceptedBy = bulkItem.acceptedBy || userId;
-    await bulkItem.save();
+    // 3. Update the accepted_by field if not already set
+    if (!bulkItem.accepted_by) {
+      const { data: updatedItem, error: updateError } = await supabase
+        .from("node_bulk_items")
+        .update({ accepted_by: userId })
+        .eq("id", id)
+        .select()
+        .single();
 
+      if (updateError) {
+        return res.status(500).json({
+          success: false,
+          message: "Failed to update bulk item",
+          error: updateError.message,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Item accepted successfully",
+        data: updatedItem,
+      });
+    }
+
+    // If already accepted
     return res.status(200).json({
       success: true,
-      message: "Item updated successfully",
+      message: "Item was already accepted",
       data: bulkItem,
     });
   } catch (err) {
@@ -225,39 +251,64 @@ export const acceptedBy = async (req, res) => {
 // };
 
 /**
- * Get single item details
+ * Get single bulk item details
  */
 export const getItem = async (req, res) => {
   try {
-    const tenantId = req.user.tenantId;
     const { bulkId } = req.params;
 
-    // Find the bulk item by ID and tenant
-    const bulkItem = await BulkItem.findOne({ _id: bulkId, tenantId });
+    // 1. Fetch the bulk item
+    const { data: bulkItem, error: bulkError } = await supabase
+      .from("node_bulk_items")
+      .select("*")
+      .eq("id", bulkId)
+      .single();
 
-    if (!bulkItem) {
+    if (bulkError || !bulkItem) {
       return res.status(404).json({ error: "Bulk item not found" });
     }
 
-    // Fetch related item details
-    const pendingItems = bulkItem.pendingItemIds.map((k) => k.toString());
-    const completedItems = bulkItem.completedItemIds.map((k) => k.toString());
+    // 2. Fetch pending item IDs
+    const { data: pendingData, error: pendingError } = await supabase
+      .from("node_bulk_item_pending")
+      .select("item_id")
+      .eq("bulk_item_id", bulkId);
 
+    if (pendingError) {
+      return res.status(500).json({ error: pendingError.message });
+    }
+
+    const pendingItems = pendingData.map((p) => p.item_id);
+
+    // 3. Fetch completed item IDs
+    const { data: completedData, error: completedError } = await supabase
+      .from("node_bulk_item_completed")
+      .select("item_id")
+      .eq("bulk_item_id", bulkId);
+
+    if (completedError) {
+      return res.status(500).json({ error: completedError.message });
+    }
+
+    const completedItems = completedData.map((c) => c.item_id);
+
+    // 4. Return response
     return res.json({
       bulkItem: {
-        _id: bulkItem._id,
-        tenantId: bulkItem.tenantId,
-        phaseId: bulkItem.phaseId,
+        id: bulkItem.id,
+        phaseId: bulkItem.phase_id,
         status: bulkItem.status,
-        createdAt: bulkItem.createdAt,
+        createdAt: bulkItem.created_at,
         images: bulkItem.images || [],
+        createdBy: bulkItem.created_by,
+        acceptedBy: bulkItem.accepted_by,
       },
       pendingItems,
       completedItems,
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Error fetching bulk item:", err);
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -418,54 +469,82 @@ export const getBulkItems = async (req, res) => {
   }
 };
 
-
+/**
+ * Get phases that come before a given phase
+ */
 export const getPhasesBefore = async (req, res) => {
   try {
     const { phaseName, bulkId } = req.params;
-    const { tenantId } = req.user; // Assuming tenantId is part of the user session or token
 
-    // Step 1: Find the current phase based on phaseName and tenantId
-    const currentPhase = await Phase.findOne({
-      tenantId,
-      name: phaseName,
-    }).lean();
+    // 1. Get the current phase
+    const { data: currentPhase, error: currentError } = await supabase
+      .from("node_phases")
+      .select("*")
+      .eq("name", phaseName)
+      .single();
 
-    if (!currentPhase) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Phase not found." });
+    if (currentError || !currentPhase) {
+      return res.status(404).json({
+        success: false,
+        message: "Phase not found.",
+      });
     }
 
-    // Step 2: Get all phases for this tenant ordered by 'order' (ascending)
-    const allPhases = await Phase.find({ tenantId }).sort({ order: 1 }).lean();
+    // 2. Get all phases ordered by "order"
+    const { data: allPhases, error: phasesError } = await supabase
+      .from("node_phases")
+      .select("*")
+      .order("order", { ascending: true });
 
-    // Step 3: Filter out phases that come before the current phase based on the order
+    if (phasesError) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch phases.",
+        error: phasesError.message,
+      });
+    }
+
+    // 3. Filter phases that come before current phase
     const phasesBefore = allPhases
       .filter(
-        (phase) => phase.order < currentPhase.order && phase.name !== "PO"
-      ) // Only include phases that come before
+        (phase) => phase.order < currentPhase.order && phase.name !== "Po"
+      )
       .map((phase) => ({
-        label: phase.name, // Phase name as the label
-        value: phase._id.toString(), // Phase ID as the value
+        label: phase.name,
+        value: phase.id,
       }));
 
-    // Find the bulk item by ID and tenant
-    const bulkItem =
-      bulkId !== "null"
-        ? await BulkItem.findOne({ _id: bulkId, tenantId })
-        : [];
-    const images = bulkItem.images || [];
+    // 4. Get images from the bulk item if bulkId is provided
+    let images = [];
+    if (bulkId && bulkId !== "null") {
+      const { data: bulkItem, error: bulkError } = await supabase
+        .from("node_bulk_items")
+        .select("images")
+        .eq("id", bulkId)
+        .single();
 
-    // Step 4: Send the phases before the current phase
+      if (bulkError && bulkError.code !== "PGRST116") {
+        // PGRST116 = no rows found
+        return res.status(500).json({
+          success: false,
+          message: "Failed to fetch bulk item images.",
+          error: bulkError.message,
+        });
+      }
+
+      images = bulkItem?.images || [];
+    }
+
     return res.status(200).json({
       success: true,
-      data: { phasesBefore, images }, // List of { label, value } pairs for phases before current phase
+      data: { phasesBefore, images },
     });
   } catch (err) {
     console.error("Error fetching phases before:", err);
-    return res
-      .status(500)
-      .json({ success: false, error: "Internal server error" });
+    return res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
   }
 };
 
@@ -474,243 +553,91 @@ export const getPhasesBefore = async (req, res) => {
  */
 export const moveItem = async (req, res) => {
   try {
-    const tenantId = req.user.tenantId;
     const userId = req.user.userId;
     const { phaseName, itemIds, quantity, type, bulkId, dispatchTo } = req.body;
 
-    // 1. Retrieve the current phase ID from the database based on phaseName
-    const currentPhase = await Phase.findOne({ tenantId, name: phaseName });
+    // 1. Get current phase
+    let { data: currentPhase, error: phaseError } = await supabase
+      .from("node_phases")
+      .select("*")
+      .eq("name", phaseName)
+      .single();
 
-    if (!currentPhase) {
+    if (phaseError || !currentPhase) {
       return res.status(400).json({
         success: false,
-        message: `Phase "${phaseName}" not found for tenant.`,
+        message: `Phase "${phaseName}" not found.`,
       });
     }
 
-    const currentPhaseId = currentPhase._id;
-    const currentPhaseIndex = currentPhase.order; // Assuming phase order is stored in the "order" field.
-
-    // 2. Retrieve the next phase ID dynamically
+    // 2. Get next phase
     let nextPhase;
     if (dispatchTo) {
-      nextPhase = await Phase.findOne({
-        tenantId,
-        name: dispatchTo,
-      });
+      ({ data: nextPhase, error: phaseError } = await supabase
+        .from("node_phases")
+        .select("*")
+        .eq("name", dispatchTo)
+        .single());
     } else {
-      nextPhase = await Phase.findOne({
-        tenantId,
-        order: currentPhaseIndex + 1,
-      });
+      ({ data: nextPhase, error: phaseError } = await supabase
+        .from("node_phases")
+        .select("*")
+        .eq("order", currentPhase.order + 1)
+        .single());
     }
-    if (!nextPhase) {
+
+    if (phaseError || !nextPhase) {
       return res.status(400).json({
         success: false,
         message: `No next phase found after "${phaseName}".`,
       });
     }
 
-    const nextPhaseId = nextPhase._id;
+    // 3. Get bulk item
+    let { data: bulkItems, error: bulkError } = await supabase
+      .from("node_bulk_items")
+      .select("*")
+      .eq("id", bulkId)
+      .eq("phase_id", currentPhase.id)
+      .single();
 
-    // 3. Find the BulkItem for the current phase
-    const bulkItem = await BulkItem.findOne({
-      tenantId,
-      phaseId: currentPhaseId,
-      _id: bulkId,
-    });
-
-    if (!bulkItem) {
+    if (bulkError || !bulkItems) {
       return res.status(404).json({
         success: false,
         message: `No bulk item found for phase "${phaseName}".`,
       });
     }
 
-    // 4. Handle the two types of operations (quantity-based or itemId-based)
-    let selectedItems = [];
+    // 4. Fetch pending items
+    let { data: pendingItems } = await supabase
+      .from("node_bulk_item_pending")
+      .select("item_id")
+      .eq("bulk_item_id", bulkId);
 
-    if (type === "quantity") {
-      if (!quantity || quantity <= 0) {
-        return res.status(400).json({
-          success: false,
-          message: "Quantity should be a positive number.",
-        });
-      }
-
-      // Validate that the bulk item has enough pending items
-      if (bulkItem.pendingItemIds.length < quantity) {
-        return res.status(400).json({
-          success: false,
-          message: "Not enough pending items to fulfill the quantity request.",
-        });
-      }
-
-      // Select `quantity` items either sequentially or randomly
-      const pendingItems = [...bulkItem.pendingItemIds]; // Copy array to prevent mutation
-
-      selectedItems = pendingItems.splice(0, quantity);
-
-      if (bulkItem.pendingItemIds.length === parseInt(quantity))
-        bulkItem.status =
-          bulkItem.status === "RETURNED" ? "RETURNED_COMPLETED" : "COMPLETED";
-
-      // Update pendingItemIds and completedItemIds in the current BulkItem
-      bulkItem.pendingItemIds = pendingItems;
-      bulkItem.completedItemIds.push(...selectedItems);
-
-      // 4. Get uploaded image paths
-
-      await bulkItem.save();
-      emitPhaseUpdate(tenantId);
-    } else if (type === "itemId" && itemIds && Array.isArray(itemIds)) {
-      // Validate that the provided itemIds exist in the pending items
-      const invalidItemIds = itemIds.filter(
-        (id) => !bulkItem.pendingItemIds.includes(id)
-      );
-
-      if (invalidItemIds.length > 0) {
-        return res.status(400).json({
-          success: false,
-          message: `The following itemIds are not in the pending list: ${invalidItemIds.join(
-            ", "
-          )}`,
-        });
-      }
-
-      // Move the provided itemIds from pending to completed
-      selectedItems = itemIds;
-      bulkItem.pendingItemIds = bulkItem.pendingItemIds.filter(
-        (id) => !itemIds.includes(id)
-      );
-      bulkItem.completedItemIds.push(...selectedItems);
-      await bulkItem.save();
-      emitPhaseUpdate(tenantId);
-    } else {
-      return res.status(400).json({
-        success: false,
-        message:
-          "Invalid operation type. Please specify 'quantity' or 'itemId'.",
-      });
-    }
-
-    const imagePaths =
-      req.files?.map((file) => `/uploads/${file.filename}`) || [];
-
-    // 5. Create a new BulkItem for the next phase
-    const newBulkItem = new BulkItem({
-      tenantId,
-      phaseId: nextPhaseId,
-      pendingItemIds: selectedItems,
-      status: "IN_PROGRESS", // Default status for new BulkItem
-      createdBy: userId,
-      images: [...bulkItem.images, ...imagePaths],
-    });
-
-    await newBulkItem.save();
-
-    return res.status(200).json({
-      success: true,
-      message: `Items successfully moved to the next phase (${nextPhase.name})`,
-      data: selectedItems,
-    });
-  } catch (err) {
-    console.error("Error moving items:", err);
-    return res.status(500).json({
-      success: false,
-      message: "Server error. Failed to move items.",
-    });
-  }
-};
-
-/**
- * Request return for an item
- */
-/**
- * Move item backward
- */
-export const moveItemBackward = async (req, res) => {
-  try {
-    const tenantId = req.user.tenantId;
-    const userId = req.user.userId;
-    const { phaseName, itemIds, quantity, type, bulkId, toPhase } = req.body;
-
-    // 1. Get current phase and toPhase info
-    const currentPhase = await Phase.findOne({ tenantId, name: phaseName });
-    const targetPhase = await Phase.findOne({ tenantId, name: toPhase });
-
-    if (!currentPhase || !targetPhase) {
-      return res.status(400).json({
-        success: false,
-        message: `Invalid current or target phase.`,
-      });
-    }
-
-    if (targetPhase.order >= currentPhase.order) {
-      return res.status(400).json({
-        success: false,
-        message: `Cannot move to a same or later phase. toPhase must be earlier than current phase.`,
-      });
-    }
-
-    const currentPhaseId = currentPhase._id;
-    const toPhaseId = targetPhase._id;
-
-    // 2. Find the BulkItem for the current phase
-    const currentBulkItem = await BulkItem.findOne({
-      tenantId,
-      phaseId: currentPhaseId,
-      _id: bulkId,
-    });
-
-    if (!currentBulkItem) {
-      return res.status(404).json({
-        success: false,
-        message: `Bulk item not found in phase "${phaseName}".`,
-      });
-    }
+    pendingItems = pendingItems.map((i) => i.item_id);
 
     let selectedItems = [];
 
     if (type === "quantity") {
-      if (!quantity || quantity <= 0) {
+      if (!quantity || quantity <= 0 || pendingItems.length < quantity) {
         return res.status(400).json({
           success: false,
-          message: "Quantity should be a positive number.",
+          message: "Invalid quantity or not enough pending items.",
         });
       }
 
-      if (currentBulkItem.pendingItemIds.length < quantity) {
-        return res.status(400).json({
-          success: false,
-          message: "Not enough completed items to move backward.",
-        });
-      }
-
-      const pendingItems = [...currentBulkItem.pendingItemIds];
-      selectedItems = pendingItems.splice(0, quantity);
-
-      currentBulkItem.pendingItemIds = pendingItems;
-      await currentBulkItem.save();
-    } else if (type === "itemId" && itemIds && Array.isArray(itemIds)) {
-      const invalidItemIds = itemIds.filter(
-        (id) => !currentBulkItem.pendingItemIds.includes(id)
-      );
-
+      selectedItems = pendingItems.slice(0, quantity);
+    } else if (type === "itemId" && Array.isArray(itemIds)) {
+      const invalidItemIds = itemIds.filter((id) => !pendingItems.includes(id));
       if (invalidItemIds.length > 0) {
         return res.status(400).json({
           success: false,
-          message: `The following itemIds are not in the completed list: ${invalidItemIds.join(
+          message: `The following itemIds are not in pending: ${invalidItemIds.join(
             ", "
           )}`,
         });
       }
-
       selectedItems = itemIds;
-      currentBulkItem.pendingItemIds = currentBulkItem.pendingItemIds.filter(
-        (id) => !itemIds.includes(id)
-      );
-      await currentBulkItem.save();
     } else {
       return res.status(400).json({
         success: false,
@@ -718,24 +645,221 @@ export const moveItemBackward = async (req, res) => {
       });
     }
 
-    // 4. Get uploaded image paths
+    // 5. Move items from pending → completed
+    for (const itemId of selectedItems) {
+      // Remove from pending
+      await supabase
+        .from("node_bulk_item_pending")
+        .delete()
+        .match({ bulk_item_id: bulkId, item_id: itemId });
+
+      // Add to completed
+      await supabase
+        .from("node_bulk_item_completed")
+        .insert([{ bulk_item_id: bulkId, item_id: itemId }]);
+
+      // Update item status
+      await supabase
+        .from("node_items")
+        .update({ status: "COMPLETED" })
+        .eq("id", itemId);
+    }
+
+    // 6. Determine new status for bulk item
+    const remainingPendingCount = pendingItems.length - selectedItems.length;
+    let newBulkStatus = "IN_PROGRESS";
+    if (remainingPendingCount === 0) {
+      newBulkStatus =
+        bulkItems.status === "RETURNED" ? "RETURNED_COMPLETED" : "COMPLETED";
+    }
+
+    await supabase
+      .from("node_bulk_items")
+      .update({ status: newBulkStatus })
+      .eq("id", bulkId);
+
+    // 7. Create new BulkItem for next phase
     const imagePaths =
       req.files?.map((file) => `/uploads/${file.filename}`) || [];
 
-    // 3. Add items to the target phase BulkItem (or create if not exists)
-    let targetBulkItem;
-    targetBulkItem = new BulkItem({
-      tenantId,
-      phaseId: toPhaseId,
-      pendingItemIds: selectedItems,
-      completedItemIds: [],
-      status: "RETURNED",
-      createdBy: userId,
-      images: [...currentBulkItem.images, ...imagePaths],
-    });
+    const { data: newBulk, error: newBulkError } = await supabase
+      .from("node_bulk_items")
+      .insert([
+        {
+          phase_id: nextPhase.id,
+          status: "IN_PROGRESS",
+          images: [...(bulkItems.images || []), ...imagePaths],
+          created_by: userId,
+        },
+      ])
+      .select()
+      .single();
 
-    await targetBulkItem.save();
-    emitPhaseUpdate(tenantId);
+    // Add selected items to pending of new bulk
+    for (const itemId of selectedItems) {
+      await supabase
+        .from("node_bulk_item_pending")
+        .insert([{ bulk_item_id: newBulk.id, item_id: itemId }]);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Items successfully moved to next phase: ${nextPhase.name}`,
+      data: selectedItems,
+    });
+  } catch (err) {
+    console.error("Error moving items:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Server error. Failed to move items.",
+      error: err.message,
+    });
+  }
+};
+
+/**
+ * Move item backward to an earlier phase
+ */
+export const moveItemBackward = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { phaseName, itemIds, quantity, type, bulkId, toPhase } = req.body;
+
+    // 1. Get current phase and target phase
+    const { data: currentPhase, error: currentError } = await supabase
+      .from("node_phases")
+      .select("*")
+      .eq("name", phaseName)
+      .single();
+
+    const { data: targetPhase, error: targetError } = await supabase
+      .from("node_phases")
+      .select("*")
+      .eq("name", toPhase)
+      .single();
+
+    if (currentError || targetError || !currentPhase || !targetPhase) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid current or target phase.",
+      });
+    }
+
+    if (targetPhase.order >= currentPhase.order) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Cannot move to the same or later phase. 'toPhase' must be earlier.",
+      });
+    }
+
+    // 2. Fetch bulk item for current phase
+    const { data: currentBulkItem, error: bulkError } = await supabase
+      .from("node_bulk_items")
+      .select("*")
+      .eq("id", bulkId)
+      .eq("phase_id", currentPhase.id)
+      .single();
+
+    if (bulkError || !currentBulkItem) {
+      return res.status(404).json({
+        success: false,
+        message: `Bulk item not found in phase "${phaseName}".`,
+      });
+    }
+
+    // 3. Fetch pending items of the bulk
+    let { data: pendingItems } = await supabase
+      .from("node_bulk_item_pending")
+      .select("item_id")
+      .eq("bulk_item_id", bulkId);
+
+    pendingItems = pendingItems.map((i) => i.item_id);
+
+    let selectedItems = [];
+
+    // 4. Select items to move backward
+    if (type === "quantity") {
+      if (!quantity || quantity <= 0 || pendingItems.length < quantity) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid quantity or not enough items to move backward.",
+        });
+      }
+      selectedItems = pendingItems.slice(0, quantity);
+    } else if (type === "itemId" && Array.isArray(itemIds)) {
+      const invalidItemIds = itemIds.filter((id) => !pendingItems.includes(id));
+      if (invalidItemIds.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: `The following itemIds are not in pending: ${invalidItemIds.join(
+            ", "
+          )}`,
+        });
+      }
+      selectedItems = itemIds;
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid operation type. Use 'quantity' or 'itemId'.",
+      });
+    }
+
+    // 5. Remove selected items from current bulk's pending
+    await supabase
+      .from("node_bulk_item_pending")
+      .delete()
+      .in("item_id", selectedItems)
+      .eq("bulk_item_id", bulkId);
+
+    // 6. Update current bulk status if needed
+    const remainingPending = pendingItems.length - selectedItems.length;
+    const newCurrentStatus =
+      remainingPending === 0 && currentBulkItem.status !== "RETURNED"
+        ? "COMPLETED"
+        : currentBulkItem.status;
+
+    await supabase
+      .from("node_bulk_items")
+      .update({ status: newCurrentStatus })
+      .eq("id", bulkId);
+
+    // 7. Get uploaded images
+    const imagePaths =
+      req.files?.map((file) => `/uploads/${file.filename}`) || [];
+
+    // 8. Create or fetch target bulk item for backward movement
+    let { data: targetBulk } = await supabase
+      .from("node_bulk_items")
+      .select("*")
+      .eq("phase_id", targetPhase.id)
+      .eq("status", "RETURNED")
+      .limit(1)
+      .single();
+
+    if (!targetBulk) {
+      const { data: newTargetBulk } = await supabase
+        .from("node_bulk_items")
+        .insert([
+          {
+            phase_id: targetPhase.id,
+            status: "RETURNED",
+            created_by: userId,
+            images: [...(currentBulkItem.images || []), ...imagePaths],
+          },
+        ])
+        .select()
+        .single();
+      targetBulk = newTargetBulk;
+    }
+
+    // 9. Add selected items to target bulk pending
+    const insertRows = selectedItems.map((itemId) => ({
+      bulk_item_id: targetBulk.id,
+      item_id: itemId,
+    }));
+
+    await supabase.from("node_bulk_item_pending").insert(insertRows);
 
     return res.status(200).json({
       success: true,
@@ -747,6 +871,7 @@ export const moveItemBackward = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Server error. Failed to move items backward.",
+      error: err.message,
     });
   }
 };
