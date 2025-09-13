@@ -4,7 +4,7 @@ import { User } from "../models/User.js";
 import { Phase } from "../models/Phase.js";
 import { connectDB } from "../config/db.js";
 import { Item } from "../models/Item.js";
-import { ReturnRequest } from "../models/ReturnRequest.js";
+// import { ReturnRequest } from "../models/ReturnRequest.js";
 import { ItemDetails } from "../models/ItemDetails.js";
 import { BulkItem } from "../models/BulkItem.js";
 
@@ -18,7 +18,7 @@ async function seed() {
       Phase.deleteMany({}),
       User.deleteMany({}),
       Item.deleteMany({}),
-      ReturnRequest.deleteMany({}),
+      // ReturnRequest.deleteMany({}),
       ItemDetails.deleteMany({}),
       BulkItem.deleteMany({}),
     ]);
@@ -64,7 +64,7 @@ async function seed() {
       users.push(user);
     }
 
-    // Create Phases and link users
+    // Create Phases and link users 
     const phases = [];
     for (let i = 0; i < phaseNames.length; i++) {
       const phase = await Phase.create({

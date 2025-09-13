@@ -1,17 +1,18 @@
 import express from "express";
 import cors from "cors";
-import helmet from "helmet";
+// import helmet from "helmet";
 import morgan from "morgan";
 import path, { join } from "path";
 import dotenv from "dotenv";
 import swaggerUi from "swagger-ui-express";
 
 import { connectDB } from "./config/db.js";
-import { authRoutes } from "./routes/auth.js";
+// import { authRoutes } from "./routes/auth.js";
 import { itemRoutes } from "./routes/items.js";
 import { fileRoutes } from "./routes/files.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { swaggerSpec } from "./config/swagger.js";
+import { nextRoutes } from "./routes/next.js";
 
 // Load environment variables
 dotenv.config();
@@ -23,7 +24,9 @@ const app = express();
 // app.use(helmet()); // Uncommenting this will not serving images
 app.use(
   cors({
-    origin: "http://localhost:5173", // your frontend
+    origin: ["http://localhost:5173", 
+      "http://localhost:3000"
+    ], // your frontend
     credentials: true,
   })
 );
@@ -40,9 +43,10 @@ app.use(
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // routes
-app.use("/api/auth", authRoutes);
+// app.use("/api/auth", authRoutes);
 app.use("/api/items", itemRoutes);
 app.use("/api/files", fileRoutes);
+app.use("/api/next", nextRoutes);
 
 app.use("/api/uploads", express.static(path.join(process.cwd(), "uploads")));
 

@@ -1,34 +1,35 @@
-import jwt from "jsonwebtoken";
-import { User } from "../models/User.js";
+import dotenv from "dotenv";
+dotenv.config();
 
-const { verify } = jwt;
+const NEXT_BASE_URL = process.env.NEXT_BASE_URL;
 
 export async function authMiddleware(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    return res.status(401).json({ message: "No token" });
-  }
-
-  const token = authHeader.split(" ")[1];
-
   try {
-    const payload = verify(token, process.env.JWT_SECRET);
+    // Forward cookies from incoming request
+    const sessionRes = await fetch(`${NEXT_BASE_URL}/api/auth/session`, {
+      method: "GET",
+      headers: {
+        cookie: req.headers.cookie || "",
+        authorization: req.headers.authorization || "",
+      },
+      credentials: "include",
+    });
 
-    // attach user minimal info
-    const user = await User.findById(payload.userId).select("-passwordHash");
-    if (!user) {
-      return res.status(401).json({ message: "User not found" });
+    if (sessionRes.status === 401) {
+      return res.status(401).json({ message: "Invalid Session" });
     }
 
+    const data = await sessionRes.json();
+
     req.user = {
-      userId: payload.userId,
-      tenantId: payload.tenantId,
-      role: payload.role,
-      name: payload.name,
-      email: payload.email,
+      userId: data.user.id,
+      role: data.user?.role?.name,
+      name: data.user.name,
+      email: data.user.email,
     };
     next();
   } catch (err) {
+    console.error("Auth Middleware Error:", err);
     return res.status(401).json({ message: "Invalid token" });
   }
 }

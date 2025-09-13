@@ -1,7 +1,4 @@
-import mongoose from "mongoose";
-import { BulkItem } from "../models/BulkItem.js";
-import { Phase } from "../models/Phase.js";
-import { Tenant } from "../models/Tenant.js";
+import { supabase } from "../config/db.js";
 
 const timeRangeToDate = (timeRange) => {
   const now = new Date();
@@ -23,104 +20,86 @@ const timeRangeToDate = (timeRange) => {
     case "1 Week":
       return new Date(now.setDate(now.getDate() - 7));
     default:
-      return null; // no filter
+      return null;
   }
 };
 
 export const getDashboardData = async (req, res) => {
   try {
-    const { tenantId, _id: userId, name, role, email } = req.user;
+    const { userId, name, role, email } = req.user;
     const { timeRange } = req.params;
 
-    // Fetch tenant name
-    const tenant = await Tenant.findById(tenantId).lean();
+    // Get phases for this tenant (skip "Po")
+    let { data: phases, error: phaseError } = await supabase
+      .from("node_phases")
+      .select("*")
+      .order("order", { ascending: true });
 
-    // Get all phases for this tenant
-    const phases = await Phase.find({ tenantId }).lean();
+    if (phaseError) throw phaseError;
 
-    // Prepare date filter
+    // Date filter
     const startDate = timeRangeToDate(timeRange);
-    const matchStage = {
-      tenantId: new mongoose.Types.ObjectId(tenantId),
-    };
+
+    // Fetch bulk items (with optional filter)
+    let query = supabase.from("node_bulk_items").select("*");
     if (startDate) {
-      matchStage.createdAt = { $gte: startDate };
+      query = query.gte("created_at", startDate.toISOString());
+    }
+    const { data: bulkItems, error: bulkError } = await query;
+    if (bulkError) throw bulkError;
+
+    // Group bulk items by phaseId
+    const bulkItemMap = {};
+    for (const item of bulkItems) {
+      const phaseId = item.phase_id;
+      if (!bulkItemMap[phaseId]) {
+        bulkItemMap[phaseId] = {
+          totalPending: 0,
+          totalCompleted: 0,
+          totalOrders: 0,
+          pendingOrders: 0,
+          completedOrders: 0,
+        };
+      }
+
+      const pendingCount = item.pending_item_ids?.length || 0;
+      const completedCount = item.completed_item_ids?.length || 0;
+
+      bulkItemMap[phaseId].totalPending += pendingCount;
+      bulkItemMap[phaseId].totalCompleted += completedCount;
+      bulkItemMap[phaseId].totalOrders += 1;
+      bulkItemMap[phaseId].pendingOrders += pendingCount > 0 ? 1 : 0;
+      bulkItemMap[phaseId].completedOrders += pendingCount === 0 ? 1 : 0;
     }
 
-    // Aggregate BulkItem data by phase
-    const bulkItems = await BulkItem.aggregate([
-      {
-        $match: matchStage,
-      },
-      {
-        $lookup: {
-          from: "phases", // Reference to the 'Phase' collection
-          localField: "phaseId",
-          foreignField: "_id",
-          as: "phaseDetails",
+    // Phase summary
+    const phaseSummary = phases.map((phase, idx) => {
+      const bulkData = bulkItemMap[phase.id] || {};
+      return {
+        phaseNumber: idx + 1,
+        phaseId: phase.id,
+        phaseName: phase.name,
+        items: {
+          total: (bulkData.totalPending || 0) + (bulkData.totalCompleted || 0),
+          pending: bulkData.totalPending || 0,
+          completed: bulkData.totalCompleted || 0,
         },
-      },
-      {
-        $unwind: {
-          path: "$phaseDetails",
-          preserveNullAndEmptyArrays: true,
+        orders: {
+          totalOrders: bulkData.totalOrders || 0,
+          pendingOrders: bulkData.pendingOrders || 0,
+          completedOrders: bulkData.completedOrders || 0,
         },
-      },
-      {
-        $group: {
-          _id: "$phaseId",
-          totalPending: { $sum: { $size: "$pendingItemIds" } },
-          totalCompleted: { $sum: { $size: "$completedItemIds" } },
-          totalOrders: { $sum: 1 },
-          pendingOrders: {
-            $sum: { $cond: [{ $gt: [{ $size: "$pendingItemIds" }, 0] }, 1, 0] },
-          },
-          completedOrders: {
-            $sum: {
-              $cond: [{ $eq: [{ $size: "$pendingItemIds" }, 0] }, 1, 0],
-            },
-          },
-        },
-      },
-    ]);
-
-    // Map bulk item data to phase data
-    const bulkItemMap = {};
-    bulkItems.forEach((item) => {
-      bulkItemMap[item._id?.toString()] = item;
+      };
     });
 
-    // Prepare phase summary data
-    const phaseSummary = phases
-      .filter((p) => p.name !== "Po")
-      .map((phase, idx) => {
-        const bulkData = bulkItemMap[phase._id.toString()] || {};
-
-        return {
-          phaseNumber: idx + 1,
-          phaseId: phase._id.toString(),
-          phaseName: phase.name,
-          items: {
-            total:
-              (bulkData.totalPending || 0) + (bulkData.totalCompleted || 0),
-            pending: bulkData.totalPending || 0,
-            completed: bulkData.totalCompleted || 0,
-          },
-          orders: {
-            totalOrders: bulkData.totalOrders || 0,
-            pendingOrders: bulkData.pendingOrders || 0,
-            completedOrders: bulkData.completedOrders || 0,
-          },
-        };
-      });
-
-    // Send response
+    // Response
     res.json({
       user: {
+        userId,
         name,
         role,
         email,
-        tenantName: tenant?.name || "",
+        tenantName: "Company Name", // TODO 
       },
       phases: phaseSummary,
     });
