@@ -11,7 +11,6 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   // const savedAuth = localStorage.getItem("auth");
 
-  // console.log("DDDD", savedAuth);
 
   // if (savedAuth) {
   //   const { token } = JSON.parse(savedAuth);

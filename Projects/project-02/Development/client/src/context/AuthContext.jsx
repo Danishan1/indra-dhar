@@ -24,7 +24,6 @@ export function AuthProvider({ children }) {
         } else {
           const data = await res.json();
 
-          console.log("DDDD Auth Data: ", data);
 
           setAuth({
             user: { ...data.user, role: data.user.role.name },

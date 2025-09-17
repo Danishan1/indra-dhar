@@ -554,7 +554,6 @@ export const moveItem = async (req, res) => {
       });
     }
 
-    console.log("DDDD", currentPhase);
 
     // 2. Get next phase
     let nextPhase;
@@ -572,7 +571,6 @@ export const moveItem = async (req, res) => {
         .single());
     }
 
-    console.log("DDDD", phaseError);
 
     if (phaseError || !nextPhase) {
       return res.status(400).json({

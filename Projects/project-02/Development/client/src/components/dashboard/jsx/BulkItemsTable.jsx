@@ -42,7 +42,6 @@ const BulkItemsTable = () => {
         params,
       });
 
-      console.log("DDDD", res);
 
       const data = res.data;
       if (data.success) {
