@@ -15,6 +15,7 @@ export function MoveToPhases({ onSuccess }) {
 
   const isPoPhase = "Po" === phaseName;
   const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(false); // NEW loading state
 
   const [formConfig, setFormConfig] = useState({
     submitVariant: "primary",
@@ -52,9 +53,7 @@ export function MoveToPhases({ onSuccess }) {
               label: "Move To",
               type: "dropdown",
               required: true,
-              options: [
-                { label: "Temporary-stock", value: "Temporary-stock" },
-              ],
+              options: [{ label: "Temporary-stock", value: "Temporary-stock" }],
             },
           ]
         : []),
@@ -108,29 +107,30 @@ export function MoveToPhases({ onSuccess }) {
       }
     };
     fetchPhases();
-  }, [addToast]);
+  }, [addToast, phaseName, bulkId]);
 
   const handleSubmit = async (data) => {
-    if (data?.dispatchTo?.value === "E-commarce") {
-      if (parseInt(data.quantity) !== 1) {
-        addToast("Quantity must be one for E-commarce Dispatch", "error");
-        return;
-      }
-    }
+    if (loading) return; // prevent double submit
+    setLoading(true);
 
     try {
+      if (data?.dispatchTo?.value === "E-commarce") {
+        if (parseInt(data.quantity) !== 1) {
+          addToast("Quantity must be one for E-commarce Dispatch", "error");
+          setLoading(false);
+          return;
+        }
+      }
+
       let payload;
       let isFormData = false;
 
-      // Check for image uploads
       const hasImages = data.images && data.images.length > 0;
 
       if (hasImages) {
-        // Build FormData
         payload = new FormData();
         isFormData = true;
 
-        // Manually append fields
         payload.append("phaseName", phaseName);
         payload.append("quantity", data.quantity);
         payload.append("bulkId", bulkId);
@@ -138,12 +138,10 @@ export function MoveToPhases({ onSuccess }) {
         payload.append("dispatchTo", data.dispatchTo?.value || "");
         payload.append("toPhase", data?.list?.label || "");
 
-        // Append images
         data.images.forEach((file) => {
           payload.append("images", file);
         });
       } else {
-        // Standard JSON payload
         payload = {
           phaseName,
           quantity: data.quantity,
@@ -154,7 +152,6 @@ export function MoveToPhases({ onSuccess }) {
         };
       }
 
-      // Choose API route
       const res =
         move === "move-forward"
           ? await api.post("/items/move-forward", payload, {
@@ -176,6 +173,8 @@ export function MoveToPhases({ onSuccess }) {
       const message =
         err.response?.data?.message || "An unexpected error occurred.";
       addToast(message, "error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -185,7 +184,8 @@ export function MoveToPhases({ onSuccess }) {
       <GenericForm
         config={formConfig}
         onSubmit={handleSubmit}
-        submitLabel={buttonLabel}
+        submitLabel={loading ? "Processing..." : buttonLabel}
+        disabled={loading}
       />
     </div>
   );

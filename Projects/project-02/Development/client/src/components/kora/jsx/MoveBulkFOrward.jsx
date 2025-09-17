@@ -4,7 +4,6 @@ import GenericForm from "../../common/jsx/GenericForm";
 import { useToast } from "../../../context/ToastContext";
 import { useNavigate, useParams } from "react-router-dom";
 import styles from "../css/MoveBulkForward.module.css";
-import { baseUrl } from "../../../util/baseUrl";
 
 export function MoveBulkForward({ onSuccess }) {
   const { addToast } = useToast();
@@ -21,6 +20,7 @@ export function MoveBulkForward({ onSuccess }) {
   const [data, setData] = useState([]);
   const [renderingData, setRendringData] = useState([]);
   const [isFormOneSubmit, setIsFormOneSubmit] = useState(false);
+  const [loadingMap, setLoadingMap] = useState({}); // NEW: track loading per item
 
   const isPoPhase = phaseName === "Po";
 
@@ -128,7 +128,7 @@ export function MoveBulkForward({ onSuccess }) {
     renderingData.length === 0 &&
       isFormOneSubmit &&
       navigate(isPoPhase ? `/user/view-item-list/${phaseName}` : "/user");
-  }, [renderingData]);
+  }, [renderingData, isFormOneSubmit, isPoPhase, navigate, phaseName]);
 
   // Step 1 submit
   const handleSubmit1 = async (formValues) => {
@@ -140,14 +140,18 @@ export function MoveBulkForward({ onSuccess }) {
 
   // Step 2 submit (single item)
   const handleSubmit = async (formValues, item) => {
-    if (formValues?.dispatchTo?.value === "E-commarce") {
-      if (parseInt(formValues.quantity) !== 1) {
-        addToast("Quantity must be one for E-commarce Dispatch", "error");
-        return;
-      }
-    }
+    if (loadingMap[item._id]) return; // prevent double submit for this item
+    setLoadingMap((prev) => ({ ...prev, [item._id]: true }));
 
     try {
+      if (formValues?.dispatchTo?.value === "E-commarce") {
+        if (parseInt(formValues.quantity) !== 1) {
+          addToast("Quantity must be one for E-commarce Dispatch", "error");
+          setLoadingMap((prev) => ({ ...prev, [item._id]: false }));
+          return;
+        }
+      }
+
       let payload;
       let isFormData = false;
 
@@ -184,12 +188,13 @@ export function MoveBulkForward({ onSuccess }) {
       addToast(res.data.message || "Successfully Moved.", "success");
       onSuccess?.(res.data);
       setRendringData(renderingData.filter((d) => d._id !== item._id));
-      // navigate(isPoPhase ? `/user/view-item-list/${phaseName}` : "/user");
     } catch (err) {
       console.error("Error moving item:", err);
       const message =
         err.response?.data?.message || "An unexpected error occurred.";
       addToast(message, "error");
+    } finally {
+      setLoadingMap((prev) => ({ ...prev, [item._id]: false }));
     }
   };
 
@@ -217,7 +222,10 @@ export function MoveBulkForward({ onSuccess }) {
               <GenericForm
                 config={formConfig2}
                 onSubmit={(formValues) => handleSubmit(formValues, item)}
-                submitLabel={buttonLabel2}
+                submitLabel={
+                  loadingMap[item._id] ? "Processing..." : buttonLabel2
+                }
+                disabled={loadingMap[item._id]}
               />
             </div>
           </div>

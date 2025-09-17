@@ -10,6 +10,7 @@ export default function GenericForm({
   config,
   onSubmit,
   submitLabel = "Submit",
+  disabled= false,
 }) {
   const initialState = {};
   config.fields.forEach((f) => {
@@ -107,7 +108,7 @@ export default function GenericForm({
         );
       })}
 
-      <Button type="submit" variant={config.submitVariant || "primary"}>
+      <Button type="submit" variant={config.submitVariant || "primary"} disabled={disabled}>
         {submitLabel}
       </Button>
     </form>
