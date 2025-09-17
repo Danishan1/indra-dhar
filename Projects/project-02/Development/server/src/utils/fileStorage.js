@@ -1,53 +1,41 @@
-import multer, { diskStorage } from "multer";
-import { join, extname } from "path";
-import { existsSync, mkdirSync, unlinkSync, renameSync } from "fs";
-import sharp from "sharp";
+// middleware/upload.js
+import multer from "multer";
+import { extname } from "path";
+import { supabase } from "../config/db.js";
 
-const UPLOAD_DIR = process.env.UPLOAD_DIR || "uploads";
-const MAX_IMAGE_BYTES = parseInt(
-  process.env.MAX_IMAGE_SIZE_BYTES || "5242880",
-  10
-);
-const ALLOWED = [".png", ".jpg", ".jpeg", ".webp"];
+// Multer in-memory storage (so file buffer is available for Supabase)
+const storage = multer.memoryStorage();
 
-function ensureDir(p) {
-  if (!existsSync(p)) mkdirSync(p, { recursive: true });
-}
-
-// storage strategy: use diskStorage and filename unique by timestamp
-const storage = diskStorage({
-  destination: (req, file, cb) => {
-    const { tenantId, itemId } = req.params; // expecting route to pass these
-    const dest = join(process.cwd(), UPLOAD_DIR, tenantId, "items", itemId);
-    ensureDir(dest);
-    cb(null, dest);
-  },
-  filename: (req, file, cb) => {
-    const ext = extname(file.originalname).toLowerCase();
-    const name = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
-    cb(null, name);
-  },
-});
-
-const upload = multer({
+export const upload = multer({
   storage,
-  limits: { fileSize: MAX_IMAGE_BYTES },
+  limits: { fileSize: parseInt(process.env.MAX_IMAGE_SIZE_BYTES || "5242880") },
   fileFilter: (req, file, cb) => {
+    const allowed = [".png", ".jpg", ".jpeg", ".webp"];
     const ext = extname(file.originalname).toLowerCase();
-    cb(null, ALLOWED.includes(ext));
+    if (!allowed.includes(ext)) return cb(new Error("Invalid file type"));
+    cb(null, true);
   },
 });
 
-async function processImage(filePath) {
-  // e.g., create a webp small variant and overwrite original or store separate
-  const tmpPath = filePath + ".webp";
-  await sharp(filePath)
-    .resize(1600, 1600, { fit: "inside" })
-    .webp({ quality: 80 })
-    .toFile(tmpPath);
-  // replace original with processed
-  unlinkSync(filePath);
-  renameSync(tmpPath, filePath);
-}
+export const uploadToSupabase = async (file) => {
+  const fileExt = extname(file.originalname);
+  const fileName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${fileExt}`;
 
-export { upload, processImage, UPLOAD_DIR };
+  const filePath = `uploads/${fileName}`;
+
+  const { data, error } = await supabase.storage
+    .from("product-images") // your bucket name
+    .upload(filePath, file.buffer, {
+      contentType: file.mimetype,
+      upsert: false,
+    });
+
+  if (error) throw error;
+
+  // Get public URL
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from("product-images").getPublicUrl(filePath);
+
+  return publicUrl;
+};

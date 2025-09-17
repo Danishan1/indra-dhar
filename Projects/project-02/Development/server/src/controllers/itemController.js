@@ -8,6 +8,7 @@
 // import { BulkItem } from "../models/BulkItem.js";
 // import { emitPhaseUpdate } from "../../server.js";
 import { supabase } from "../config/db.js";
+import { uploadToSupabase } from "../utils/fileStorage.js";
 
 // export const createItem = async (req, res) => {
 //   try {
@@ -357,6 +358,8 @@ export const getBulkItems = async (req, res) => {
         phase_id,
         status,
         images,
+        pending_count,
+        completed_count,
         created_at,
         created_by (id, name),
         accepted_by (id, name)
@@ -375,63 +378,60 @@ export const getBulkItems = async (req, res) => {
     const incompleteOrders = [];
     const returnOrders = [];
 
+    const query = `
+          item_id,
+          node_items!inner (
+            id,
+            item_detail_id,
+            sample_development (
+              *,
+              buyers!inner (buyer_name),
+              vendors!inner (vendor_name)
+            )
+          )
+        `;
+
     for (const item of bulkItems) {
-      // pending items
       const { data: pendingItems } = await supabase
         .from("node_bulk_item_pending")
-        .select(
-          `
-          item:node_items (
-            id,
-            item_detail_id (
-              name,
-              vendor_name,
-              buyer_name,
-              color
-            )
-          )
-        `
-        )
-        .eq("bulk_item_id", item.id);
+        .select(query)
+        .eq("bulk_item_id", item.id)
+        .limit(1);
 
-      // completed items
       const { data: completedItems } = await supabase
         .from("node_bulk_item_completed")
-        .select(
-          `
-          item:node_items (
-            id,
-            item_detail_id (
-              name,
-              vendor_name,
-              buyer_name,
-              color
-            )
-          )
-        `
-        )
-        .eq("bulk_item_id", item.id);
+        .select(query)
+        .eq("bulk_item_id", item.id)
+        .limit(1);
 
-      const firstPending = pendingItems?.[0]?.item?.item_detail_id;
-      const firstCompleted = completedItems?.[0]?.item?.item_detail_id;
+      const firstPending = pendingItems?.[0]?.node_items?.sample_development;
+      const firstCompleted =
+        completedItems?.[0]?.node_items?.sample_development;
 
       const itemDetails = firstPending || firstCompleted || {};
 
       const simplified = {
         id: item.id,
-        itemName: itemDetails.name || "Unnamed Item",
-        vendorName: itemDetails.vendor_name,
-        buyerName: itemDetails.buyer_name,
-        color: itemDetails.color,
-        quantity: (pendingItems?.length || 0) + (completedItems?.length || 0),
-        pendingItemCount: pendingItems?.length || 0,
-        completedItemCount: completedItems?.length || 0,
+        itemName: itemDetails.product_name || "Unnamed Item",
+        vendorName: itemDetails.vendors.vendor_name || "Unknown Vendor",
+        buyerName: itemDetails.buyers.buyer_name || "Unknown Buyer",
+        color: itemDetails.color || "-",
+        quantity:
+          (parseInt(item.pending_count) || 0) +
+          (parseInt(item.completed_count) || 0),
+        pendingItemCount: item.pending_count || 0,
+        completedItemCount: item.completed_count || 0,
         status: item.status,
         createdAt: item.created_at,
         createdBy: item.created_by?.name || "Unknown",
         acceptedBy: item.accepted_by?.name || "Pending",
         phaseName: phase.name,
-        image: item.images?.length > 0 ? item.images[0] : "none",
+        image: item.images?.[0] || "none",
+        size: item.size,
+        weight: item.weight,
+        remarks: item.remarks,
+        style_no: item.style_no,
+        description: item.description,
       };
 
       if ((pendingItems?.length || 0) === 0) {
@@ -665,7 +665,7 @@ export const moveItem = async (req, res) => {
         .eq("id", itemId);
     }
 
-    // 6. Determine new status for bulk item
+    // 6. Update bulk item status
     const remainingPendingCount = pendingItems.length - selectedItems.length;
     let newBulkStatus = "IN_PROGRESS";
     if (remainingPendingCount === 0) {
@@ -678,24 +678,31 @@ export const moveItem = async (req, res) => {
       .update({ status: newBulkStatus })
       .eq("id", bulkId);
 
-    // 7. Create new BulkItem for next phase
-    const imagePaths =
-      req.files?.map((file) => `/uploads/${file.filename}`) || [];
+    // 7. Upload images to Supabase
+    let imageUrls = [];
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const url = await uploadToSupabase(file);
+        imageUrls.push(url);
+      }
+    }
 
+    // 8. Create new BulkItem for next phase
     const { data: newBulk, error: newBulkError } = await supabase
       .from("node_bulk_items")
       .insert([
         {
           phase_id: nextPhase.id,
           status: "IN_PROGRESS",
-          images: [...(bulkItems.images || []), ...imagePaths],
+          images: [...(bulkItems.images || []), ...imageUrls],
           created_by: userId,
         },
       ])
       .select()
       .single();
 
-    // Add selected items to pending of new bulk
+    if (newBulkError) throw newBulkError;
+
     for (const itemId of selectedItems) {
       await supabase
         .from("node_bulk_item_pending")
@@ -824,9 +831,14 @@ export const moveItemBackward = async (req, res) => {
       .update({ status: newCurrentStatus })
       .eq("id", bulkId);
 
-    // 7. Get uploaded images
-    const imagePaths =
-      req.files?.map((file) => `/uploads/${file.filename}`) || [];
+    // 7. Upload images to Supabase
+    let uploadedImageUrls = [];
+    if (req.files?.length) {
+      for (const file of req.files) {
+        const publicUrl = await uploadToSupabase(file);
+        uploadedImageUrls.push(publicUrl);
+      }
+    }
 
     // 8. Create or fetch target bulk item for backward movement
     let { data: targetBulk } = await supabase
@@ -845,12 +857,22 @@ export const moveItemBackward = async (req, res) => {
             phase_id: targetPhase.id,
             status: "RETURNED",
             created_by: userId,
-            images: [...(currentBulkItem.images || []), ...imagePaths],
+            images: [...(currentBulkItem.images || []), ...uploadedImageUrls],
           },
         ])
         .select()
         .single();
       targetBulk = newTargetBulk;
+    } else {
+      // Append new images if bulk already exists
+      const updatedImages = [
+        ...(targetBulk.images || []),
+        ...uploadedImageUrls,
+      ];
+      await supabase
+        .from("node_bulk_items")
+        .update({ images: updatedImages })
+        .eq("id", targetBulk.id);
     }
 
     // 9. Add selected items to target bulk pending

@@ -62,8 +62,8 @@ export const getDashboardData = async (req, res) => {
         };
       }
 
-      const pendingCount = item.pending_item_ids?.length || 0;
-      const completedCount = item.completed_item_ids?.length || 0;
+      const pendingCount = parseInt(item.pending_count) || 0;
+      const completedCount = parseInt(item.completed_count) || 0;
 
       bulkItemMap[phaseId].totalPending += pendingCount;
       bulkItemMap[phaseId].totalCompleted += completedCount;
@@ -99,7 +99,7 @@ export const getDashboardData = async (req, res) => {
         name,
         role,
         email,
-        tenantName: "Company Name", // TODO 
+        tenantName: "Company Name", // TODO
       },
       phases: phaseSummary,
     });

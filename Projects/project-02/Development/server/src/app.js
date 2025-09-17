@@ -9,7 +9,7 @@ import swaggerUi from "swagger-ui-express";
 import { connectDB } from "./config/db.js";
 // import { authRoutes } from "./routes/auth.js";
 import { itemRoutes } from "./routes/items.js";
-import { fileRoutes } from "./routes/files.js";
+// import { fileRoutes } from "./routes/files.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { swaggerSpec } from "./config/swagger.js";
 import { nextRoutes } from "./routes/next.js";
@@ -35,20 +35,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // public var for serving uploaded files but access routed through files router
-app.use(
-  "/public/uploads",
-  express.static(join(process.cwd(), process.env.UPLOAD_DIR || "uploads"))
-);
+// app.use(
+//   "/public/uploads",
+//   express.static(join(process.cwd(), process.env.UPLOAD_DIR || "uploads"))
+// );
 
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // routes
 // app.use("/api/auth", authRoutes);
 app.use("/api/items", itemRoutes);
-app.use("/api/files", fileRoutes);
+// app.use("/api/files", fileRoutes);
 app.use("/api/next", nextRoutes);
 
-app.use("/api/uploads", express.static(path.join(process.cwd(), "uploads")));
+// app.use("/api/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // health
 app.get("/health", (req, res) => res.json({ ok: true }));

@@ -5,6 +5,7 @@ import * as itemController from "../controllers/itemController.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { getDashboardData } from "../controllers/dashboardController.js";
 import { uploadFile } from "../middleware/uploadFile.js";
+import { upload } from "../utils/fileStorage.js";
 
 const router = express.Router();
 
@@ -19,12 +20,12 @@ router.get("/get-bulk-items/:phaseName", itemController.getBulkItems); // Get al
 router.get("/:bulkId", itemController.getItem); // Get single item by ID
 router.post(
   "/move-forward",
-  uploadFile.array("images"),
+  upload.array("images", 5),
   itemController.moveItem
 );
 router.post(
   "/move-backward",
-  uploadFile.array("images"),
+  upload.array("images", 5),
   itemController.moveItemBackward
 );
 router.get(

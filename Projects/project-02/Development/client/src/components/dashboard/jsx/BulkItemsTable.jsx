@@ -122,7 +122,7 @@ const BulkItemsTable = () => {
     <tr key={item._id}>
       <td>
         {item.image !== "none" && (
-          <img className={styles.img} src={`${baseUrl}${item.image}`} />
+          <img className={styles.img} src={`${item.image}`} />
         )}
       </td>
       <td>{item.itemName || "N/A"}</td>

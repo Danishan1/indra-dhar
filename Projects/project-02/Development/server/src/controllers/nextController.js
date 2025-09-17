@@ -1,30 +1,130 @@
+import { supabase } from "../config/db.js";
+
+/**
+ * Insert multiple POs into Kora phase
+ */
 export const newPO = async (req, res) => {
-  console.log("DDDD", req.body);
+  try {
+    const poList = req.body; // Expecting an array of POs
 
+    if (!Array.isArray(poList) || poList.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Request body must be a non-empty array.",
+      });
+    }
 
-  res.status(201).json({
-    success: true,
-    message: "Po Added Successfuly",
-    data: {},
-  });
-};
+    // 1. Find Kora phase once
+    const { data: koraPhase, error: koraError } = await supabase
+      .from("node_phases")
+      .select("id")
+      .eq("name", "Kora")
+      .single();
 
+    if (koraError || !koraPhase) {
+      return res.status(400).json({
+        success: false,
+        message: "Kora phase not found.",
+      });
+    }
 
-/*
+    let results = [];
 
-DDDD [
-  {
-    buyer_ref: 'B003',
-    buyer_PO_No: 'PDOE',
-    our_PO_No: 'PO-0003',
-    deliveryDate: '2025-09-25T18:29:59.999Z',
-    deliveryAddress: 'Chennai Branch',
-    merchandiser: 'a6b434f9-ffeb-4575-a421-3139beeddaad',
-    created_by: '643f16fb-46be-4e95-87d7-97f63240250e',
-    sampleId: 'acdb1b04-a54f-4fac-b0d0-5be4df6db784',
-    orderedQuantity: '2000',
-    price: '300'
+    // 2. Loop through each PO entry
+    for (const po of poList) {
+      const {
+        buyer_ref,
+        buyer_PO_No,
+        our_PO_No,
+        deliveryDate,
+        deliveryAddress,
+        merchandiser,
+        created_by,
+        sampleId,
+        orderedQuantity,
+        price,
+      } = po;
+
+      const { data: imageData, error: imageError } = await supabase
+        .from("sample_development")
+        .select("image_url")
+        .eq("id", sampleId)
+        .single();
+
+      if (imageError) throw bulkError;
+
+      // 2.1 Create a new bulk item for this PO
+      const { data: bulkItem, error: bulkError } = await supabase
+        .from("node_bulk_items")
+        .insert([
+          {
+            phase_id: koraPhase.id,
+            status: "IN_PROGRESS",
+            pending_count: parseInt(orderedQuantity),
+            completed_count: 0,
+            created_by,
+            images: [imageData.image_url],
+          },
+        ])
+        .select()
+        .single();
+
+      if (bulkError) throw bulkError;
+
+      // 2.2 Create node items for ordered quantity
+      let itemIds = [];
+      for (let i = 0; i < Number(orderedQuantity); i++) {
+        const { data: newItem, error: itemError } = await supabase
+          .from("node_items")
+          .insert([
+            {
+              phase_id: koraPhase.id,
+              item_detail_id: sampleId,
+              status: "IN_PROGRESS",
+              history: [`Created in Kora by ${created_by}`],
+            },
+          ])
+          .select()
+          .single();
+
+        if (itemError) throw itemError;
+        itemIds.push(newItem.id);
+
+        // Add item to bulk pending
+        await supabase
+          .from("node_bulk_item_pending")
+          .insert([{ bulk_item_id: bulkItem.id, item_id: newItem.id }]);
+      }
+
+      // 2.3 Collect response for this PO
+      results.push({
+        buyer_ref,
+        buyer_PO_No,
+        our_PO_No,
+        deliveryDate,
+        deliveryAddress,
+        merchandiser,
+        created_by,
+        sampleId,
+        orderedQuantity,
+        price,
+        bulkItem,
+        items: itemIds,
+      });
+    }
+
+    // 3. Send response for all POs
+    return res.status(201).json({
+      success: true,
+      message: "PO(s) added successfully into Kora phase.",
+      data: results,
+    });
+  } catch (err) {
+    console.error("Error creating POs:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Server error. Failed to create POs.",
+      error: err.message,
+    });
   }
-]
-
-*/
+};
