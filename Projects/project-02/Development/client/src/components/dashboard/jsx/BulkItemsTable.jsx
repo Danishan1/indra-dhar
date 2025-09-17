@@ -100,9 +100,9 @@ const BulkItemsTable = () => {
     }
   };
 
-  const handleView = (id) => {
-    navigate(`/user/view-item/${id}`);
-  };
+  // const handleView = (id) => {
+  //   navigate(`/user/view-item/${id}`);
+  // };
 
   const handleMoveForward = (id) => {
     navigate(`/user/move-forward/${phaseName}/${id}`);
@@ -128,7 +128,8 @@ const BulkItemsTable = () => {
       <td>{item.itemName || "N/A"}</td>
       <td>{item.vendorName || "—"}</td>
       <td>{item.buyerName || "—"}</td>
-      <td>{item.color || "—"}</td>
+      <td>{item.size || "—"}</td>
+      <td>{item.weight || "—"}</td>
       <td>{item.quantity}</td>
       <td>{item.pendingItemCount}</td>
       <td>{item.completedItemCount}</td>
@@ -136,9 +137,9 @@ const BulkItemsTable = () => {
       <td>{new Date(item.createdAt).toLocaleString()}</td>
       <td>{item.createdBy}</td>
       <td>{item.acceptedBy}</td>
-      <td className={styles.actions}>
-        <button onClick={() => handleView(item._id)}>View</button>
-        {userPhaseName === item.phaseName && (
+      {userPhaseName === item.phaseName && (
+        <td className={styles.actions}>
+          {/* <button onClick={() => handleView(item._id)}>View</button> */}
           <>
             {item.acceptedBy === "Pending" && username !== item.createdBy && (
               <button onClick={() => handleAcceptedBy(item._id)}>Accept</button>
@@ -156,8 +157,8 @@ const BulkItemsTable = () => {
               </>
             )}
           </>
-        )}
-      </td>
+        </td>
+      )}
     </tr>
   );
 
@@ -169,15 +170,16 @@ const BulkItemsTable = () => {
           <th>Item Name</th>
           <th>Vendor</th>
           <th>Buyer</th>
-          <th>Color</th>
+          <th>Size</th>
+          <th>weight</th>
           <th>Quantity Recieved</th>
           <th>Balance in Stock</th>
-          <th>Sent Forward</th>
+          <th>Sent</th>
           <th>Status</th>
           <th>Created At</th>
           <th>Created By</th>
           <th>Accepted By</th>
-          <th>Actions</th>
+          {userPhaseName === orders[0].phaseName && <th>Actions</th>}
         </tr>
       </thead>
       <tbody>{orders.map((item) => renderRow(item, isCompleted))}</tbody>

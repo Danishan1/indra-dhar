@@ -33,7 +33,7 @@ export const getDashboardData = async (req, res) => {
     let { data: phases, error: phaseError } = await supabase
       .from("node_phases")
       .select("*")
-      .order("order", { ascending: true });
+      .order("phase_order", { ascending: true });
 
     if (phaseError) throw phaseError;
 
@@ -65,11 +65,18 @@ export const getDashboardData = async (req, res) => {
       const pendingCount = parseInt(item.pending_count) || 0;
       const completedCount = parseInt(item.completed_count) || 0;
 
-      bulkItemMap[phaseId].totalPending += pendingCount;
-      bulkItemMap[phaseId].totalCompleted += completedCount;
-      bulkItemMap[phaseId].totalOrders += 1;
-      bulkItemMap[phaseId].pendingOrders += pendingCount > 0 ? 1 : 0;
-      bulkItemMap[phaseId].completedOrders += pendingCount === 0 ? 1 : 0;
+      bulkItemMap[phaseId].totalPending =
+        parseInt(bulkItemMap[phaseId].totalPending) + pendingCount;
+      bulkItemMap[phaseId].totalCompleted =
+        parseInt(bulkItemMap[phaseId].totalCompleted) + completedCount;
+      bulkItemMap[phaseId].totalOrders =
+        parseInt(bulkItemMap[phaseId].totalOrders) + 1;
+      bulkItemMap[phaseId].pendingOrders =
+        parseInt(bulkItemMap[phaseId].pendingOrders) + pendingCount > 0 ? 1 : 0;
+      bulkItemMap[phaseId].completedOrders =
+        parseInt(bulkItemMap[phaseId].completedOrders) + pendingCount === 0
+          ? 1
+          : 0;
     }
 
     // Phase summary
@@ -80,7 +87,9 @@ export const getDashboardData = async (req, res) => {
         phaseId: phase.id,
         phaseName: phase.name,
         items: {
-          total: (bulkData.totalPending || 0) + (bulkData.totalCompleted || 0),
+          total:
+            parseInt(bulkData.totalPending || 0) +
+            parseInt(bulkData.totalCompleted || 0),
           pending: bulkData.totalPending || 0,
           completed: bulkData.totalCompleted || 0,
         },

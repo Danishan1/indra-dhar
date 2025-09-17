@@ -4,7 +4,7 @@ import ErrorPage from "../pages/jsx/ErrorPage";
 // import { CreateMasterData } from "../kora/jsx/CreateMasterData";
 import { MoveToPhases } from "../kora/jsx/MoveToPhases";
 import BulkItemsTable from "../dashboard/jsx/BulkItemsTable";
-import { BulkItemDetails } from "../pages/jsx/BulkItemDetails";
+// import { BulkItemDetails } from "../pages/jsx/BulkItemDetails";
 import { useAuth } from "../../context/AuthContext";
 import { MoveBulkForward } from "../kora/jsx/MoveBulkFOrward";
 // import BulkUpload from "../pages/jsx/BulkUpload";
@@ -49,7 +49,7 @@ export default function ProtectedAppRoutes() {
         path="/user/view-item-list/:phaseName"
         element={<BulkItemsTable />}
       />
-      <Route path="/user/view-item/:bulkId" element={<BulkItemDetails />} />
+      {/* <Route path="/user/view-item/:bulkId" element={<BulkItemDetails />} /> */}
       <Route path="/user/:move/:phaseName/:bulkId" element={<MoveToPhases />} />
       <Route path="user/move-bulk/:phaseName" element={<MoveBulkForward />} />
       <Route path="*" element={<ErrorPage />} />

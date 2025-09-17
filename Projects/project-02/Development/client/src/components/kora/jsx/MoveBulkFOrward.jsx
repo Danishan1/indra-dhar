@@ -11,6 +11,8 @@ export function MoveBulkForward({ onSuccess }) {
   const { phaseName } = useParams();
   const navigate = useNavigate();
 
+  const move = "move-forward";
+
   const title1 = "Bulk Move Forwards";
   const buttonLabel1 = "Start Moving Forwards";
   const title2 = "Enter Quantity";
@@ -62,9 +64,7 @@ export function MoveBulkForward({ onSuccess }) {
               label: "Move To",
               type: "dropdown",
               required: true,
-              options: [
-                { label: "Temporary-stock", value: "Temporary-stock" },
-              ],
+              options: [{ label: "Temporary-stock", value: "Temporary-stock" }],
             },
           ]
         : []),
@@ -208,7 +208,7 @@ export function MoveBulkForward({ onSuccess }) {
           <div key={item._id} className={styles.moveForwards}>
             <div className={styles.img}>
               {item.image && item.image !== "none" && (
-                <img src={`${baseUrl}${item.image}`} alt={item.itemName} />
+                <img src={item.image} alt={item.itemName} />
               )}
             </div>
             <div className={styles.details}>

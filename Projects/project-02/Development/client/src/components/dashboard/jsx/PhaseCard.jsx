@@ -19,7 +19,7 @@ export default function PhaseCard({ phase }) {
           <strong>Balance Quantity in Stock:</strong> {items.pending}
         </div>
         <div className={styles.summaryItem}>
-          <strong>Sent Quantity Forward:</strong> {items.completed}
+          <strong>Sent Quantity:</strong> {items.completed}
         </div>
       </div>
 
@@ -32,7 +32,7 @@ export default function PhaseCard({ phase }) {
           <strong>Balance Orders in Stock:</strong> {orders.pendingOrders}
         </div>
         <div className={styles.summaryItem}>
-          <strong>Sent Orders Forwards:</strong> {orders.completedOrders}
+          <strong>Sent Orders:</strong> {orders.completedOrders}
         </div>
       </div>
 

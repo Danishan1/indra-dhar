@@ -4,7 +4,7 @@ import * as itemController from "../controllers/itemController.js";
 // import * as returnController from "../controllers/returnController.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { getDashboardData } from "../controllers/dashboardController.js";
-import { uploadFile } from "../middleware/uploadFile.js";
+// import { uploadFile } from "../middleware/uploadFile.js";
 import { upload } from "../utils/fileStorage.js";
 
 const router = express.Router();
@@ -17,7 +17,7 @@ router.get("/dashboard/:timeRange", getDashboardData); // Dashboard (GET)
 // router.post("/bulk-create", itemController.bulkCreateItems); // Create single item
 // router.get("/", itemController.listItems); // Get all items
 router.get("/get-bulk-items/:phaseName", itemController.getBulkItems); // Get all items
-router.get("/:bulkId", itemController.getItem); // Get single item by ID
+// router.get("/:bulkId", itemController.getItem); // Get single item by ID
 router.post(
   "/move-forward",
   upload.array("images", 5),

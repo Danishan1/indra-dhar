@@ -62,6 +62,7 @@ export const newPO = async (req, res) => {
             status: "IN_PROGRESS",
             pending_count: parseInt(orderedQuantity),
             completed_count: 0,
+            sample_id: sampleId,
             created_by,
             images: [imageData.image_url],
           },
@@ -71,30 +72,30 @@ export const newPO = async (req, res) => {
 
       if (bulkError) throw bulkError;
 
-      // 2.2 Create node items for ordered quantity
-      let itemIds = [];
-      for (let i = 0; i < Number(orderedQuantity); i++) {
-        const { data: newItem, error: itemError } = await supabase
-          .from("node_items")
-          .insert([
-            {
-              phase_id: koraPhase.id,
-              item_detail_id: sampleId,
-              status: "IN_PROGRESS",
-              history: [`Created in Kora by ${created_by}`],
-            },
-          ])
-          .select()
-          .single();
+      // // 2.2 Create node items for ordered quantity
+      // let itemIds = [];
+      // for (let i = 0; i < Number(orderedQuantity); i++) {
+      //   const { data: newItem, error: itemError } = await supabase
+      //     .from("node_items")
+      //     .insert([
+      //       {
+      //         phase_id: koraPhase.id,
+      //         item_detail_id: sampleId,
+      //         status: "IN_PROGRESS",
+      //         history: [`Created in Kora by ${created_by}`],
+      //       },
+      //     ])
+      //     .select()
+      //     .single();
 
-        if (itemError) throw itemError;
-        itemIds.push(newItem.id);
+      //   if (itemError) throw itemError;
+      //   itemIds.push(newItem.id);
 
-        // Add item to bulk pending
-        await supabase
-          .from("node_bulk_item_pending")
-          .insert([{ bulk_item_id: bulkItem.id, item_id: newItem.id }]);
-      }
+      //   // Add item to bulk pending
+      //   await supabase
+      //     .from("node_bulk_item_pending")
+      //     .insert([{ bulk_item_id: bulkItem.id, item_id: newItem.id }]);
+      // }
 
       // 2.3 Collect response for this PO
       results.push({
@@ -109,7 +110,6 @@ export const newPO = async (req, res) => {
         orderedQuantity,
         price,
         bulkItem,
-        items: itemIds,
       });
     }
 
