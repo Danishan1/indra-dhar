@@ -5,7 +5,8 @@ import { supabase } from "../config/db.js";
  */
 export const newPO = async (req, res) => {
   try {
-    const poList = req.body; // Expecting an array of POs
+    const _poList = req.body; // Expecting an array of POs
+    const poList = [_poList];
 
     if (!Array.isArray(poList) || poList.length === 0) {
       return res.status(400).json({
@@ -28,22 +29,14 @@ export const newPO = async (req, res) => {
       });
     }
 
-    let results = [];
+    // let results = [];
 
     // 2. Loop through each PO entry
     for (const po of poList) {
-      const {
-        buyer_ref,
-        buyer_PO_No,
-        our_PO_No,
-        deliveryDate,
-        deliveryAddress,
-        merchandiser,
-        created_by,
-        sampleId,
-        orderedQuantity,
-        price,
-      } = po;
+      const { sampleId, quantity: orderedQuantity, buyer_purchase_orders } = po;
+
+      const po_id = buyer_purchase_orders.merchandiser;
+
 
       const { data: imageData, error: imageError } = await supabase
         .from("sample_development")
@@ -63,7 +56,7 @@ export const newPO = async (req, res) => {
             pending_count: parseInt(orderedQuantity),
             completed_count: 0,
             sample_id: sampleId,
-            created_by,
+            created_by: po_id,
             images: [imageData.image_url],
           },
         ])
@@ -97,27 +90,27 @@ export const newPO = async (req, res) => {
       //     .insert([{ bulk_item_id: bulkItem.id, item_id: newItem.id }]);
       // }
 
-      // 2.3 Collect response for this PO
-      results.push({
-        buyer_ref,
-        buyer_PO_No,
-        our_PO_No,
-        deliveryDate,
-        deliveryAddress,
-        merchandiser,
-        created_by,
-        sampleId,
-        orderedQuantity,
-        price,
-        bulkItem,
-      });
+      //   // 2.3 Collect response for this PO
+      //   results.push({
+      //     buyer_ref,
+      //     buyer_PO_No,
+      //     our_PO_No,
+      //     deliveryDate,
+      //     deliveryAddress,
+      //     merchandiser,
+      //     created_by,
+      //     sampleId,
+      //     orderedQuantity,
+      //     price,
+      //     bulkItem,
+      //   });
     }
 
     // 3. Send response for all POs
     return res.status(201).json({
       success: true,
       message: "PO(s) added successfully into Kora phase.",
-      data: results,
+      data: {},
     });
   } catch (err) {
     console.error("Error creating POs:", err);
