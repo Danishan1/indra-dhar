@@ -361,6 +361,7 @@ export const getBulkItems = async (req, res) => {
         pending_count,
         completed_count,
         created_at,
+        from_phase,
         created_by (id, name),
         accepted_by (id, name),
         sample_development (
@@ -409,6 +410,7 @@ export const getBulkItems = async (req, res) => {
         acceptedBy: item.accepted_by?.name || "Pending",
         phaseName: phase.name,
         image: item.images?.[0] || itemDetails.image_url || "none",
+        from: item.from_phase || "-",
         size: itemDetails.size,
         weight: itemDetails.weight,
         remarks: itemDetails.remarks,
@@ -554,7 +556,6 @@ export const moveItem = async (req, res) => {
       });
     }
 
-
     // 2. Get next phase
     let nextPhase;
     if (dispatchTo) {
@@ -570,7 +571,6 @@ export const moveItem = async (req, res) => {
         .eq("phase_order", parseInt(currentPhase.phase_order) + 1)
         .single());
     }
-
 
     if (phaseError || !nextPhase) {
       return res.status(400).json({
@@ -701,6 +701,7 @@ export const moveItem = async (req, res) => {
           sample_id: bulkItems.sample_id,
           images: [...(bulkItems.images || []), ...imageUrls],
           created_by: userId,
+          from_phase: phaseName,
         },
       ])
       .select()
@@ -757,7 +758,12 @@ export const moveItemBackward = async (req, res) => {
       });
     }
 
-    if (targetPhase.phase_order >= currentPhase.phase_order) {
+    console.log("DDDD",  targetPhase.phase_order, currentPhase.phase_order)
+
+    if (
+      targetPhase.phase_order !== 5 &&
+      targetPhase.phase_order >= currentPhase.phase_order
+    ) {
       return res.status(400).json({
         success: false,
         message:
@@ -868,6 +874,7 @@ export const moveItemBackward = async (req, res) => {
           completed_count: 0,
           sample_id: currentBulkItem.sample_id,
           images: [...(currentBulkItem.images || []), ...uploadedImageUrls],
+          from_phase: phaseName,
         },
       ])
       .single();

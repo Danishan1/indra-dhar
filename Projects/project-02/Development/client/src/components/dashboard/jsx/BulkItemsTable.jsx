@@ -115,6 +115,7 @@ const BulkItemsTable = () => {
     !isCompleted &&
     phaseName !== "E-commerce" &&
     phaseName !== "Export" &&
+    phaseName !== "Defective-space" &&
     (phaseName === "Po" || item.acceptedBy !== "Pending");
 
   const notKoraAcceptFor = [

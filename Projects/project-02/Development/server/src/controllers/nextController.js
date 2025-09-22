@@ -67,6 +67,7 @@ export const newPO = async (req, res) => {
             sample_id: sampleId,
             created_by: po_id,
             images: [imageData.image_url],
+            from_phase: "PO",
           },
         ])
         .select()

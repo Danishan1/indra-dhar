@@ -103,7 +103,7 @@ export function MoveToPhases({ onSuccess }) {
                   ...field,
                   options: [
                     ...data?.phasesBefore,
-                    { label: "Temporary-stock", value: "Temporary-stock" },
+                    { label: "Defective-space", value: "Defective-space" },
                   ],
                 }
               : field
