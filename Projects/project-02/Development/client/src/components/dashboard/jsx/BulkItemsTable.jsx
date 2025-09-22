@@ -23,6 +23,7 @@ const BulkItemsTable = () => {
   const { phaseName } = useParams();
   const userPhaseName =
     user?.role.slice(0, 1).toUpperCase() + user?.role.slice(1);
+  const userRole = user?.role;
 
   const username = user?.name;
   const fetchData = async (pageNum = 1, append = false) => {
@@ -41,7 +42,6 @@ const BulkItemsTable = () => {
       const res = await api.get(`/items/get-bulk-items/${phaseName}`, {
         params,
       });
-
 
       const data = res.data;
       if (data.success) {
@@ -133,16 +133,20 @@ const BulkItemsTable = () => {
       <td>{item.pendingItemCount}</td>
       <td>{item.completedItemCount}</td>
       <td>{item.status}</td>
+      <td>{item.from || "-"}</td>
       <td>{new Date(item.createdAt).toLocaleString()}</td>
       <td>{item.createdBy}</td>
       <td>{item.acceptedBy}</td>
-      {userPhaseName === item.phaseName && (
+      {(userPhaseName === item.phaseName || userRole === "admin") && (
         <td className={styles.actions}>
           {/* <button onClick={() => handleView(item._id)}>View</button> */}
           <>
-            {item.acceptedBy === "Pending" && username !== item.createdBy && (
-              <button onClick={() => handleAcceptedBy(item._id)}>Accept</button>
-            )}
+            {item.acceptedBy === "Pending" &&
+              (username !== item.createdBy || userRole === "admin") && (
+                <button onClick={() => handleAcceptedBy(item._id)}>
+                  Accept
+                </button>
+              )}
             {isButtonRender(isCompleted, item) && (
               <>
                 <button onClick={() => handleMoveForward(item._id)}>
@@ -175,10 +179,13 @@ const BulkItemsTable = () => {
           <th>Balance in Stock</th>
           <th>Sent</th>
           <th>Status</th>
+          <th>From</th>
           <th>Created At</th>
           <th>Created By</th>
           <th>Accepted By</th>
-          {userPhaseName === orders[0].phaseName && <th>Actions</th>}
+          {(userPhaseName === orders[0].phaseName || userRole === "admin") && (
+            <th>Actions</th>
+          )}
         </tr>
       </thead>
       <tbody>{orders.map((item) => renderRow(item, isCompleted))}</tbody>
@@ -250,7 +257,7 @@ const BulkItemsTable = () => {
 
         {phaseName !== "E-commerce" &&
           phaseName !== "Store" &&
-          phaseName === userPhaseName && (
+          (phaseName === userPhaseName || userRole === "admin") && (
             <Button
               variant="primary"
               onClick={() => navigate(`/user/move-bulk/${phaseName}`)}

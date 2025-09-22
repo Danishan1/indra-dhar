@@ -15,6 +15,7 @@ export default function Dashboard() {
   const { token, logout, user } = useAuth();
   const navigate = useNavigate();
   const phaseName = user?.role.slice(0, 1).toUpperCase() + user?.role.slice(1);
+  const userRole = user?.role;
 
   // Fetch initial data
   const fetchData = async () => {
@@ -87,12 +88,12 @@ export default function Dashboard() {
             ]}
             onSelect={(value) => setTimeRange(value.label)}
           />
-          <Button
+          {/* <Button
             variant="primary"
             onClick={() => navigate(`/user/view-item-list/${phaseName}`)}
           >
             View Items
-          </Button>
+          </Button> */}
           <Button variant="danger" onClick={logout}>
             Logout
           </Button>

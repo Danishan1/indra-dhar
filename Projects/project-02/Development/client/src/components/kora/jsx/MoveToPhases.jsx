@@ -10,7 +10,9 @@ export function MoveToPhases({ onSuccess }) {
   const { move, phaseName, bulkId } = useParams();
   const navigate = useNavigate();
   const title =
-    move === "move-forward" ? "Move to Next phase" : "Move to other phase";
+    move === "move-forward"
+      ? "Move to Next phase"
+      : "Move to backward (Return)";
   const buttonLabel = move === "move-forward" ? "Move to Next Phase" : "Return";
 
   const isPoPhase = "Po" === phaseName;
@@ -25,7 +27,7 @@ export function MoveToPhases({ onSuccess }) {
         ? [
             {
               name: "list",
-              label: "Add Item to Kora",
+              label: "Add Item to",
               type: "dropdown",
               required: true,
               options: [],
@@ -97,7 +99,13 @@ export function MoveToPhases({ onSuccess }) {
           ...prev,
           fields: prev.fields.map((field) =>
             field.name === "list"
-              ? { ...field, options: data?.phasesBefore }
+              ? {
+                  ...field,
+                  options: [
+                    ...data?.phasesBefore,
+                    { label: "Temporary-stock", value: "Temporary-stock" },
+                  ],
+                }
               : field
           ),
         }));
