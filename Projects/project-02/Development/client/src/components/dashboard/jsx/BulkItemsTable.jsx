@@ -117,6 +117,16 @@ const BulkItemsTable = () => {
     phaseName !== "Export" &&
     (phaseName === "Po" || item.acceptedBy !== "Pending");
 
+  const notKoraAcceptFor = [
+    "Paint",
+    "Finishing",
+    "Export",
+    "Store",
+    "Temporary-stock",
+    "Defective-space",
+    "E-commerce",
+  ];
+
   const renderRow = (item, isCompleted) => (
     <tr key={item._id}>
       <td>
@@ -142,7 +152,9 @@ const BulkItemsTable = () => {
           {/* <button onClick={() => handleView(item._id)}>View</button> */}
           <>
             {item.acceptedBy === "Pending" &&
-              (username !== item.createdBy || userRole === "admin") && (
+              (!notKoraAcceptFor.includes(userPhaseName) ||
+                username !== item.createdBy ||
+                userRole === "admin") && (
                 <button onClick={() => handleAcceptedBy(item._id)}>
                   Accept
                 </button>
