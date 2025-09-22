@@ -33,10 +33,19 @@ export const newPO = async (req, res) => {
 
     // 2. Loop through each PO entry
     for (const po of poList) {
-      const { sampleId, quantity: orderedQuantity, buyer_purchase_orders } = po;
+      const { sampleId, buyer_purchase_orders, orderReceivingDetails } = po;
 
       const po_id = buyer_purchase_orders.merchandiser;
+      const orderDetails = orderReceivingDetails;
 
+      let quantity = null;
+      if (orderDetails && orderDetails.length > 0) {
+        const lastEntry = orderDetails[orderDetails.length - 1]; // ✅ last element
+        // Parse JSON string into object
+        const parsed =
+          typeof lastEntry === "string" ? JSON.parse(lastEntry) : lastEntry;
+        quantity = parsed.qty;
+      }
 
       const { data: imageData, error: imageError } = await supabase
         .from("sample_development")
@@ -53,7 +62,7 @@ export const newPO = async (req, res) => {
           {
             phase_id: koraPhase.id,
             status: "IN_PROGRESS",
-            pending_count: parseInt(orderedQuantity),
+            pending_count: parseInt(quantity),
             completed_count: 0,
             sample_id: sampleId,
             created_by: po_id,

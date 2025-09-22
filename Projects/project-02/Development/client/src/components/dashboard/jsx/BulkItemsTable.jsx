@@ -42,7 +42,6 @@ const BulkItemsTable = () => {
         params,
       });
 
-
       const data = res.data;
       if (data.success) {
         setCompletedOrders((prev) =>
@@ -117,6 +116,16 @@ const BulkItemsTable = () => {
     phaseName !== "Export" &&
     (phaseName === "Po" || item.acceptedBy !== "Pending");
 
+  const notKoraAcceptFor = [
+    "Paint",
+    "Finishing",
+    "Export",
+    "Store",
+    "Temporary-stock",
+    "Defective-space",
+    "E-commerce",
+  ];
+
   const renderRow = (item, isCompleted) => (
     <tr key={item._id}>
       <td>
@@ -140,9 +149,13 @@ const BulkItemsTable = () => {
         <td className={styles.actions}>
           {/* <button onClick={() => handleView(item._id)}>View</button> */}
           <>
-            {item.acceptedBy === "Pending" && username !== item.createdBy && (
-              <button onClick={() => handleAcceptedBy(item._id)}>Accept</button>
-            )}
+            {item.acceptedBy === "Pending" &&
+              (!notKoraAcceptFor.includes(userPhaseName) ||
+                username !== item.createdBy) && (
+                <button onClick={() => handleAcceptedBy(item._id)}>
+                  Accept
+                </button>
+              )}
             {isButtonRender(isCompleted, item) && (
               <>
                 <button onClick={() => handleMoveForward(item._id)}>
