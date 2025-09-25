@@ -700,6 +700,8 @@ export const moveItem = async (req, res) => {
           completed_count: 0,
           sample_id: bulkItems.sample_id,
           images: [...(bulkItems.images || []), ...imageUrls],
+          job_order_id: bulkItems.job_order_id,
+          po_id: bulkItems.po_id,
           created_by: userId,
           from_phase: phaseName,
         },
@@ -757,8 +759,6 @@ export const moveItemBackward = async (req, res) => {
         message: "Invalid current or target phase.",
       });
     }
-
-    console.log("DDDD",  targetPhase.phase_order, currentPhase.phase_order)
 
     if (
       targetPhase.phase_order !== 5 &&
@@ -874,6 +874,8 @@ export const moveItemBackward = async (req, res) => {
           completed_count: 0,
           sample_id: currentBulkItem.sample_id,
           images: [...(currentBulkItem.images || []), ...uploadedImageUrls],
+          job_order_id: currentBulkItem.job_order_id,
+          po_id: currentBulkItem.po_id,
           from_phase: phaseName,
         },
       ])

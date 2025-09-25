@@ -33,9 +33,15 @@ export const newPO = async (req, res) => {
 
     // 2. Loop through each PO entry
     for (const po of poList) {
-      const { sampleId, buyer_purchase_orders, orderReceivingDetails } = po;
+      const {
+        sampleId,
+        buyer_purchase_orders,
+        orderReceivingDetails,
+        id: job_order_id,
+        po_id,
+      } = po;
 
-      const po_id = buyer_purchase_orders.merchandiser;
+      const createBy = buyer_purchase_orders.merchandiser;
       const orderDetails = orderReceivingDetails;
 
       let quantity = null;
@@ -65,7 +71,9 @@ export const newPO = async (req, res) => {
             pending_count: parseInt(quantity),
             completed_count: 0,
             sample_id: sampleId,
-            created_by: po_id,
+            job_order_id: job_order_id,
+            po_id: po_id,
+            created_by: createBy,
             images: [imageData.image_url],
             from_phase: "PO",
           },
