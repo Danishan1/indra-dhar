@@ -1,0 +1,34 @@
+.numberWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.stepper {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  height: calc(100% - 4px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.stepBtn {
+  border: none;
+  background: none;
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+  cursor: pointer;
+  padding: 0 6px;
+  transition: color var(--transition-fast);
+}
+
+.stepBtn:hover {
+  color: var(--color-primary);
+}
+
+.numberInput input[type="number"]::-webkit-inner-spin-button,
+.numberInput input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

@@ -1,0 +1,13 @@
+.emailWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.icon {
+  color: var(--color-text-muted);
+  transition: color var(--transition-fast);
+}
+
+.emailWrapper:focus-within .icon {
+  color: var(--color-primary);
+}
