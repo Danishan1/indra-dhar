@@ -1,7 +1,7 @@
 import {
   createUser,
   findUserByEmail,
-} from "../repositories/user.repository.js";
+} from "../repositories/auth.repository.js";
 import { hashPassword, comparePassword } from "../utils/hash.util.js";
 import { generateToken } from "../utils/token.util.js";
 
