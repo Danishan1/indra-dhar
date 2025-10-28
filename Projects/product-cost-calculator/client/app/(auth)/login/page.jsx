@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { TextInput } from "@/components/ui";
+import { PasswordInput, TextInput } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
 import { FormComponent } from "@/components/forms";
 
@@ -58,8 +58,7 @@ export default function LoginPage() {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        <TextInput
-          type="password"
+        <PasswordInput
           label="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
