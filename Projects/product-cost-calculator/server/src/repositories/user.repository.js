@@ -1,4 +1,4 @@
-import pool from "../config/db.js";
+import { pool } from "../config/db.js";
 import { randomUUID } from "crypto";
 
 export const createUser = async ({ name, email, password_hash, role }) => {
@@ -12,6 +12,8 @@ export const createUser = async ({ name, email, password_hash, role }) => {
 };
 
 export const findUserByEmail = async (email) => {
-  const [rows] = await pool.query(`SELECT * FROM users WHERE email = ?`, [email]);
+  const [rows] = await pool.query(`SELECT * FROM users WHERE email = ?`, [
+    email,
+  ]);
   return rows[0];
 };

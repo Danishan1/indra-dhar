@@ -1,0 +1,9 @@
+CREATE TABLE cost_categories (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,             -- e.g. "Raw Material", "Labor", "Electricity"
+    code VARCHAR(100) UNIQUE NOT NULL,      -- e.g. "MATERIAL", "LABOR", "UTIL_ELECTRIC"
+    cost_type ENUM('direct','indirect') NOT NULL,
+    allocation_basis ENUM('batch','machine_hours','labor_hours','units_produced','custom') DEFAULT 'batch',
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

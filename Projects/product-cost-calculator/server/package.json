@@ -6,7 +6,10 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "migrate": "node migrate.js",
+    "seed": "node seed.js",
+    "setup": "pnpm migrate && pnpm seed"
   },
   "keywords": [],
   "author": "",

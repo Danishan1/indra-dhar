@@ -56,12 +56,14 @@ export default function LoginPage() {
           label="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
         />
         <TextInput
           type="password"
           label="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          required
         />
       </FormComponent>
     </div>

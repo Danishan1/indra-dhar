@@ -2,8 +2,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context";
-import { AuthLayout } from "@/components/common";
-import { Button, EmailInput, PasswordInput, TextInput } from "@/components/ui";
+import {
+  Button,
+  EmailInput,
+  PasswordInput,
+  SelectInput,
+  TextInput,
+} from "@/components/ui";
 import { FormComponent } from "@/components/forms";
 
 export default function RegisterPage() {
@@ -23,7 +28,7 @@ export default function RegisterPage() {
     setError("");
     setLoading(true);
     try {
-      const res = await register(name, email, password);
+      const res = await register(name, email, password, confirmPassword, role);
       if (res.success) router.push("/dashboard");
       else setError(res.message);
     } catch (err) {
@@ -31,6 +36,12 @@ export default function RegisterPage() {
     }
     setLoading(false);
   };
+
+  const roleOptions = [
+    { value: "admin", label: "Admin" },
+    { value: "manager", label: "Manager" },
+    { value: "user", label: "User" },
+  ];
 
   return (
     <div
@@ -60,26 +71,33 @@ export default function RegisterPage() {
           label="Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          required
         />
         <EmailInput
           label="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
         />
         <PasswordInput
           label="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          required
         />
         <PasswordInput
           label="Confirm Password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
+          required
         />
-        <TextInput
+        <SelectInput
           label="Role"
+          placeholder="Select role"
+          options={roleOptions}
           value={role}
           onChange={(e) => setRole(e.target.value)}
+          required
         />
       </FormComponent>
     </div>
