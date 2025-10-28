@@ -31,7 +31,9 @@ export function TextInput({
   const inputClass = clsx(
     styles.inputField,
     error && styles.errorInput,
-    disabled && styles.disabled
+    disabled && styles.disabled,
+    iconLeft && styles.withIconLeft,
+    iconRight && styles.withIconRight
   );
 
   return (

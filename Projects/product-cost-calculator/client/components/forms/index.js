@@ -1,13 +1,5 @@
-import { FormActions } from "./jsx/FormActions";
-import { FormAlert } from "./jsx/FormAlert";
-import { FormComponent } from "./jsx/FormComponent";
-import { FormGrid } from "./jsx/FormGrid";
-import { FormSection } from "./jsx/FormSection";
-
-export const From = {
-  Actions: FormActions,
-  Alert: FormAlert,
-  Component: FormComponent,
-  Grid: FormGrid,
-  Section: FormSection,
-};
+export { FormActions } from "./jsx/FormActions";
+export { FormAlert } from "./jsx/FormAlert";
+export { FormComponent } from "./jsx/FormComponent";
+export { FormGrid } from "./jsx/FormGrid";
+export { FormSection } from "./jsx/FormSection";

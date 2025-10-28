@@ -5,10 +5,10 @@
 /* ---------- CSS Variables ---------- */
 :root {
   /*  Colors */
-  --color-primary: #0070f3;
-  --color-primary-hover: #005ac1;
-  --color-secondary: #5f6368;
-  --color-accent: #f39c12;
+  --color-primary: #1b3a4b;
+  --color-primary-hover: #144552;
+  --color-secondary: #312244;
+  --color-accent: #4d194d;
   --color-danger: #e74c3c;
   --color-success: #27ae60;
   --color-warning: #f1c40f;

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "../css/EmailInput.module.css";
 import { Mail } from "lucide-react";
-import TextInput from "./TextInput";
+import { TextInput } from "./TextInput";
 
 /**
  * EmailInput Component
@@ -58,7 +58,6 @@ export function EmailInput({
     </div>
   );
 }
-
 
 /*
 

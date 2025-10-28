@@ -1,8 +1,8 @@
 "use client";
 import React, { useState } from "react";
-import styles from "..css/PasswordInput.module.css";
+import styles from "../css/PasswordInput.module.css";
 import { Eye, EyeOff } from "lucide-react";
-import TextInput from "./TextInput";
+import { TextInput } from "./TextInput";
 
 /**
  * Password Input Component
@@ -54,7 +54,6 @@ export function PasswordInput({
     </div>
   );
 }
-
 
 /*
 

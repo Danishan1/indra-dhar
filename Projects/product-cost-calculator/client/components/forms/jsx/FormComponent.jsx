@@ -26,6 +26,8 @@ export function FormComponent({
   error,
   success,
   actions = true,
+  submitlabel = "Submit",
+  cancelLabel = "Cancel",
 }) {
   return (
     <form
@@ -39,9 +41,7 @@ export function FormComponent({
       {(title || description) && (
         <div className={styles.header}>
           {title && <h2 className={styles.title}>{title}</h2>}
-          {description && (
-            <p className={styles.description}>{description}</p>
-          )}
+          {description && <p className={styles.description}>{description}</p>}
         </div>
       )}
 
@@ -62,7 +62,7 @@ export function FormComponent({
             disabled={loading}
             className={styles.primaryBtn}
           >
-            {loading ? "Saving..." : "Submit"}
+            {loading ? "Saving..." : submitlabel}
           </button>
           {onCancel && (
             <button
@@ -70,7 +70,7 @@ export function FormComponent({
               className={styles.secondaryBtn}
               onClick={onCancel}
             >
-              Cancel
+              {cancelLabel}
             </button>
           )}
         </div>
@@ -78,7 +78,6 @@ export function FormComponent({
     </form>
   );
 }
-
 
 /*
 

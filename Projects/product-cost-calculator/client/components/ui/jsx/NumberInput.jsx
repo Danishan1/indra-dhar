@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import styles from "../css/NumberInput.module.css";
-import TextInput from "./TextInput";
+import { TextInput } from "./TextInput";
 
 /**
  * NumberInput Component
