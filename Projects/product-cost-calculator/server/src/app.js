@@ -4,6 +4,8 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.routes.js";
 import { costCategoryRoutes } from "./routes/costCategory.routes.js";
+import { costItemRoutes } from "./routes/costItem.routes.js";
+import { costAllocationRoutes } from "./routes/costAllocation.routes.js";
 
 dotenv.config();
 const app = express();
@@ -16,5 +18,7 @@ app.use(morgan("dev"));
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/cost-categories", costCategoryRoutes);
+app.use("/api/cost-items", costItemRoutes);
+app.use("/api/cost-allocations", costAllocationRoutes);
 
 export default app;

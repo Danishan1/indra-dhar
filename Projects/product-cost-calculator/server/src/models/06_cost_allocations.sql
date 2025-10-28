@@ -5,5 +5,6 @@ CREATE TABLE cost_allocations (
     allocation_percentage DECIMAL(5,2) DEFAULT 100.00,  -- percent of cost to allocate
     formula_expression TEXT NULL,                      -- optional JS-like formula (future support)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT TRUE,
     FOREIGN KEY (category_id) REFERENCES cost_categories(id)
 );

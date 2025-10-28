@@ -7,6 +7,7 @@ CREATE TABLE batch_cost_results (
     cost_per_unit DECIMAL(12,4) DEFAULT 0.00,
     profit_margin DECIMAL(5,2) DEFAULT 0.00,
     suggested_selling_price DECIMAL(12,2) DEFAULT 0.00,
+    is_active BOOLEAN DEFAULT TRUE,
     calculated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (batch_id) REFERENCES batches(id)
 );

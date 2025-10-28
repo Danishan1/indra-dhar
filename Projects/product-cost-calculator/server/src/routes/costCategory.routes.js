@@ -16,3 +16,5 @@ router.put("/:id", UCV, validateRequest, CCC.update);
 router.delete("/:id", CCC.remove);
 
 export const costCategoryRoutes = router;
+
+

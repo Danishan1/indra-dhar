@@ -8,5 +8,6 @@ CREATE TABLE batches (
     completed_at DATETIME,
     status ENUM('draft','calculated','approved','archived') DEFAULT 'draft',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT TRUE,
     FOREIGN KEY (product_id) REFERENCES products(id)
 );

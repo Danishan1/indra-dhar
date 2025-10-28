@@ -7,5 +7,6 @@ CREATE TABLE cost_items (
     vendor_id BIGINT UNSIGNED NULL,
     is_variable BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT TRUE,
     FOREIGN KEY (category_id) REFERENCES cost_categories(id)
 );

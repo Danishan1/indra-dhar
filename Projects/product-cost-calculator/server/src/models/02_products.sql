@@ -4,5 +4,6 @@ CREATE TABLE products (
     sku VARCHAR(100) UNIQUE,
     description TEXT,
     default_batch_size DECIMAL(10,2),
+    is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
