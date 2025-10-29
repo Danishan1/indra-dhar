@@ -2,7 +2,15 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import styles from "../css/Sidebar.module.css";
-import { Home, Calculator, Package, Settings } from "lucide-react";
+import {
+  Home,
+  Users,
+  Layers,
+  Package,
+  Share2,
+  Calculator,
+  Settings,
+} from "lucide-react";
 import { CONST } from "@/utils/CONST";
 
 const { ICON_SIZE } = CONST;
@@ -10,6 +18,7 @@ const { ICON_SIZE } = CONST;
 export function Sidebar() {
   const { user, logout } = useAuth();
   const pathname = usePathname();
+  const sidebarPath = `/${pathname.split("/")[1]}`;
   const router = useRouter();
 
   const menuItems = {
@@ -20,12 +29,27 @@ export function Sidebar() {
         path: "/dashboard",
       },
       {
-        name: "Projects",
-        icon: <Package size={ICON_SIZE} />,
-        path: "/projects",
+        name: "Users",
+        icon: <Users size={ICON_SIZE} />,
+        path: "/users",
       },
       {
-        name: "Costing",
+        name: "Cost Category",
+        icon: <Layers size={ICON_SIZE} />,
+        path: "/cost-category",
+      },
+      {
+        name: "Cost Items",
+        icon: <Package size={ICON_SIZE} />,
+        path: "/cost-items",
+      },
+      {
+        name: "Cost Allocation",
+        icon: <Share2 size={ICON_SIZE} />,
+        path: "/cost-allocation",
+      },
+      {
+        name: "Cost Calculator",
         icon: <Calculator size={ICON_SIZE} />,
         path: "/costing",
       },
@@ -42,12 +66,27 @@ export function Sidebar() {
         path: "/dashboard",
       },
       {
-        name: "Projects",
-        icon: <Package size={ICON_SIZE} />,
-        path: "/projects",
+        name: "Users",
+        icon: <Users size={ICON_SIZE} />,
+        path: "/users",
       },
       {
-        name: "Costing",
+        name: "Cost Category",
+        icon: <Layers size={ICON_SIZE} />,
+        path: "/cost-category",
+      },
+      {
+        name: "Cost Items",
+        icon: <Package size={ICON_SIZE} />,
+        path: "/cost-items",
+      },
+      {
+        name: "Cost Allocation",
+        icon: <Share2 size={ICON_SIZE} />,
+        path: "/cost-allocation",
+      },
+      {
+        name: "Cost Calculator",
         icon: <Calculator size={ICON_SIZE} />,
         path: "/costing",
       },
@@ -59,7 +98,7 @@ export function Sidebar() {
         path: "/dashboard",
       },
       {
-        name: "My Costing",
+        name: "Cost Calculator",
         icon: <Calculator size={ICON_SIZE} />,
         path: "/costing",
       },
@@ -78,7 +117,7 @@ export function Sidebar() {
             key={item.path}
             onClick={() => router.push(item.path)}
             className={`${styles.menuItem} ${
-              pathname === item.path ? styles.active : ""
+              sidebarPath === item.path ? styles.active : ""
             }`}
           >
             {item.icon}
