@@ -1,3 +1,4 @@
+export {Table} from "./jsx/Table";
 export { Button } from "./jsx/Button";
 export { CheckboxGroup } from "./jsx/CheckboxGroup";
 export { DateInput } from "./jsx/DateInput";
@@ -11,4 +12,3 @@ export { SelectInput } from "./jsx/SelectInput";
 export { SwitchInput } from "./jsx/SwitchInput";
 export { Textarea } from "./jsx/Textarea";
 export { TextInput } from "./jsx/TextInput";
-

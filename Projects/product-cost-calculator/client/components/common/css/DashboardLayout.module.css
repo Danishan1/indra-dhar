@@ -3,11 +3,23 @@
   height: 100vh;
   width: 100vw;
   background-color: var(--color-background);
+  --heightTopBar: 60px;
 }
 
 .main {
   flex: 1;
+  height: 100%;
+}
+
+.topNavBar {
   padding: 10px;
+  height: var(--heightTopBar);
+  padding-left: 30px;
+}
+
+.content {
+  padding: 10px;
+  height: calc(100% - var(--heightTopBar));
   overflow-y: auto;
 }
 

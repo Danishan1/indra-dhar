@@ -10,7 +10,11 @@ export function DashboardLayout({ children, tabs, showBack }) {
       <div className={styles.layout}>
         <Sidebar />
         <main className={styles.main}>
-          {tabs && <TopNavbar tabs={tabs} showBack={showBack} />}
+          {tabs && (
+            <div className={styles.topNavBar}>
+              <TopNavbar tabs={tabs} showBack={showBack} />
+            </div>
+          )}
           <div className={styles.content}>{children}</div>
         </main>
       </div>
