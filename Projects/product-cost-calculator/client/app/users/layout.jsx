@@ -1,5 +1,5 @@
 "use client";
-import { CrudLayout } from "@/components/common/jsx/CrudLayout";
+import { CrudLayout } from "@/components/common";
 
 export default function UsersLayout({ children }) {
   const basePath = "/users";

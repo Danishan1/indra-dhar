@@ -1,6 +1,6 @@
 "use client";
 
-import { DashboardLayout } from "@/components/common/jsx/DashboardLayout";
+import { DashboardLayout } from "@/components/common";
 
 export default function DashboardPage() {
   return (

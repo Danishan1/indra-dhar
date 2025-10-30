@@ -3,7 +3,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-export default function ProtectedPage({ children, redirectTo = "/login" }) {
+export function ProtectedPage({ children, redirectTo = "/login" }) {
   const { user, loading } = useAuth();
   const router = useRouter();
 

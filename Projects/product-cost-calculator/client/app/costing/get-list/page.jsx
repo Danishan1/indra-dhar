@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useCrud } from "@/components/common/jsx/CrudLayout";
+import { useCrud } from "@/components/common";
 import { Table } from "@/components/ui";
 
 export default function UsersListPage() {

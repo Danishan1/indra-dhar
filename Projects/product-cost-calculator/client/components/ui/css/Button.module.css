@@ -30,6 +30,16 @@
   background-color: var(--color-secondary-hover);
 }
 
+.danger {
+  background-color: var(--color-danger);
+  color: white;
+}
+
+.danger:hover {
+  background-color: var(--color-danger);
+  opacity: 0.8;
+}
+
 .outline {
   background-color: transparent;
   border: 1px solid var(--color-primary);

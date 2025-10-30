@@ -1,6 +1,6 @@
 "use client";
 import styles from "../css/DashboardLayout.module.css";
-import ProtectedPage from "./ProtectedPage";
+import { ProtectedPage } from "./ProtectedPage";
 import { Sidebar } from "./Sidebar";
 import { TopNavbar } from "./TopNavbar";
 

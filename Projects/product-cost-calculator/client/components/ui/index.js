@@ -1,4 +1,5 @@
-export {Table} from "./jsx/Table";
+export { FormWrapper } from "./jsx/FormWrapper";
+export { Table } from "./jsx/Table";
 export { Button } from "./jsx/Button";
 export { CheckboxGroup } from "./jsx/CheckboxGroup";
 export { DateInput } from "./jsx/DateInput";

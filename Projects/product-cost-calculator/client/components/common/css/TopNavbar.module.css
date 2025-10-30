@@ -24,7 +24,9 @@
 .tabs {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 1.5rem;
+  
 }
 
 .tab {
@@ -33,7 +35,6 @@
   background: none;
   border: none;
   cursor: pointer;
-  padding-bottom: 0.4rem;
   transition: color 0.2s ease, border-color 0.2s ease;
   border-bottom: 2px solid transparent;
 }

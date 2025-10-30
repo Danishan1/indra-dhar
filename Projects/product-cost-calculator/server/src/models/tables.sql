@@ -104,8 +104,7 @@ CREATE TABLE batch_raw_materials (
     unit_price DECIMAL(12,4) NOT NULL,
     wastage_percent DECIMAL(5,2) DEFAULT 0.00,
     scrap_value DECIMAL(12,4) DEFAULT 0.00,
-    total_cost DECIMAL(14,4) GENERATED ALWAYS AS 
-        ((quantity_used * unit_price) * (1 + wastage_percent/100) - scrap_value) STORED,
+    total_cost DECIMAL(14,4),
     FOREIGN KEY (batch_id) REFERENCES batches(id),
     FOREIGN KEY (material_id) REFERENCES raw_materials(id)
 );
@@ -116,9 +115,7 @@ CREATE TABLE batch_labors (
     labor_id BIGINT UNSIGNED NOT NULL,
     hours_worked DECIMAL(10,2) NOT NULL,
     overtime_hours DECIMAL(10,2) DEFAULT 0.00,
-    total_cost DECIMAL(12,4) GENERATED ALWAYS AS 
-        ((hours_worked * (SELECT rate_per_hour FROM labors WHERE id = labor_id)) + 
-         (overtime_hours * (SELECT overtime_rate FROM labors WHERE id = labor_id))) STORED,
+    total_cost DECIMAL(12,4),
     FOREIGN KEY (batch_id) REFERENCES batches(id),
     FOREIGN KEY (labor_id) REFERENCES labors(id)
 );
@@ -130,8 +127,7 @@ CREATE TABLE batch_machines (
     hours_used DECIMAL(10,2) NOT NULL,
     cost_per_hour DECIMAL(10,2) NOT NULL,
     maintenance_cost DECIMAL(10,2) DEFAULT 0.00,
-    total_cost DECIMAL(12,4) GENERATED ALWAYS AS 
-        ((hours_used * cost_per_hour) + maintenance_cost) STORED,
+    total_cost DECIMAL(12,4),
     FOREIGN KEY (batch_id) REFERENCES batches(id),
     FOREIGN KEY (machine_id) REFERENCES machines(id)
 );
@@ -142,7 +138,7 @@ CREATE TABLE batch_utilities (
     utility_id BIGINT UNSIGNED NOT NULL,
     units_consumed DECIMAL(12,4) NOT NULL,
     unit_cost DECIMAL(12,4) NOT NULL,
-    total_cost DECIMAL(12,4) GENERATED ALWAYS AS (units_consumed * unit_cost) STORED,
+    total_cost DECIMAL(12,4) ,
     FOREIGN KEY (batch_id) REFERENCES batches(id),
     FOREIGN KEY (utility_id) REFERENCES utilities(id)
 );
@@ -162,7 +158,7 @@ CREATE TABLE batch_packaging_transport (
     batch_id BIGINT UNSIGNED NOT NULL,
     packaging_cost DECIMAL(12,4) DEFAULT 0.00,
     transportation_cost DECIMAL(12,4) DEFAULT 0.00,
-    total_cost DECIMAL(12,4) GENERATED ALWAYS AS (packaging_cost + transportation_cost) STORED,
+    total_cost DECIMAL(12,4),
     FOREIGN KEY (batch_id) REFERENCES batches(id)
 );
 

@@ -5,7 +5,7 @@ import clsx from "clsx";
 
 /**
  * Reusable Button Component
- * @param {string} variant - "primary" | "secondary" | "outline" | "text"
+ * @param {string} variant - "primary" | "secondary" | "danger" | "outline" | "text"
  * @param {string} size - "sm" | "md" | "lg"
  * @param {boolean} fullWidth - expands to full container width
  * @param {boolean} disabled - disables interaction
