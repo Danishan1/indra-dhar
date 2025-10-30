@@ -1,12 +1,14 @@
 "use client";
 
-import { DashboardLayout } from "@/components/common/jsx/DashboardLayout";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-export default function DashboardPage() {
-  return (
-    <DashboardLayout>
-      <h1>Dashboard</h1>
-      <p>Welcome to your costing dashboard!</p>
-    </DashboardLayout>
-  );
+export default function UsersRedirectPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace("/users/get-list");
+  }, [router]);
+
+  return <p style={{ padding: "2rem" }}>Redirecting to users list...</p>;
 }
