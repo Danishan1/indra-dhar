@@ -63,7 +63,7 @@ export default function RegisterPage() {
         loading={loading}
         error={error}
         success=""
-        submitlabel="Register"
+        submitLabel="Register"
         cancelLabel="Login"
       >
         {/* {error && <Alert type="error" message={error} />} */}

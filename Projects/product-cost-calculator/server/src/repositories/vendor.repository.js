@@ -43,22 +43,47 @@ export const VendorRepository = {
   },
 
   async update(id, updates) {
+    // 1 Fetch existing record from DB
+    const existing = await this.findById(id);
+    if (!existing) throw new Error(`Vendor with id ${id} not found`);
+
+    // 2 Determine changed fields
     const fields = [];
     const values = [];
 
-    for (const [key, value] of Object.entries(updates)) {
-      fields.push(`${key} = ?`);
-      values.push(value);
+    for (const [key, newValue] of Object.entries(updates)) {
+      if (key === "id" || key === "created_at" || key === "updated_at")
+        continue; // skip immutable fields like id
+
+      const oldValue = existing[key];
+
+      // Only add if value actually changed (also handle null vs empty string)
+      const changed =
+        (oldValue ?? null) !== (newValue ?? null) &&
+        !(oldValue == null && newValue === "") &&
+        !(oldValue === "" && newValue == null);
+
+      if (changed) {
+        fields.push(`${key} = ?`);
+        values.push(newValue);
+      }
     }
 
-    if (fields.length === 0) return this.findById(id);
+    // 3 If no changes, return existing record
+    if (fields.length === 0) {
+      console.log("No changes detected — skipping update.");
+      return existing;
+    }
 
+    // 4 Build and execute SQL query
     const sql = `UPDATE vendors SET ${fields.join(", ")} WHERE id = ?`;
     values.push(id);
+
     await pool.execute(sql, values);
+
+    // 5 Return fresh record
     return this.findById(id);
   },
-
   async delete(id) {
     await pool.execute(`DELETE FROM vendors WHERE id = ?`, [id]);
     return { success: true };

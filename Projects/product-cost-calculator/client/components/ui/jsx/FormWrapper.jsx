@@ -12,10 +12,12 @@ export function FormWrapper({
   cancelLabel = "Cancel",
   onSubmit,
   onCancel,
+  successMessage,
 }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,7 +43,7 @@ export function FormWrapper({
         onCancel={onCancel || (() => router.back())}
         loading={loading}
         error={error}
-        success=""
+        success={successMessage}
         submitLabel={submitLabel}
         cancelLabel={cancelLabel}
       >

@@ -48,7 +48,7 @@ export default function LoginPage() {
         loading={loading}
         error={error}
         success=""
-        submitlabel="Login"
+        submitLabel="Login"
         cancelLabel="Register"
       >
         {/* {error && <Alert type="error" message={error} />} */}

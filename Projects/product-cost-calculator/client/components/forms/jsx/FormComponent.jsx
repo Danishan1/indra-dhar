@@ -26,7 +26,7 @@ export function FormComponent({
   error,
   success,
   actions = true,
-  submitlabel = "Submit",
+  submitLabel = "Submit",
   cancelLabel = "Cancel",
 }) {
   return (
@@ -62,7 +62,7 @@ export function FormComponent({
             disabled={loading}
             className={styles.primaryBtn}
           >
-            {loading ? "Saving..." : submitlabel}
+            {loading ? "Saving..." : submitLabel}
           </button>
           {onCancel && (
             <button
