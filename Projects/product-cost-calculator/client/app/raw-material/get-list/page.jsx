@@ -13,7 +13,7 @@ export default function ListPage() {
         { key: "unit_price", title: "Unit Price"},
         { key: "stock_quantity", title: "Stock Quantity"},
         { key: "reorder_level", title: "Reorder Level"},
-        { key: "vendor_id", title: "Vendor Name"},
+        { key: "vendor_name", title: "Vendor Name"},
       ]}
     />
   );

@@ -33,7 +33,7 @@ app.use(morgan("dev"));
 // Routes
 app.use("/auth", authRoutes);
 
-app.use(verifyToken)
+app.use(verifyToken);
 
 // app.use("/cost-categories", costCategoryRoutes);
 // app.use("/cost-items", costItemRoutes);

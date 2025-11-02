@@ -4,6 +4,7 @@ import { CONST } from "@/utils/CONST";
 const { FORM_TYPE } = CONST;
 
 export default function UpdatePage() {
+ 
   return (
     <CrudFormPage
       mode="update"
@@ -14,8 +15,8 @@ export default function UpdatePage() {
         { key: "name", label: "User Name", type: FORM_TYPE.TEXT },
         { key: "email", label: "Email", type: FORM_TYPE.EMAIL },
         { key: "password_hash", label: "Password", type: FORM_TYPE.PASSWORD },
-        { key: "role", label: "role", type: FORM_TYPE.SELECT },
-        { key: "status", label: "Status", type: FORM_TYPE.SELECT },
+        // { key: "role", label: "role", type: FORM_TYPE.SELECT },
+        // { key: "status", label: "Status", type: FORM_TYPE.SELECT },
       ]}
     />
   );

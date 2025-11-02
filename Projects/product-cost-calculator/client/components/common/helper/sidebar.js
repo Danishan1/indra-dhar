@@ -19,21 +19,21 @@ const ICON_SIZE = CONST.ICON_SIZE;
 
 export const menuItems = {
   admin: [
-    {
-      name: "Dashboard",
-      icon: <Home size={ICON_SIZE} />,
-      path: BASE_PATH.dashboard,
-    },
+    // {
+    //   name: "Dashboard",
+    //   icon: <Home size={ICON_SIZE} />,
+    //   path: BASE_PATH.dashboard,
+    // },
     {
       name: "Users",
       icon: <Users size={ICON_SIZE} />,
       path: BASE_PATH.users,
     },
-    {
-      name: "Products",
-      icon: <Boxes size={ICON_SIZE} />,
-      path: BASE_PATH.products,
-    },
+    // {
+    //   name: "Products",
+    //   icon: <Boxes size={ICON_SIZE} />,
+    //   path: BASE_PATH.products,
+    // },
     {
       name: "Vendors",
       icon: <Truck size={ICON_SIZE} />,
@@ -64,21 +64,21 @@ export const menuItems = {
       icon: <Zap size={ICON_SIZE} />,
       path: BASE_PATH.utilities,
     },
-    {
-      name: "Batches",
-      icon: <Workflow size={ICON_SIZE} />,
-      path: BASE_PATH.batches,
-    },
-    {
-      name: "Projects",
-      icon: <ClipboardList size={ICON_SIZE} />,
-      path: BASE_PATH.projects,
-    },
-    {
-      name: "Settings",
-      icon: <Settings size={ICON_SIZE} />,
-      path: BASE_PATH.settings,
-    },
+    // {
+    //   name: "Batches",
+    //   icon: <Workflow size={ICON_SIZE} />,
+    //   path: BASE_PATH.batches,
+    // },
+    // {
+    //   name: "Projects",
+    //   icon: <ClipboardList size={ICON_SIZE} />,
+    //   path: BASE_PATH.projects,
+    // },
+    // {
+    //   name: "Settings",
+    //   icon: <Settings size={ICON_SIZE} />,
+    //   path: BASE_PATH.settings,
+    // },
   ],
 
   manager: [

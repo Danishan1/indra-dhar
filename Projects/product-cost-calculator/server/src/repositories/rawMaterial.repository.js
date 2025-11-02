@@ -68,6 +68,8 @@ export const RawMaterialRepository = {
     const values = [];
 
     for (const [key, value] of Object.entries(updates)) {
+      if (["id", "material_uuid","created_at", "updated_at", "vendor_name"].includes(key))
+        continue; // skip immutable fields like id
       fields.push(`${key} = ?`);
       values.push(value);
     }
@@ -81,7 +83,9 @@ export const RawMaterialRepository = {
   },
 
   async delete(id) {
-    await pool.execute(`UPDATE raw_materials SET is_active = 0 WHERE id = ?`, [id]);
+    await pool.execute(`UPDATE raw_materials SET is_active = 0 WHERE id = ?`, [
+      id,
+    ]);
     return { success: true };
   },
 };

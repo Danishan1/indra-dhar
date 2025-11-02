@@ -47,7 +47,9 @@ export const UserRepository = {
   },
 
   async findByEmail(email) {
-    const [rows] = await pool.execute(`SELECT * FROM users WHERE email = ?`, [email]);
+    const [rows] = await pool.execute(`SELECT * FROM users WHERE email = ?`, [
+      email,
+    ]);
     return rows[0] || null;
   },
 
@@ -56,7 +58,8 @@ export const UserRepository = {
     const values = [];
 
     for (const [key, value] of Object.entries(updates)) {
-      fields.push(`${key} = ?`);
+      if (["id", "user_uuid", "created_at", "updated_at"].includes(key))
+        fields.push(`${key} = ?`);
       values.push(value);
     }
 
@@ -69,7 +72,10 @@ export const UserRepository = {
   },
 
   async softDelete(id) {
-    await pool.execute(`UPDATE users SET is_active = 0, status = 'inactive' WHERE id = ?`, [id]);
+    await pool.execute(
+      `UPDATE users SET is_active = 0, status = 'inactive' WHERE id = ?`,
+      [id]
+    );
     return { success: true };
   },
 };

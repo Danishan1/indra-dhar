@@ -63,7 +63,8 @@ export const OverheadRepository = {
     const values = [];
 
     for (const [key, value] of Object.entries(updates)) {
-      fields.push(`${key} = ?`);
+      if (["id", "overhead_uuid", "created_at", "updated_at"].includes(key))
+        fields.push(`${key} = ?`);
       values.push(value);
     }
 

@@ -52,7 +52,7 @@ export const VendorRepository = {
     const values = [];
 
     for (const [key, newValue] of Object.entries(updates)) {
-      if (key === "id" || key === "created_at" || key === "updated_at")
+      if (["id", "vendor_uuid", "created_at", "updated_at"].includes(key))
         continue; // skip immutable fields like id
 
       const oldValue = existing[key];

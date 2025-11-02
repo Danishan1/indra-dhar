@@ -1,9 +1,16 @@
+"use client";
+
 import { CrudFormPage } from "@/components/layout";
 import { BASE_PATH } from "@/utils/basePath";
 import { CONST } from "@/utils/CONST";
 const { FORM_TYPE } = CONST;
 
 export default function UpdatePage() {
+  const options = [
+    { value: "direct", label: "Direct" },
+    { value: "indirect", label: "In Direct" },
+  ];
+
   return (
     <CrudFormPage
       mode="update"
@@ -12,7 +19,7 @@ export default function UpdatePage() {
       title="Labor"
       fields={[
         { key: "name", label: "Labor Name", type: FORM_TYPE.TEXT },
-        { key: "type", label: "Type", type: FORM_TYPE.SELECT },
+        { key: "type", label: "Type", type: FORM_TYPE.RADIO, options: options },
         { key: "rate_per_hour", label: "Rate/Hr", type: FORM_TYPE.TEXT },
         { key: "overtime_rate", label: "Over Time Rate", type: FORM_TYPE.TEXT },
       ]}
