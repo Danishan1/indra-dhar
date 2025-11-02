@@ -4,10 +4,12 @@ import { useRouter } from "next/navigation";
 import { PasswordInput, TextInput } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
 import { FormComponent } from "@/components/forms";
+import { useToast } from "@/components/common";
 
 export default function LoginPage() {
   const { login } = useAuth();
   const router = useRouter();
+  const { addToast } = useToast();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -51,7 +53,7 @@ export default function LoginPage() {
         submitLabel="Login"
         cancelLabel="Register"
       >
-        {/* {error && <Alert type="error" message={error} />} */}
+        {error && addToast("error", error)}
         <TextInput
           label="Email"
           value={email}

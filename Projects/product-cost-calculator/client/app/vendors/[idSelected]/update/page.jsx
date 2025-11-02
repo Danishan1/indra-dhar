@@ -1,7 +1,7 @@
 import { CrudFormPage } from "@/components/layout";
 import { BASE_PATH } from "@/utils/basePath";
 
-export default function UpdateVendorPage() {
+export default function UpdatePage() {
   return (
     <CrudFormPage
       mode="update"
@@ -9,11 +9,11 @@ export default function UpdateVendorPage() {
       basePath={BASE_PATH.vendors}
       title="Vendor"
       fields={[
-        { key: "name", label: "Vendor Name", type: "text", required: true },
-        { key: "contact_name", label: "Contact Name", type: "text" },
-        { key: "email", label: "Email", type: "email", required: true },
-        { key: "phone", label: "Phone", type: "text", required: true },
-        { key: "address", label: "Address", type: "text" },
+        { key: "name", label: "Vendor Name", type: FORM_TYPE.TEXT, required: true },
+        { key: "contact_name", label: "Contact Name", type: FORM_TYPE.TEXT },
+        { key: "email", label: "Email", type: FORM_TYPE.EMAIL, required: true },
+        { key: "phone", label: "Phone", type: FORM_TYPE.TEXT, required: true },
+        { key: "address", label: "Address", type: FORM_TYPE.TEXT },
       ]}
     />
   );

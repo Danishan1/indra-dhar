@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { BASE_PATH } from "@/utils/basePath";
 
-export default function UsersRedirectPage() {
+export default function RedirectPage() {
   const router = useRouter();
 
   useEffect(() => {

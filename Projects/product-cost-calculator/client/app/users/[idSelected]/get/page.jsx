@@ -1,9 +1,6 @@
-"use client";
+import { CrudDetailPage } from "@/components/layout";
+import { BASE_PATH } from "@/utils/basePath";
 
-import { usePathname } from "next/navigation";
-
-export default function NewPage() {
-  const pathname = usePathname();
-
-  return <p>New page: {pathname}</p>;
+export default function DetailPage() {
+  return <CrudDetailPage endpoint={BASE_PATH.users} />;
 }

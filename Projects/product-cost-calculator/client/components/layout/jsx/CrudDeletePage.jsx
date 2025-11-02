@@ -48,7 +48,7 @@ export function CrudDeletePage({ endpoint }) {
 import CrudDeletePage from "@/components/common/layout/CrudDeletePage";
 import { BASE_PATH } from "@/utils/basePath";
 
-export default function VendorDeletePage() {
+export default function DeletePage() {
   return <CrudDeletePage endpoint={BASE_PATH.vendors} />;
 }
 

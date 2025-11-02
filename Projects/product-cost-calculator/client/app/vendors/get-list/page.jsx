@@ -1,7 +1,7 @@
 import { CrudListPage } from "@/components/layout";
 import { BASE_PATH } from "@/utils/basePath";
 
-export default function VendorListPage() {
+export default function ListPage() {
   return (
     <CrudListPage
       title="All Vendors"

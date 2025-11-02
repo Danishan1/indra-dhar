@@ -45,7 +45,7 @@ export function CrudListPage({ title, endpoint, basePath, columns }) {
 import {CrudListPage} from "@/components/common/layout/CrudListPage";
 import { BASE_PATH } from "@/utils/basePath";
 
-export default function VendorListPage() {
+export default function ListPage() {
   return (
     <CrudListPage
       title="All Vendors"

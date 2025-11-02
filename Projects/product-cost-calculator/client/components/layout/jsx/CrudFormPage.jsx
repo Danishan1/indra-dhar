@@ -20,6 +20,8 @@ import {
   Textarea,
   FormWrapper,
 } from "@/components/ui";
+import { CONST } from "@/utils/CONST";
+const { FORM_TYPE } = CONST;
 
 export function CrudFormPage({
   mode = "create", // "create" | "update"
@@ -79,25 +81,25 @@ export function CrudFormPage({
     };
 
     switch (type) {
-      case "email":
+      case FORM_TYPE.EMAIL:
         return <EmailInput key={key} {...props} />;
-      case "password":
+      case FORM_TYPE.PASSWORD:
         return <PasswordInput key={key} {...props} />;
-      case "number":
+      case FORM_TYPE.NUMBER:
         return <NumberInput key={key} {...props} />;
-      case "select":
+      case FORM_TYPE.SELECT:
         return <SelectInput key={key} {...props} />;
-      case "switch":
+      case FORM_TYPE.SWITCH:
         return <SwitchInput key={key} {...props} />;
-      case "checkbox-group":
+      case FORM_TYPE.CHECKBOX:
         return <CheckboxGroup key={key} {...props} />;
-      case "radio-group":
+      case FORM_TYPE.RADIO:
         return <RadioGroup key={key} {...props} />;
-      case "range":
+      case FORM_TYPE.RANGE:
         return <RangeInput key={key} {...props} />;
-      case "file":
+      case FORM_TYPE.FILE:
         return <FileInput key={key} {...props} />;
-      case "textarea":
+      case FORM_TYPE.TEXTAREA:
         return <Textarea key={key} {...props} />;
       default:
         return <TextInput key={key} {...props} />;

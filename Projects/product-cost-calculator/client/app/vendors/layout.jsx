@@ -2,7 +2,7 @@
 import { CrudLayout } from "@/components/common/jsx/CrudLayout";
 import { BASE_PATH } from "@/utils/basePath";
 
-export default function UsersLayout({ children }) {
+export default function Layout({ children }) {
   const basePath = BASE_PATH.vendors;
 
   const config = [
@@ -14,7 +14,7 @@ export default function UsersLayout({ children }) {
   ];
 
   return (
-    <CrudLayout basePath={basePath} title="Labor Management" config={config}>
+    <CrudLayout basePath={basePath} title="Vendor Management" config={config}>
       {children}
     </CrudLayout>
   );

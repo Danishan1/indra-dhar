@@ -10,10 +10,12 @@ import {
   TextInput,
 } from "@/components/ui";
 import { FormComponent } from "@/components/forms";
+import { useToast } from "@/components/common";
 
 export default function RegisterPage() {
   const { register } = useAuth();
   const router = useRouter();
+  const { addToast } = useToast();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -66,7 +68,7 @@ export default function RegisterPage() {
         submitLabel="Register"
         cancelLabel="Login"
       >
-        {/* {error && <Alert type="error" message={error} />} */}
+        {error && addToast("error", error)}
         <TextInput
           label="Name"
           value={name}
