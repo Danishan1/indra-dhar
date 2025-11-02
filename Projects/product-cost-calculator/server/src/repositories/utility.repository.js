@@ -51,7 +51,8 @@ export const UtilityRepository = {
 
     for (const [key, value] of Object.entries(updates)) {
       if (["id", "utility_uuid", "created_at", "updated_at"].includes(key))
-        fields.push(`${key} = ?`);
+        continue;
+      fields.push(`${key} = ?`);
       values.push(value);
     }
 

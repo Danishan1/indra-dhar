@@ -30,10 +30,7 @@ export const LaborRepository = {
       params.push(filters.type);
     }
 
-    if (filters.is_active !== undefined) {
-      sql += ` AND is_active = ?`;
-      params.push(filters.is_active);
-    }
+    sql += ` AND is_active = 1`;
 
     if (filters.name) {
       sql += ` AND name LIKE ?`;
@@ -57,7 +54,8 @@ export const LaborRepository = {
 
     for (const [key, value] of Object.entries(updates)) {
       if (["id", "labor_uuid", "created_at", "updated_at"].includes(key))
-        fields.push(`${key} = ?`);
+        continue;
+      fields.push(`${key} = ?`);
       values.push(value);
     }
 

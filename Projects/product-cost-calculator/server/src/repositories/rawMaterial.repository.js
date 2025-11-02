@@ -30,10 +30,7 @@ export const RawMaterialRepository = {
     `;
     const params = [];
 
-    if (filters.is_active !== undefined) {
-      sql += ` AND rm.is_active = ?`;
-      params.push(filters.is_active);
-    }
+    sql += ` AND rm.is_active = 1`;
 
     if (filters.vendor_id) {
       sql += ` AND rm.vendor_id = ?`;
@@ -68,7 +65,15 @@ export const RawMaterialRepository = {
     const values = [];
 
     for (const [key, value] of Object.entries(updates)) {
-      if (["id", "material_uuid","created_at", "updated_at", "vendor_name"].includes(key))
+      if (
+        [
+          "id",
+          "material_uuid",
+          "created_at",
+          "updated_at",
+          "vendor_name",
+        ].includes(key)
+      )
         continue; // skip immutable fields like id
       fields.push(`${key} = ?`);
       values.push(value);
