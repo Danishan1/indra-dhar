@@ -49,7 +49,7 @@ export function FormComponent({
       <div className={styles.formBody}>{children}</div>
 
       {/* Status Messages */}
-      {error && <p className={`${styles.message} ${styles.error}`}>{error}</p>}
+      {error && <p className={`${styles.error} ${styles.error}`}>{error}</p>}
       {success && (
         <p className={`${styles.message} ${styles.success}`}>{success}</p>
       )}

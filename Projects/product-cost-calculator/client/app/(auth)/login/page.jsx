@@ -53,7 +53,7 @@ export default function LoginPage() {
         submitLabel="Login"
         cancelLabel="Register"
       >
-        {error && addToast("error", error)}
+        {/* {error && addToast("error", error)} */}
         <TextInput
           label="Email"
           value={email}

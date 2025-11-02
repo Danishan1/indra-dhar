@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getAuth } from "./storage";
 
 // Create a pre-configured axios instance
 const api = axios.create({
@@ -8,6 +9,17 @@ const api = axios.create({
   },
   withCredentials: true, // optional if using cookies/session auth
 });
+
+api.interceptors.request.use(
+  (config) => {
+    const { token } = getAuth();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 // Generic helper methods
 export const apiUtil = {

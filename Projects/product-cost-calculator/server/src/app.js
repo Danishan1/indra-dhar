@@ -10,6 +10,10 @@ import { userRoutes } from "./routes/user.routes.js";
 import { laborRoutes } from "./routes/labor.routes.js";
 import { rawMaterialRoutes } from "./routes/rawMaterial.routes.js";
 import { vendorRoutes } from "./routes/vendor.routes.js";
+import { utilityRoutes } from "./routes/utility.routes.js";
+import { overheadRoutes } from "./routes/overhead.routes.js";
+import { machineRoutes } from "./routes/machine.routes.js";
+import { verifyToken } from "./middlewares/auth.middleware.js";
 
 dotenv.config();
 const app = express();
@@ -28,6 +32,9 @@ app.use(morgan("dev"));
 
 // Routes
 app.use("/auth", authRoutes);
+
+app.use(verifyToken)
+
 // app.use("/cost-categories", costCategoryRoutes);
 // app.use("/cost-items", costItemRoutes);
 // app.use("/cost-allocations", costAllocationRoutes);
@@ -35,5 +42,8 @@ app.use("/users", userRoutes);
 app.use("/vendors", vendorRoutes);
 app.use("/raw-material", rawMaterialRoutes);
 app.use("/labors", laborRoutes);
+app.use("/utilities", utilityRoutes);
+app.use("/overheads", overheadRoutes);
+app.use("/machines", machineRoutes);
 
 export default app;

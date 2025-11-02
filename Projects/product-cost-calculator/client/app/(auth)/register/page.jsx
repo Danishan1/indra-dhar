@@ -34,7 +34,10 @@ export default function RegisterPage() {
       if (res.success) router.push("/dashboard");
       else setError(res.message);
     } catch (err) {
-      setError("Something went wrong");
+      console.log(err);
+      setError(
+        err?.response?.data?.message || error.message || "Something went wrong"
+      );
     }
     setLoading(false);
   };
@@ -68,7 +71,7 @@ export default function RegisterPage() {
         submitLabel="Register"
         cancelLabel="Login"
       >
-        {error && addToast("error", error)}
+        {/* {error && addToast("error", error)} */}
         <TextInput
           label="Name"
           value={name}

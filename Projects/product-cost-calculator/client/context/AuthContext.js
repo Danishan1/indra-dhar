@@ -10,15 +10,38 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // On mount: check if token exists and validate it with backend
   useEffect(() => {
-    const { user, token } = getAuth();
-    if (token && user) {
-      setUser(user);
-      setToken(token);
-    }
-    setLoading(false);
+    const initAuth = async () => {
+      const { user, token } = getAuth();
+      if (token && user) {
+        try {
+          // Validate token
+          const res = await api.get("/auth/check-jwt", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          if (res.data.success) {
+            setUser(res.data.user);
+            setToken(token);
+          } else {
+            clearAuth();
+            setUser(null);
+            setToken(null);
+          }
+        } catch (err) {
+          clearAuth();
+          setUser(null);
+          setToken(null);
+        }
+      }
+      setLoading(false);
+    };
+
+    initAuth();
   }, []);
 
+  // Login
   const login = async (email, password) => {
     const res = await api.post("/auth/login", { email, password });
     if (res.data.success) {
@@ -29,6 +52,7 @@ export const AuthProvider = ({ children }) => {
     return res.data;
   };
 
+  // Register
   const register = async (name, email, password, confirmPassword, role) => {
     const res = await api.post("/auth/register", {
       name,
@@ -45,6 +69,7 @@ export const AuthProvider = ({ children }) => {
     return res.data;
   };
 
+  // Logout
   const logout = () => {
     clearAuth();
     setUser(null);
@@ -55,7 +80,7 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider
       value={{ user, token, login, register, logout, loading }}
     >
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
