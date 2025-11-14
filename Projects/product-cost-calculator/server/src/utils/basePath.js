@@ -1,0 +1,15 @@
+export const BASE_PATH = {
+  vendors: "/vendors",
+  dashboard: "/dashboard",
+  users: "/users",
+  products: "/products",
+  vendors: "/vendors",
+  rawMaterial: "/raw-material",
+  labors: "/labors",
+  machines: "/machines",
+  overheads: "/overheads",
+  utilities: "/utilities",
+  batches: "/batches",
+  projects: "/projects",
+  settings: "/settings",
+};

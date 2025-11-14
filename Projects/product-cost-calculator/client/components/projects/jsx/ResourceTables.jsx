@@ -10,7 +10,7 @@ import {
 
 export function ResourceTables({ resources, onDelete }) {
   return (
-    <div>
+    <div className={styles.resouceTables}>
       {RESOURCE_ORDER.map((type) => {
         const grouped = filterByType(resources, type);
         if (grouped.length === 0) return null;
