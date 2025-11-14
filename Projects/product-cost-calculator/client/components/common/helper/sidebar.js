@@ -69,11 +69,11 @@ export const menuItems = {
     //   icon: <Workflow size={ICON_SIZE} />,
     //   path: BASE_PATH.batches,
     // },
-    // {
-    //   name: "Projects",
-    //   icon: <ClipboardList size={ICON_SIZE} />,
-    //   path: BASE_PATH.projects,
-    // },
+    {
+      name: "Projects",
+      icon: <ClipboardList size={ICON_SIZE} />,
+      path: BASE_PATH.projects,
+    },
     // {
     //   name: "Settings",
     //   icon: <Settings size={ICON_SIZE} />,

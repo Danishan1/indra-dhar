@@ -6,6 +6,7 @@ export const CONST = {
     PASSWORD: "password",
     NUMBER: "number",
     SELECT: "select",
+    SELECT_REMOTE: "remote-select",
     SWITCH: "switch",
     CHECKBOX: "checkbox-group",
     RADIO: "radio-group",

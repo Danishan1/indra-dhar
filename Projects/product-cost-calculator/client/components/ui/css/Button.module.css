@@ -19,6 +19,7 @@
 
 .primary:hover {
   background-color: var(--color-primary-hover);
+  opacity: 0.8;
 }
 
 .secondary {
@@ -27,7 +28,7 @@
 }
 
 .secondary:hover {
-  background-color: var(--color-secondary-hover);
+  opacity: 0.8;
 }
 
 .danger {
