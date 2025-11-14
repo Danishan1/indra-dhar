@@ -57,6 +57,7 @@ export function Projects() {
       console.error("Error calculating project cost:", error);
     }
   };
+  
   const handleClear = () => {
     setResources([]);
     setCalculatedResult(null);
