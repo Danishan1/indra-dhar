@@ -4,12 +4,11 @@ export const LaborRepository = {
   async create(data) {
     const sql = `
       INSERT INTO labors
-      (labor_uuid, name, type, rate_per_hour, overtime_rate, is_active)
-      VALUES (UUID(), ?, ?, ?, ?, ?)
+      (labor_uuid, name, rate_per_hour, overtime_rate, is_active)
+      VALUES (UUID(), ?, ?, ?, ?)
     `;
     const [result] = await pool.execute(sql, [
       data.name,
-      data.type,
       data.rate_per_hour,
       data.overtime_rate || 0.0,
       true,
@@ -24,11 +23,6 @@ export const LaborRepository = {
       WHERE 1=1
     `;
     const params = [];
-
-    if (filters.type) {
-      sql += ` AND type = ?`;
-      params.push(filters.type);
-    }
 
     sql += ` AND is_active = 1`;
 

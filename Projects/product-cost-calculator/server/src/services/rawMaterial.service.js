@@ -38,11 +38,6 @@ export const RawMaterialService = {
     const existing = await RawMaterialRepository.findById(id);
     if (!existing) throw new ApiError(404, "Raw material not found");
 
-    if (sanitized.vendor_id) {
-      const vendor = await VendorRepository.findById(sanitized.vendor_id);
-      if (!vendor) throw new ApiError(400, "Invalid vendor ID");
-    }
-
     return RawMaterialRepository.update(id, sanitized);
   },
 

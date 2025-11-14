@@ -8,5 +8,6 @@ const router = express.Router();
 router.post("/", CPCV, validateRequest, PCC.create);
 router.get("/", PCC.getAll);
 router.get("/:id", PCC.getOne);
+router.delete("/:id", PCC.remove);
 
 export const projectCostRoutes = router;

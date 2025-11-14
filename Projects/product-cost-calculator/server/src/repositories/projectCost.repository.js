@@ -37,7 +37,7 @@ export const ProjectCostRepository = {
   async findProjectById(id) {
     const [rows] = await pool.execute(
       `
-      SELECT * FROM cost_projects WHERE id = ?
+      SELECT * FROM cost_projects WHERE id = ? AND is_active = 1
     `,
       [id]
     );
@@ -48,7 +48,7 @@ export const ProjectCostRepository = {
   async findProjectWithItems(id) {
     const [projectRows] = await pool.execute(
       `
-      SELECT * FROM cost_projects WHERE id = ?
+      SELECT * FROM cost_projects WHERE id = ? AND is_active = 1
     `,
       [id]
     );
@@ -77,9 +77,17 @@ export const ProjectCostRepository = {
   async findAllProjects() {
     const [rows] = await pool.execute(`
       SELECT * FROM cost_projects 
+      WHERE is_active = 1
       ORDER BY created_at DESC
     `);
 
     return rows;
+  },
+
+  async deleteProject(id) {
+    await pool.execute(`UPDATE cost_projects SET is_active = 0 WHERE id = ?`, [
+      id,
+    ]);
+    return { success: true };
   },
 };

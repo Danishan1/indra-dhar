@@ -6,13 +6,8 @@ export const LaborService = {
   async createLabor(payload) {
     const data = sanitizeInput(payload);
 
-    if (!["direct", "indirect"].includes(data.type)) {
-      throw new ApiError(400, "Invalid labor type. Must be 'direct' or 'indirect'");
-    }
-
     return LaborRepository.create({
       name: data.name.trim(),
-      type: data.type,
       rate_per_hour: parseFloat(data.rate_per_hour),
       overtime_rate: parseFloat(data.overtime_rate || 0),
     });

@@ -37,4 +37,11 @@ export const ProjectCostService = {
   async getAllProjects() {
     return ProjectCostRepository.findAllProjects();
   },
+
+  async deleteProject(id) {
+    const project = await ProjectCostRepository.findProjectById(id);
+    if (!project) throw new ApiError(404, "Project not found");
+
+    return ProjectCostRepository.deleteProject(id);
+  },
 };

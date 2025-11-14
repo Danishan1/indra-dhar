@@ -4,16 +4,13 @@ export const RawMaterialRepository = {
   async create(data) {
     const sql = `
       INSERT INTO raw_materials
-      (material_uuid, name, unit_type, unit_price, stock_quantity, reorder_level, vendor_id, is_active)
-      VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?)
+      (material_uuid, name, unit_type, unit_price, is_active)
+      VALUES (UUID(), ?, ?, ?, ?)
     `;
     const [result] = await pool.execute(sql, [
       data.name,
       data.unit_type,
       data.unit_price,
-      data.stock_quantity || 0,
-      data.reorder_level || 0,
-      data.vendor_id || null,
       true,
     ]);
     return this.findById(result.insertId);
@@ -22,20 +19,13 @@ export const RawMaterialRepository = {
   async findAll(filters = {}) {
     let sql = `
       SELECT
-        rm.*, 
-        v.name AS vendor_name
+        rm.*
       FROM raw_materials rm
-      LEFT JOIN vendors v ON rm.vendor_id = v.id
       WHERE 1=1
     `;
     const params = [];
 
     sql += ` AND rm.is_active = 1`;
-
-    if (filters.vendor_id) {
-      sql += ` AND rm.vendor_id = ?`;
-      params.push(filters.vendor_id);
-    }
 
     if (filters.name) {
       sql += ` AND rm.name LIKE ?`;
@@ -50,10 +40,8 @@ export const RawMaterialRepository = {
   async findById(id) {
     const sql = `
       SELECT 
-        rm.*, 
-        v.name AS vendor_name
+        rm.*
       FROM raw_materials rm
-      LEFT JOIN vendors v ON rm.vendor_id = v.id
       WHERE rm.id = ?
     `;
     const [rows] = await pool.execute(sql, [id]);

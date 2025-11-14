@@ -34,8 +34,16 @@ export const ProjectCostController = {
       next(err);
     }
   },
-};
 
+  async remove(req, res, next) {
+    try {
+      await ProjectCostService.deleteProject(req.params.id);
+      return ApiResponse.success(res, null, "Project deleted successfully");
+    } catch (err) {
+      next(err);
+    }
+  },
+};
 
 /*
 

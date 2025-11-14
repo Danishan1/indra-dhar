@@ -6,6 +6,7 @@ export default function Layout({ children }) {
   const basePath = BASE_PATH.projects;
 
   const config = [
+    { label: "Calculate Cost", path: "/" },
     { label: "Projects", path: "get-list" },
     { label: "View", path: "[id]/get" },
   ];
