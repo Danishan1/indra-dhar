@@ -1,0 +1,7 @@
+CREATE TABLE cost_projects (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    project_uuid CHAR(36) NOT NULL UNIQUE,
+    project_name VARCHAR(255) NOT NULL,
+    total_cost DECIMAL(14, 2) NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
