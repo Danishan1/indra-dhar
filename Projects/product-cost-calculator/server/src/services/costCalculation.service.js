@@ -5,7 +5,7 @@ import { BASE_PATH } from "../utils/basePath.js";
 export const CostCalculationService = {
   async calculate(payload) {
     const resources = payload.data || [];
-    const globalData = payload.global_data || {};
+    const meta = payload.meta || {};
 
     if (!Array.isArray(resources) || resources.length === 0) {
       throw new ApiError(400, "No resources provided for calculation");
@@ -100,8 +100,8 @@ export const CostCalculationService = {
           overheadTotal += base * (p / 100);
         }
 
+        const duration = parseInt(meta.project_duration_months || 1);
         if (oh.frequency === "monthly") {
-          const duration = parseInt(globalData.duration_in_months || 1);
           overheadTotal *= duration; // Monthly Recurrence
         } else {
           overheadTotal *= duration / 12; // Yearly Recurrence
@@ -117,8 +117,8 @@ export const CostCalculationService = {
       overheadTotal;
 
     // PROFIT ---------------------------------------------
-    const profitValue = parseFloat(globalData.profit_value || 0);
-    const profitType = globalData.profit_type || "percentage";
+    const profitValue = parseFloat(meta.profit_value || 0);
+    const profitType = meta.profit_type || "percentage";
 
     let profit = 0;
 

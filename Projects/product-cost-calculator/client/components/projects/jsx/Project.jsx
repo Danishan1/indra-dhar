@@ -12,6 +12,7 @@ import { DataDetails } from "@/components/common";
 export function Projects() {
   const [resources, setResources] = useState([]);
   const [calculatedResult, setCalculatedResult] = useState(null);
+  const [projectMeta, setProjectMeta] = useState({});
 
   // Add from input builder
   const handleAddResource = (item) => {
@@ -34,6 +35,7 @@ export function Projects() {
     try {
       const res = await apiUtil.post("/calculate-project-cost", {
         data: resources,
+        meta: projectMeta,
       });
 
       if (res.success === true) setCalculatedResult(res.data);
@@ -57,7 +59,7 @@ export function Projects() {
       console.error("Error calculating project cost:", error);
     }
   };
-  
+
   const handleClear = () => {
     setResources([]);
     setCalculatedResult(null);
@@ -65,7 +67,11 @@ export function Projects() {
 
   return (
     <div className={styles.projectContainer}>
-      <ResourceSection onAdd={handleAddResource} />
+      <ResourceSection
+        onAdd={handleAddResource}
+        setProjectMeta={setProjectMeta}
+        projectMeta={projectMeta}
+      />
       {resources.length > 0 && (
         <Button onClick={handleSubmit}>Calculate Project Cost</Button>
       )}

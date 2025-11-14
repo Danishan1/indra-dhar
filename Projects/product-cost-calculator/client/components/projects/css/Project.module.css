@@ -5,6 +5,20 @@
   flex-direction: column;
   gap: 10px;
 }
+
+.metadata {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.metadata .metadata_input {
+  flex: 1;
+}
+.metadata .metadata_input:nth-child(2) {
+  max-width: 150px;
+}
+
 .calculatedButtons,
 .inputTake {
   width: 100%;
