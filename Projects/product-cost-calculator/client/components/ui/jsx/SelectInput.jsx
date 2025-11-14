@@ -29,7 +29,7 @@ export function SelectInput({
   };
 
   const handleSelect = (option) => {
-    onChange({ target: { value: option.value } });
+    onChange({ target: { value: option.value, label: option.label } });
     setOpen(false);
   };
 
@@ -96,7 +96,6 @@ export function SelectInput({
     </div>
   );
 }
-
 
 /*
 

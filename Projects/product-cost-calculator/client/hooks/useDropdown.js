@@ -19,7 +19,6 @@ export function useDropdown({
         setLoading(true);
         const result = await apiUtil.get(endpoint, params);
 
-        console.log("Dropdown fetch result:", result);
         if (result.success === false) {
           setError("Failed to load options");
           setOptions([]);

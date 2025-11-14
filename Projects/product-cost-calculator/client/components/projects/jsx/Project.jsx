@@ -1,46 +1,34 @@
 "use client";
 
 import React, { useState } from "react";
-import { SelectInput } from "@/components/ui";
-import { BASE_PATH } from "@/utils/basePath";
-import { ResourceInputBuilder } from "./ResourceInputBuilder";
+import { ResourceSection } from "./ResourceSection";
+import { ResourceTables } from "./ResourceTables";
 import styles from "../css/Project.module.css";
-
-const RESOURCE_OPTIONS = [
-  { value: BASE_PATH.labors, label: "Labors" },
-  { value: BASE_PATH.rawMaterial, label: "Raw Materials" },
-  { value: BASE_PATH.machines, label: "Machines" },
-  { value: BASE_PATH.overheads, label: "Overheads" },
-  { value: BASE_PATH.utilities, label: "Utilities" },
-];
+import { filterByType } from "../helper/resourceColumns";
 
 export function Projects() {
-  const [resourceType, setResourceType] = useState("");
+  const [resources, setResources] = useState([]);
+
+  // Add from input builder
+  const handleAddResource = (item) => {
+    setResources((prev) => [...prev, item]);
+  };
+
+  // Delete inside a grouped table
+  const handleDelete = (type, rowIndex) => {
+    setResources((prev) => {
+      const filtered = filterByType(prev, type);
+      const others = prev.filter((r) => r.resource_type !== type);
+
+      const updated = filtered.filter((_, i) => i !== rowIndex);
+      return [...others, ...updated];
+    });
+  };
 
   return (
     <div className={styles.projectContainer}>
-      <div className={styles.inputTake}>
-        <SelectInput
-          label="Select Resource Type"
-          options={RESOURCE_OPTIONS}
-          value={resourceType}
-          onChange={(e) => setResourceType(e.target.value)}
-          required
-        />
-
-        {resourceType && (
-          <ResourceInputBuilder
-            resourceType={resourceType} // helper that converts e.g. "/labors" -> "labor"
-            endpointForLookup={resourceType}
-            onSubmit={(payload) => {
-              // final add - you can append to a list of batch resources
-              console.log("submit payload:", payload);
-            }}
-          />
-        )}
-
-        {/* tables to show all the added resouces categorise by type */}
-      </div>
+      <ResourceSection onAdd={handleAddResource} />
+      <ResourceTables resources={resources} onDelete={handleDelete} />
     </div>
   );
 }

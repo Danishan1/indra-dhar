@@ -26,7 +26,8 @@ export function ResourceInputBuilder({
   onSubmit,
   initial = {},
 }) {
-  const [resourceId, setResourceId] = useState(initial.resource_id || "");
+  const [resourceId, setResourceId] = useState(initial.resourceId || "");
+  const [resourceName, setResourceName] = useState(initial.resourceName || "");
   const [inputs, setInputs] = useState(initial.inputs || {});
   const [errors, setErrors] = useState({});
 
@@ -118,16 +119,27 @@ export function ResourceInputBuilder({
     return Object.keys(nextErrors).length === 0;
   }, [fields, inputs, resourceId]);
 
+  const handleReset = useCallback(() => {
+    setResourceId("");
+    setResourceName("");
+    setInputs({});
+    setErrors({});
+  }, []);
+
   const handleSubmit = useCallback(
     (e) => {
       e?.preventDefault?.();
       if (!validate()) return;
       const payload = {
         resource_type: resourceType,
-        resource_id: resourceId,
-        inputs,
+        data: {
+          resource_id: resourceId,
+          resource_name: resourceName,
+          ...inputs,
+        },
       };
       onSubmit?.(payload);
+      handleReset();
     },
     [resourceType, resourceId, inputs, onSubmit, validate]
   );
@@ -140,7 +152,10 @@ export function ResourceInputBuilder({
           label="Select Resource"
           endpoint={endpointForLookup}
           value={resourceId}
-          onChange={(e) => setResourceId(e.target.value)}
+          onChange={(e) => {
+            setResourceId(e.target.value);
+            setResourceName(e.target.label);
+          }}
           valueField={valueField}
           labelField={labelField}
           placeholder="Choose resource..."
@@ -167,15 +182,7 @@ export function ResourceInputBuilder({
 
       {/* footer actions */}
       <div className={styles.footer}>
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => {
-            setInputs({});
-            setResourceId("");
-            setErrors({});
-          }}
-        >
+        <Button type="button" variant="secondary" onClick={handleReset}>
           Reset
         </Button>
 
