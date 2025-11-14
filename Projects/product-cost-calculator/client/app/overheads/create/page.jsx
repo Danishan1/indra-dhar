@@ -13,7 +13,7 @@ export default function CreatePage() {
   const freOptions = [
     { value: "monthly", label: "Monthly" },
     { value: "annual", label: "Annual" },
-    { value: "per_batch", label: "Per Batch" },
+    // { value: "per_batch", label: "Per Batch" },
   ];
 
   return (
@@ -36,7 +36,7 @@ export default function CreatePage() {
           options: typeOptions,
           required: true,
         },
-        { key: "value", label: "Value", type: FORM_TYPE.TEXT, required: true },
+        { key: "value", label: "Amount", type: FORM_TYPE.TEXT, required: true },
         {
           key: "frequency",
           label: "Frequency",
@@ -44,7 +44,7 @@ export default function CreatePage() {
           required: true,
           options: freOptions,
         },
-        { key: "is_global", label: "Is Global", type: FORM_TYPE.SWITCH },
+        // { key: "is_global", label: "Is Global", type: FORM_TYPE.SWITCH },
       ]}
     />
   );

@@ -9,10 +9,10 @@ export default function ListPage() {
       basePath={BASE_PATH.overheads}
       columns={[
         { key: "name", title: "Overhead Name" },
-        { key: "type", title: "Type"  },
-        { key: "value", title: "Value" },
+        { key: "type", title: "Type" },
+        { key: "value", title: "Amount" },
         { key: "frequency", title: "Frequency" },
-        { key: "is_global", title: "Is Global" },
+        // { key: "is_global", title: "Is Global" },
       ]}
     />
   );

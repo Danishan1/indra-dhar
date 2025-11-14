@@ -11,9 +11,24 @@ export default function CreatePage() {
       basePath={BASE_PATH.machines}
       title="Machine"
       fields={[
-        { key: "name", label: "Machine Name", type: FORM_TYPE.TEXT, required: true },
-        { key: "cost_per_hour", label: "Cost/Hr", type: FORM_TYPE.TEXT, required: true },
-        { key: "maintenance_cost", label: "Maintenance Cost", type: FORM_TYPE.TEXT, required: true },
+        {
+          key: "name",
+          label: "Machine Name",
+          type: FORM_TYPE.TEXT,
+          required: true,
+        },
+        {
+          key: "cost_per_hour",
+          label: "Cost/Hr",
+          type: FORM_TYPE.TEXT,
+          required: true,
+        },
+        {
+          key: "maintenance_cost",
+          label: "Monthly Maintenance Cost",
+          type: FORM_TYPE.TEXT,
+          required: true,
+        },
       ]}
     />
   );

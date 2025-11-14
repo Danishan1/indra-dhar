@@ -6,10 +6,10 @@ import { CONST } from "@/utils/CONST";
 const { FORM_TYPE } = CONST;
 
 export default function CreatePage() {
-  const options = [
-    { value: "direct", label: "Direct" },
-    { value: "indirect", label: "In Direct" },
-  ];
+  // const options = [
+  //   { value: "direct", label: "Direct" },
+  //   { value: "indirect", label: "In Direct" },
+  // ];
 
   return (
     <CrudFormPage
@@ -24,13 +24,13 @@ export default function CreatePage() {
           type: FORM_TYPE.TEXT,
           required: true,
         },
-        {
-          key: "type",
-          label: "Type",
-          type: FORM_TYPE.RADIO,
-          options: options,
-          required: true,
-        },
+        // {
+        //   key: "type",
+        //   label: "Type",
+        //   type: FORM_TYPE.RADIO,
+        //   options: options,
+        //   required: true,
+        // },
         {
           key: "rate_per_hour",
           label: "Rate/Hr",

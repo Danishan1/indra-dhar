@@ -5,6 +5,7 @@ import { BASE_PATH } from "../utils/basePath.js";
 export const CostCalculationService = {
   async calculate(payload) {
     const resources = payload.data || [];
+    const globalData = payload.global_data || {};
 
     if (!Array.isArray(resources) || resources.length === 0) {
       throw new ApiError(400, "No resources provided for calculation");
@@ -64,7 +65,7 @@ export const CostCalculationService = {
 
         const cost =
           hours * parseFloat(mc.cost_per_hour) +
-          parseFloat(mc.maintenance_cost);
+          parseFloat(mc.maintenance_cost) / 12; // Monthly maintenance apportioned
 
         machineTotal += cost;
       }
@@ -92,12 +93,18 @@ export const CostCalculationService = {
 
         // PERCENTAGE
         if (oh.type === "percentage") {
-          const base =
-            rawMaterialTotal + laborTotal + machineTotal + utilityTotal;
+          const base = parseFloat(data.applied_value || oh.value);
 
           const p = parseFloat(data.percentage_value || oh.value);
 
           overheadTotal += base * (p / 100);
+        }
+
+        if (oh.frequency === "monthly") {
+          const duration = parseInt(globalData.duration_in_months || 1);
+          overheadTotal *= duration; // Monthly Recurrence
+        } else {
+          overheadTotal *= duration / 12; // Yearly Recurrence
         }
       }
     }
@@ -110,8 +117,8 @@ export const CostCalculationService = {
       overheadTotal;
 
     // PROFIT ---------------------------------------------
-    const profitValue = parseFloat(payload.profit_value || 0);
-    const profitType = payload.profit_type || "percentage";
+    const profitValue = parseFloat(globalData.profit_value || 0);
+    const profitType = globalData.profit_type || "percentage";
 
     let profit = 0;
 
@@ -124,14 +131,14 @@ export const CostCalculationService = {
     const finalCost = totalBeforeProfit + profit;
 
     return {
-      rawMaterialTotal,
-      laborTotal,
-      machineTotal,
-      utilityTotal,
-      overheadTotal,
-      totalBeforeProfit,
-      profit,
-      finalCost,
+      rawMaterialTotal: `₹${rawMaterialTotal.toFixed(2)}`,
+      laborTotal: `₹${laborTotal.toFixed(2)}`,
+      machineTotal: `₹${machineTotal.toFixed(2)}`,
+      utilityTotal: `₹${utilityTotal.toFixed(2)}`,
+      overheadTotal: `₹${overheadTotal.toFixed(2)}`,
+      totalBeforeProfit: `₹${totalBeforeProfit.toFixed(2)}`,
+      profit: `₹${profit.toFixed(2)}`,
+      finalCost: `₹${finalCost.toFixed(2)}`,
     };
   },
 };

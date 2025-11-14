@@ -1,13 +1,13 @@
 "use client";
 
 import { CrudFormPage } from "@/components/layout";
-import { useFetchOptions } from "@/hooks/useFetchOptions";
+// import { useFetchOptions } from "@/hooks/useFetchOptions";
 import { BASE_PATH } from "@/utils/basePath";
 import { CONST } from "@/utils/CONST";
 const { FORM_TYPE } = CONST;
 
 export default function CreatePage() {
-  const vendorOptions = useFetchOptions({ endpoint: BASE_PATH.vendors });
+  // const vendorOptions = useFetchOptions({ endpoint: BASE_PATH.vendors });
 
   return (
     <CrudFormPage
@@ -34,20 +34,20 @@ export default function CreatePage() {
           type: FORM_TYPE.TEXT,
           required: true,
         },
-        {
-          key: "stock_quantity",
-          label: "Stock Quantity",
-          type: FORM_TYPE.TEXT,
-          required: true,
-        },
-        { key: "reorder_level", label: "Reorder Level", type: FORM_TYPE.TEXT },
-        {
-          key: "vendor_id",
-          label: "Vendor Name",
-          type: FORM_TYPE.SELECT,
-          required: true,
-          options: vendorOptions,
-        },
+        // {
+        //   key: "stock_quantity",
+        //   label: "Stock Quantity",
+        //   type: FORM_TYPE.TEXT,
+        //   required: true,
+        // },
+        // { key: "reorder_level", label: "Reorder Level", type: FORM_TYPE.TEXT },
+        // {
+        //   key: "vendor_id",
+        //   label: "Vendor Name",
+        //   type: FORM_TYPE.SELECT,
+        //   required: true,
+        //   options: vendorOptions,
+        // },
       ]}
     />
   );

@@ -11,9 +11,9 @@ export default function ListPage() {
         { key: "name", title: "Raw Material Name"},
         { key: "unit_type", title: "Unit Type",},
         { key: "unit_price", title: "Unit Price"},
-        { key: "stock_quantity", title: "Stock Quantity"},
-        { key: "reorder_level", title: "Reorder Level"},
-        { key: "vendor_name", title: "Vendor Name"},
+        // { key: "stock_quantity", title: "Stock Quantity"},
+        // { key: "reorder_level", title: "Reorder Level"},
+        // { key: "vendor_name", title: "Vendor Name"},
       ]}
     />
   );

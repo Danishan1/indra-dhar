@@ -13,7 +13,11 @@ export default function UpdatePage() {
       fields={[
         { key: "name", label: "Machine Name", type: FORM_TYPE.TEXT },
         { key: "cost_per_hour", label: "Cost/Hr", type: FORM_TYPE.TEXT },
-        { key: "maintenance_cost", label: "Maintenance Cost", type: FORM_TYPE.TEXT },
+        {
+          key: "maintenance_cost",
+          label: "Monthly Maintenance Cost",
+          type: FORM_TYPE.TEXT,
+        },
       ]}
     />
   );

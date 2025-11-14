@@ -38,6 +38,7 @@ export default function LoginPage() {
         alignItems: "center",
         height: "100vh",
         width: "100vw",
+        padding: "20px",
       }}
     >
       <FormComponent

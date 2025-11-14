@@ -45,7 +45,7 @@ export function ResourceInputBuilder({
 
   // render a single field based on its ui type
   const renderField = (field) => {
-    const { key, label, ui, props = {} } = field;
+    const { key, label, ui, props = {}, required } = field;
     const value = inputs[key] ?? "";
 
     switch (ui) {
@@ -64,7 +64,7 @@ export function ResourceInputBuilder({
             }
             error={errors[key]}
             {...props}
-            required
+            required={required}
           />
         );
 
@@ -79,7 +79,7 @@ export function ResourceInputBuilder({
             onChange={(e) => handleInputChange(key, e.target.value)}
             helperText={props.helperText}
             disabled={props.disabled}
-            required
+            required={required}
           />
         );
 
@@ -91,7 +91,7 @@ export function ResourceInputBuilder({
             value={value}
             onChange={(e) => handleInputChange(key, e.target.value)}
             error={errors[key]}
-            required
+            required={required}
             {...props}
           />
         );

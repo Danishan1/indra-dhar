@@ -34,11 +34,11 @@ export const menuItems = {
     //   icon: <Boxes size={ICON_SIZE} />,
     //   path: BASE_PATH.products,
     // },
-    {
-      name: "Vendors",
-      icon: <Truck size={ICON_SIZE} />,
-      path: BASE_PATH.vendors,
-    },
+    // {
+    //   name: "Vendors",
+    //   icon: <Truck size={ICON_SIZE} />,
+    //   path: BASE_PATH.vendors,
+    // },
     {
       name: "Raw Materials",
       icon: <Package size={ICON_SIZE} />,
