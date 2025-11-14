@@ -11,7 +11,7 @@ import styles from "../css/Switch.module.css";
 
 export function SwitchInput({
   label = "Enable Feature",
-  checked = false,
+  value = false,
   onChange,
   helperText,
   disabled = false,
@@ -23,7 +23,7 @@ export function SwitchInput({
       <label className={styles.container}>
         <input
           type="checkbox"
-          checked={checked}
+          checked={value}
           onChange={(e) => onChange(e.target.checked)}
           disabled={disabled}
           {...rest}
@@ -43,7 +43,6 @@ export function SwitchInput({
     </div>
   );
 }
-
 
 /*
 
