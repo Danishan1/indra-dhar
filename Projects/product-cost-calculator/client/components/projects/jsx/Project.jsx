@@ -50,9 +50,10 @@ export function Projects() {
     try {
       const res = await apiUtil.post("/project-cost", {
         data: resources,
+        meta: projectMeta,
       });
 
-      if (res.success === true) setCalculatedResult(res.data);
+      // if (res.success === true) setCalculatedResult(res.data);
 
       console.log("Project cost calculated:", res);
     } catch (error) {

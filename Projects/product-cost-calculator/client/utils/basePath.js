@@ -12,4 +12,5 @@ export const BASE_PATH = {
   batches: "/batches",
   projects: "/projects",
   settings: "/settings",
+  projectsCost: "/project-cost",
 };

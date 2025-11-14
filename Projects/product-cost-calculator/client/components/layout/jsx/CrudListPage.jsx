@@ -6,7 +6,13 @@ import { Table } from "@/components/ui";
 import { apiUtil } from "@/utils/api";
 import { useCrud } from "@/components/common/jsx/CrudLayout";
 
-export function CrudListPage({ title, endpoint, basePath, columns }) {
+export function CrudListPage({
+  title,
+  endpoint,
+  basePath,
+  columns,
+  editButton = true,
+}) {
   const router = useRouter();
   const { setSelectedId } = useCrud();
   const [data, setData] = useState([]);
@@ -19,11 +25,24 @@ export function CrudListPage({ title, endpoint, basePath, columns }) {
     fetchData();
   }, [endpoint]);
 
-  const rowButtons = (row) => [
-    { label: "View", onClick: () => router.push(`${basePath}/${row.id}/get`) },
-    { label: "Edit", onClick: () => router.push(`${basePath}/${row.id}/update`) },
-    { label: "Delete", onClick: () => router.push(`${basePath}/${row.id}/delete`) },
-  ];
+  const rowButtons = (row) => {
+    const buttons = [
+      {
+        label: "View",
+        onClick: () => router.push(`${basePath}/${row.id}/get`),
+      },
+      editButton && {
+        label: "Edit",
+        onClick: () => router.push(`${basePath}/${row.id}/update`),
+      },
+      {
+        label: "Delete",
+        onClick: () => router.push(`${basePath}/${row.id}/delete`),
+      },
+    ];
+
+    return buttons.filter(Boolean); // removes null/false
+  };
 
   return (
     <div style={{ padding: "1rem" }}>
@@ -38,7 +57,6 @@ export function CrudListPage({ title, endpoint, basePath, columns }) {
     </div>
   );
 }
-
 
 /*
 

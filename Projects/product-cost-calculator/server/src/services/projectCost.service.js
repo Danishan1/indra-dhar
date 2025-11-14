@@ -1,28 +1,28 @@
 import { ProjectCostRepository } from "../repositories/projectCost.repository.js";
 import { ApiError } from "../utils/ApiError.js";
-import { sanitizeInput } from "../utils/sanitizeInput.js";
 import { CostCalculationService } from "./costCalculation.service.js";
 
 export const ProjectCostService = {
   async createProjectWithHistory(payload) {
-    const data = sanitizeInput(payload);
+    const data = payload.data || [];
+    const meta = payload.meta || [];
 
-    if (!data.project_name) throw new ApiError(400, "Project name is required");
+    if (!meta.project_name) throw new ApiError(400, "Project name is required");
 
-    if (!Array.isArray(data.items) || data.items.length === 0)
+    if (!Array.isArray(data) || data.length === 0)
       throw new ApiError(400, "Resource items are required");
 
     // Calculate final cost
-    const total_cost = await CostCalculationService.calculate(data.items);
+    const total_cost = await CostCalculationService.calculate(payload);
 
     // Insert project
     const project = await ProjectCostRepository.createProject({
-      project_name: data.project_name,
-      total_cost,
+      project_name: meta.project_name,
+      total_cost: total_cost.finalCost.slice(1),
     });
 
     // Insert related inputs
-    await ProjectCostRepository.addProjectItems(project.id, data.items);
+    await ProjectCostRepository.addProjectItems(project.id, data);
 
     return { ...project, total_cost };
   },

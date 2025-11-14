@@ -67,7 +67,10 @@ export const ProjectCostRepository = {
 
     return {
       ...projectRows[0],
-      items: itemsRows.map((i) => ({ ...i, data: JSON.parse(i.data) })),
+      items: itemsRows.map((i) => ({
+        data: i.data,
+        resource_type: i.resource_type,
+      })),
     };
   },
 

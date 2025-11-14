@@ -8,7 +8,8 @@ import {
   RESOURCE_ORDER,
 } from "../helper/resourceColumns";
 
-export function ResourceTables({ resources, onDelete }) {
+export function ResourceTables({ resources, onDelete = null }) {
+
   return (
     <div className={styles.resouceTables}>
       {RESOURCE_ORDER.map((type) => {
@@ -24,13 +25,17 @@ export function ResourceTables({ resources, onDelete }) {
             <Table
               columns={RESOURCE_COLUMNS_MAP[type]}
               data={grouped}
-              rowButtons={(row, index) => [
-                {
-                  label: "Delete",
-                  className: "btn-delete",
-                  onClick: () => onDelete(type, index),
-                },
-              ]}
+              rowButtons={
+                onDelete
+                  ? (row, index) => [
+                      {
+                        label: "Delete",
+                        className: "btn-delete",
+                        onClick: () => onDelete(type, index),
+                      },
+                    ]
+                  : undefined
+              }
             />
           </div>
         );
