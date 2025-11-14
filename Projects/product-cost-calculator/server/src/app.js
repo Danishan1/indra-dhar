@@ -15,6 +15,7 @@ import { overheadRoutes } from "./routes/overhead.routes.js";
 import { machineRoutes } from "./routes/machine.routes.js";
 import { verifyToken } from "./middlewares/auth.middleware.js";
 import { costCalculationRoutes } from "./routes/costCalculation.routes.js";
+import { projectCostRoutes } from "./routes/projectCost.routes.js";
 
 dotenv.config();
 const app = express();
@@ -47,5 +48,6 @@ app.use("/utilities", utilityRoutes);
 app.use("/overheads", overheadRoutes);
 app.use("/machines", machineRoutes);
 app.use("/calculate-project-cost", costCalculationRoutes);
+app.use("/project-cost", projectCostRoutes);
 
 export default app;

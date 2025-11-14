@@ -5,7 +5,7 @@
   flex-direction: column;
   gap: 10px;
 }
-
+.calculatedButtons,
 .inputTake {
   width: 100%;
   display: flex;
@@ -13,8 +13,16 @@
   gap: 10px;
 }
 
-.resouceTables{
+.resouceTables {
+  padding-top: 30px;
   display: flex;
   flex-direction: column;
   gap: 30px;
+}
+
+.calculatedButtons {
+  flex-direction: row;
+}
+.calculatedButtons button {
+  flex: 1;
 }

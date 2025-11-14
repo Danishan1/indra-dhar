@@ -7,13 +7,16 @@ import styles from "../css/Project.module.css";
 import { filterByType } from "../helper/resourceColumns";
 import { Button } from "@/components/ui";
 import { apiUtil } from "@/utils/api";
+import { DataDetails } from "@/components/common";
 
 export function Projects() {
   const [resources, setResources] = useState([]);
+  const [calculatedResult, setCalculatedResult] = useState(null);
 
   // Add from input builder
   const handleAddResource = (item) => {
     setResources((prev) => [...prev, item]);
+    setCalculatedResult(null);
   };
 
   // Delete inside a grouped table
@@ -33,10 +36,30 @@ export function Projects() {
         data: resources,
       });
 
-      console.log("Project cost calculated:", res.data);
+      if (res.success === true) setCalculatedResult(res.data);
+
+      console.log("Project cost calculated:", res);
     } catch (error) {
       console.error("Error calculating project cost:", error);
     }
+  };
+
+  const handleSave = async () => {
+    try {
+      const res = await apiUtil.post("/project-cost", {
+        data: resources,
+      });
+
+      if (res.success === true) setCalculatedResult(res.data);
+
+      console.log("Project cost calculated:", res);
+    } catch (error) {
+      console.error("Error calculating project cost:", error);
+    }
+  };
+  const handleClear = () => {
+    setResources([]);
+    setCalculatedResult(null);
   };
 
   return (
@@ -44,6 +67,15 @@ export function Projects() {
       <ResourceSection onAdd={handleAddResource} />
       {resources.length > 0 && (
         <Button onClick={handleSubmit}>Calculate Project Cost</Button>
+      )}
+      {calculatedResult && (
+        <>
+          <DataDetails data={calculatedResult} />
+          <div className={styles.calculatedButtons}>
+            <Button onClick={handleSave}>Save Project Cost</Button>
+            <Button onClick={handleClear}>Clear</Button>
+          </div>
+        </>
       )}
       <ResourceTables resources={resources} onDelete={handleDelete} />
     </div>

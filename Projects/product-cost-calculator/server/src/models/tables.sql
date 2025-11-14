@@ -1,13 +1,13 @@
-CREATE TABLE products (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    product_uuid CHAR(36) NOT NULL UNIQUE,
-    name VARCHAR(255) NOT NULL,
-    sku VARCHAR(100) NOT NULL UNIQUE,
-    description TEXT,
-    default_batch_size DECIMAL(10,2),
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+-- CREATE TABLE products (
+--     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+--     product_uuid CHAR(36) NOT NULL UNIQUE,
+--     name VARCHAR(255) NOT NULL,
+--     sku VARCHAR(100) NOT NULL UNIQUE,
+--     description TEXT,
+--     default_batch_size DECIMAL(10,2),
+--     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+--     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+-- );
 
 CREATE TABLE vendors (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -82,94 +82,117 @@ CREATE TABLE utilities (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE batches (
+
+CREATE TABLE cost_projects (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    batch_uuid CHAR(36) NOT NULL UNIQUE,
-    product_id BIGINT UNSIGNED NOT NULL,
-    batch_size DECIMAL(12,2) NOT NULL,
-    start_date DATE,
-    end_date DATE,
-    status ENUM('draft', 'in_progress', 'completed') DEFAULT 'draft',
-    remarks TEXT,
+    project_uuid CHAR(36) NOT NULL UNIQUE,
+    project_name VARCHAR(255) NOT NULL,
+    total_cost DECIMAL(14,2) NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE cost_project_items (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    project_id BIGINT UNSIGNED NOT NULL,
+    resource_type VARCHAR(255) NOT NULL,   -- '/machines', '/raw-material', etc.
+    resource_id BIGINT UNSIGNED NOT NULL,
+    resource_name VARCHAR(255),
+    data JSON NOT NULL,                    -- full dynamic attributes
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (product_id) REFERENCES products(id)
+
+    FOREIGN KEY (project_id) REFERENCES cost_projects(id) ON DELETE CASCADE
 );
 
-CREATE TABLE batch_raw_materials (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    batch_id BIGINT UNSIGNED NOT NULL,
-    material_id BIGINT UNSIGNED NOT NULL,
-    quantity_used DECIMAL(12,4) NOT NULL,
-    unit_price DECIMAL(12,4) NOT NULL,
-    wastage_percent DECIMAL(5,2) DEFAULT 0.00,
-    scrap_value DECIMAL(12,4) DEFAULT 0.00,
-    total_cost DECIMAL(14,4),
-    FOREIGN KEY (batch_id) REFERENCES batches(id),
-    FOREIGN KEY (material_id) REFERENCES raw_materials(id)
-);
 
-CREATE TABLE batch_labors (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    batch_id BIGINT UNSIGNED NOT NULL,
-    labor_id BIGINT UNSIGNED NOT NULL,
-    hours_worked DECIMAL(10,2) NOT NULL,
-    overtime_hours DECIMAL(10,2) DEFAULT 0.00,
-    total_cost DECIMAL(12,4),
-    FOREIGN KEY (batch_id) REFERENCES batches(id),
-    FOREIGN KEY (labor_id) REFERENCES labors(id)
-);
 
-CREATE TABLE batch_machines (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    batch_id BIGINT UNSIGNED NOT NULL,
-    machine_id BIGINT UNSIGNED NOT NULL,
-    hours_used DECIMAL(10,2) NOT NULL,
-    cost_per_hour DECIMAL(10,2) NOT NULL,
-    maintenance_cost DECIMAL(10,2) DEFAULT 0.00,
-    total_cost DECIMAL(12,4),
-    FOREIGN KEY (batch_id) REFERENCES batches(id),
-    FOREIGN KEY (machine_id) REFERENCES machines(id)
-);
+-- CREATE TABLE batches (
+--     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+--     batch_uuid CHAR(36) NOT NULL UNIQUE,
+--     product_id BIGINT UNSIGNED NOT NULL,
+--     batch_size DECIMAL(12,2) NOT NULL,
+--     start_date DATE,
+--     end_date DATE,
+--     status ENUM('draft', 'in_progress', 'completed') DEFAULT 'draft',
+--     remarks TEXT,
+--     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+--     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+--     FOREIGN KEY (product_id) REFERENCES products(id)
+-- );
 
-CREATE TABLE batch_utilities (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    batch_id BIGINT UNSIGNED NOT NULL,
-    utility_id BIGINT UNSIGNED NOT NULL,
-    units_consumed DECIMAL(12,4) NOT NULL,
-    unit_cost DECIMAL(12,4) NOT NULL,
-    total_cost DECIMAL(12,4) ,
-    FOREIGN KEY (batch_id) REFERENCES batches(id),
-    FOREIGN KEY (utility_id) REFERENCES utilities(id)
-);
+-- CREATE TABLE batch_raw_materials (
+--     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+--     batch_id BIGINT UNSIGNED NOT NULL,
+--     material_id BIGINT UNSIGNED NOT NULL,
+--     quantity_used DECIMAL(12,4) NOT NULL,
+--     unit_price DECIMAL(12,4) NOT NULL,
+--     wastage_percent DECIMAL(5,2) DEFAULT 0.00,
+--     scrap_value DECIMAL(12,4) DEFAULT 0.00,
+--     total_cost DECIMAL(14,4),
+--     FOREIGN KEY (batch_id) REFERENCES batches(id),
+--     FOREIGN KEY (material_id) REFERENCES raw_materials(id)
+-- );
 
-CREATE TABLE batch_overheads (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    batch_id BIGINT UNSIGNED NOT NULL,
-    overhead_id BIGINT UNSIGNED NOT NULL,
-    applied_value DECIMAL(12,4) NOT NULL,
-    total_cost DECIMAL(12,4) NOT NULL,
-    FOREIGN KEY (batch_id) REFERENCES batches(id),
-    FOREIGN KEY (overhead_id) REFERENCES overheads(id)
-);
+-- CREATE TABLE batch_labors (
+--     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+--     batch_id BIGINT UNSIGNED NOT NULL,
+--     labor_id BIGINT UNSIGNED NOT NULL,
+--     hours_worked DECIMAL(10,2) NOT NULL,
+--     overtime_hours DECIMAL(10,2) DEFAULT 0.00,
+--     total_cost DECIMAL(12,4),
+--     FOREIGN KEY (batch_id) REFERENCES batches(id),
+--     FOREIGN KEY (labor_id) REFERENCES labors(id)
+-- );
 
-CREATE TABLE batch_packaging_transport (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    batch_id BIGINT UNSIGNED NOT NULL,
-    packaging_cost DECIMAL(12,4) DEFAULT 0.00,
-    transportation_cost DECIMAL(12,4) DEFAULT 0.00,
-    total_cost DECIMAL(12,4),
-    FOREIGN KEY (batch_id) REFERENCES batches(id)
-);
+-- CREATE TABLE batch_machines (
+--     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+--     batch_id BIGINT UNSIGNED NOT NULL,
+--     machine_id BIGINT UNSIGNED NOT NULL,
+--     hours_used DECIMAL(10,2) NOT NULL,
+--     cost_per_hour DECIMAL(10,2) NOT NULL,
+--     maintenance_cost DECIMAL(10,2) DEFAULT 0.00,
+--     total_cost DECIMAL(12,4),
+--     FOREIGN KEY (batch_id) REFERENCES batches(id),
+--     FOREIGN KEY (machine_id) REFERENCES machines(id)
+-- );
 
-CREATE TABLE batch_profit (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    batch_id BIGINT UNSIGNED NOT NULL,
-    profit_type ENUM('percentage', 'fixed') NOT NULL,
-    profit_value DECIMAL(12,4) NOT NULL,
-    total_batch_cost DECIMAL(14,4) NOT NULL,
-    total_selling_price DECIMAL(14,4),
-    unit_cost DECIMAL(12,4),
-    unit_selling_price DECIMAL(12,4),
-    FOREIGN KEY (batch_id) REFERENCES batches(id)
-);
+-- CREATE TABLE batch_utilities (
+--     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+--     batch_id BIGINT UNSIGNED NOT NULL,
+--     utility_id BIGINT UNSIGNED NOT NULL,
+--     units_consumed DECIMAL(12,4) NOT NULL,
+--     unit_cost DECIMAL(12,4) NOT NULL,
+--     total_cost DECIMAL(12,4) ,
+--     FOREIGN KEY (batch_id) REFERENCES batches(id),
+--     FOREIGN KEY (utility_id) REFERENCES utilities(id)
+-- );
+
+-- CREATE TABLE batch_overheads (
+--     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+--     batch_id BIGINT UNSIGNED NOT NULL,
+--     overhead_id BIGINT UNSIGNED NOT NULL,
+--     applied_value DECIMAL(12,4) NOT NULL,
+--     total_cost DECIMAL(12,4) NOT NULL,
+--     FOREIGN KEY (batch_id) REFERENCES batches(id),
+--     FOREIGN KEY (overhead_id) REFERENCES overheads(id)
+-- );
+
+-- CREATE TABLE batch_packaging_transport (
+--     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+--     batch_id BIGINT UNSIGNED NOT NULL,
+--     packaging_cost DECIMAL(12,4) DEFAULT 0.00,
+--     transportation_cost DECIMAL(12,4) DEFAULT 0.00,
+--     total_cost DECIMAL(12,4),
+--     FOREIGN KEY (batch_id) REFERENCES batches(id)
+-- );
+
+-- CREATE TABLE batch_profit (
+--     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+--     batch_id BIGINT UNSIGNED NOT NULL,
+--     profit_type ENUM('percentage', 'fixed') NOT NULL,
+--     profit_value DECIMAL(12,4) NOT NULL,
+--     total_batch_cost DECIMAL(14,4) NOT NULL,
+--     total_selling_price DECIMAL(14,4),
+--     unit_cost DECIMAL(12,4),
+--     unit_selling_price DECIMAL(12,4),
+--     FOREIGN KEY (batch_id) REFERENCES batches(id)
+-- );
