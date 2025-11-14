@@ -1,17 +1,10 @@
 import { RawMaterialRepository } from "../repositories/rawMaterial.repository.js";
-import { VendorRepository } from "../repositories/vendor.repository.js"; // assuming this exists
 import { ApiError } from "../utils/ApiError.js";
 import { sanitizeInput } from "../utils/sanitizeInput.js";
 
 export const RawMaterialService = {
   async createMaterial(payload) {
     const data = sanitizeInput(payload);
-
-    // Validate vendor if provided
-    if (data.vendor_id) {
-      const vendor = await VendorRepository.findById(data.vendor_id);
-      if (!vendor) throw new ApiError(400, "Invalid vendor ID");
-    }
 
     return RawMaterialRepository.create({
       name: data.name.trim(),

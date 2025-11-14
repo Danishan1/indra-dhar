@@ -1,11 +1,11 @@
-CREATE TABLE vendors (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    vendor_uuid CHAR(36) NOT NULL UNIQUE,
-    name VARCHAR(255) NOT NULL,
-    contact_name VARCHAR(255),
-    email VARCHAR(255),
-    phone VARCHAR(50),
-    address TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+-- CREATE TABLE vendors (
+--     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+--     vendor_uuid CHAR(36) NOT NULL UNIQUE,
+--     name VARCHAR(255) NOT NULL,
+--     contact_name VARCHAR(255),
+--     email VARCHAR(255),
+--     phone VARCHAR(50),
+--     address TEXT,
+--     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+--     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+-- );
