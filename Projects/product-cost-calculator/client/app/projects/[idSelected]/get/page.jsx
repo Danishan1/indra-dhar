@@ -14,7 +14,6 @@ export default function DetailPage() {
     async function fetchData() {
       const res = await apiUtil.get(`${BASE_PATH.projectsCost}/${idSelected}`);
       if (res.success) setResources(res.data.items);
-      console.log("Fetched project cost data:", res.data.items);
     }
     fetchData();
   }, [idSelected]);

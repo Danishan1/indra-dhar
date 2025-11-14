@@ -27,7 +27,7 @@ export const RESOURCE_FIELD_MAP = {
       key: "scrap_value",
       label: "Scrap Value",
       ui: FORM_TYPE.NUMBER,
-      required: true,
+      required: false,
       props: {
         min: 0,
         step: "0.01",

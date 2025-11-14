@@ -44,6 +44,38 @@ export function ResourceSection({ onAdd, setProjectMeta, projectMeta }) {
           />
         </div>
       </div>
+      <div className={styles.metadata}>
+        <div className={styles.metadata_input}>
+          <TextInput
+            label={"Project Profit Amount"}
+            value={projectMeta.profit_value || ""}
+            onChange={(e) =>
+              setProjectMeta((r) => ({ ...r, profit_value: e.target.value }))
+            }
+            required
+          />
+        </div>
+        <div className={styles.metadata_input}>
+          <SelectInput
+            label={"Type"}
+            value={projectMeta.profit_type || ""}
+            options={[
+              {
+                value: "fixed",
+                label: "Fixed",
+              },
+              { value: "percentage", label: "Percentage" },
+            ]}
+            onChange={(e) =>
+              setProjectMeta((r) => ({
+                ...r,
+                profit_type: e.target.value,
+              }))
+            }
+            required
+          />
+        </div>
+      </div>
 
       <SelectInput
         label="Select Resource Type"

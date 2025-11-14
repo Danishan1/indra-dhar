@@ -19,7 +19,13 @@ export async function deleteRecord(endpoint, id) {
   }
 }
 
-export function DeleteConfirm({ id, endpoint, record, setSelectedId = null }) {
+export function DeleteConfirm({
+  id,
+  endpoint,
+  record,
+  setSelectedId = null,
+  basePath,
+}) {
   const router = useRouter();
   const { addToast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -33,7 +39,7 @@ export function DeleteConfirm({ id, endpoint, record, setSelectedId = null }) {
     if (res.success) {
       addToast("success", "Record deleted successfully!");
       setSelectedId && setSelectedId(null);
-      router.push(endpoint); // e.g., /vendors
+      router.push(basePath || endpoint); // e.g., /vendors
     } else {
       addToast("error", res.message);
     }

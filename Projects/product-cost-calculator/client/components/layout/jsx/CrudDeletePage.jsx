@@ -6,7 +6,7 @@ import { apiUtil } from "@/utils/api";
 import { DeleteConfirm } from "@/components/common";
 import { useCrud } from "@/components/common/jsx/CrudLayout";
 
-export function CrudDeletePage({ endpoint }) {
+export function CrudDeletePage({ endpoint, basePath = null }) {
   const { idSelected } = useParams();
   const [record, setRecord] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -39,6 +39,7 @@ export function CrudDeletePage({ endpoint }) {
       endpoint={endpoint}
       record={record}
       setSelectedId={setSelectedId}
+      basePath={basePath}
     />
   );
 }

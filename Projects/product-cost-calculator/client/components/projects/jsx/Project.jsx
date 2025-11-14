@@ -7,12 +7,13 @@ import styles from "../css/Project.module.css";
 import { filterByType } from "../helper/resourceColumns";
 import { Button } from "@/components/ui";
 import { apiUtil } from "@/utils/api";
-import { DataDetails } from "@/components/common";
+import { DataDetails, useToast } from "@/components/common";
 
 export function Projects() {
   const [resources, setResources] = useState([]);
   const [calculatedResult, setCalculatedResult] = useState(null);
   const [projectMeta, setProjectMeta] = useState({});
+  const { addToast } = useToast();
 
   // Add from input builder
   const handleAddResource = (item) => {
@@ -39,8 +40,6 @@ export function Projects() {
       });
 
       if (res.success === true) setCalculatedResult(res.data);
-
-      console.log("Project cost calculated:", res);
     } catch (error) {
       console.error("Error calculating project cost:", error);
     }
@@ -53,10 +52,15 @@ export function Projects() {
         meta: projectMeta,
       });
 
-      // if (res.success === true) setCalculatedResult(res.data);
+      addToast("success", "Project cost saved successfully");
 
-      console.log("Project cost calculated:", res);
+      setProjectMeta({});
     } catch (error) {
+      addToast(
+        "error",
+        error?.response?.data?.message || "Error saving project cost"
+      );
+
       console.error("Error calculating project cost:", error);
     }
   };
