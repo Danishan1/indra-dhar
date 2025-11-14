@@ -1,6 +1,7 @@
 import { AuthProvider } from "@/context/AuthContext";
 import "./globals.css";
 import { ToastProvider } from "@/components/common/";
+import RouteGuard from "@/components/common/jsx/RouteGuard";
 
 export const metadata = {
   title: "Production Cost Calculator",
@@ -13,7 +14,9 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <ToastProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <RouteGuard>{children}</RouteGuard>
+          </AuthProvider>
         </ToastProvider>
       </body>
     </html>

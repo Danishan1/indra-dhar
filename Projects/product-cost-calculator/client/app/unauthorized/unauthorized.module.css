@@ -1,0 +1,24 @@
+.container {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.card {
+  padding: 32px;
+  border-radius: var(--radius-md);
+  width: 100%;
+  text-align: center;
+}
+
+.title {
+  font-weight: bold;
+  color: var(--color-danger);
+  margin-bottom: 16px;
+}
+
+.message {
+  margin-bottom: 24px;
+}
