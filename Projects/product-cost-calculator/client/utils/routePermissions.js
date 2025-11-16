@@ -1,3 +1,5 @@
+import { BASE_PATH } from "./basePath";
+
 const allThree = ["admin", "manager", "user"];
 const adminManager = ["admin", "manager"];
 const adminOnly = ["admin"];
@@ -42,6 +44,7 @@ export const routePermissions = {
   "/users/delete": adminOnly,
   "/users/get-list": adminManager,
   "/users/get": adminManager,
+  [BASE_PATH.bulkUpload]: adminManager,
 
   // PROJECTS (Special Case 2)
   "/projects": allThree,

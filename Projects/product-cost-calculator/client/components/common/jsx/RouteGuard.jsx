@@ -37,7 +37,7 @@ export default function RouteGuard({ children }) {
     const parts = path.split("/").filter(Boolean);
 
     // CASE 1: /raw-material/get-list → already static
-    if (parts.length === 2) return "/" + parts.join("/");
+    if (parts.length <= 2) return "/" + parts.join("/");
 
     // CASE 2: /raw-material/12/update → remove numeric or dynamic segment
     // Keep: [resource, action]

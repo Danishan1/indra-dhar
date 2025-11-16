@@ -6,13 +6,14 @@ import {
   createLaborBulkValidator as CLBV,
 } from "../validators/labor.validator.js";
 import { validateRequest } from "../middlewares/validateRequest.js";
+import { onlyAdminManager as OAM } from "../middlewares/onlyTop.middleware.js";
 
 const router = express.Router();
 
-router.post("/", CLV, validateRequest, LC.create);
+router.post("/", OAM, CLV, validateRequest, LC.create);
 router.get("/", LC.getAll);
 router.get("/:id", LC.getOne);
-router.put("/:id", ULV, validateRequest, LC.update);
-router.delete("/:id", LC.remove);
-router.post("/bulk", CLBV, validateRequest, LC.bulkCreate);
+router.put("/:id", OAM, ULV, validateRequest, LC.update);
+router.delete("/:id", OAM, LC.remove);
+router.post("/bulk", OAM, CLBV, validateRequest, LC.bulkCreate);
 export const laborRoutes = router;

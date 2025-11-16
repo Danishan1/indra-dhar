@@ -45,14 +45,14 @@ export default function LoginPage() {
         title="Welcome Back"
         description="Sign in to your account"
         onSubmit={handleSubmit}
-        onCancel={() => {
-          router.push("/register");
-        }} // move to "/"  (home page) when cancel is clicked
+        // onCancel={() => {
+        //   router.push("/register");
+        // }} // move to "/"  (home page) when cancel is clicked
         loading={loading}
         error={error}
         success=""
         submitLabel="Login"
-        cancelLabel="Register"
+        // cancelLabel="Register"
       >
         {/* {error && addToast("error", error)} */}
         <TextInput
