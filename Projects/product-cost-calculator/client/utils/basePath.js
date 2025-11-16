@@ -13,4 +13,5 @@ export const BASE_PATH = {
   projects: "/projects",
   settings: "/settings",
   projectsCost: "/project-cost",
+  bulkUpload: "/bulk-upload",
 };

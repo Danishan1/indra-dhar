@@ -49,4 +49,17 @@ export const MachineController = {
       next(err);
     }
   },
+
+  async bulkCreate(req, res, next) {
+    try {
+      const machines = await MachineService.createMachinesBulk(req.body);
+      return ApiResponse.success(
+        res,
+        machines,
+        "Machines inserted successfully"
+      );
+    } catch (err) {
+      next(err);
+    }
+  },
 };

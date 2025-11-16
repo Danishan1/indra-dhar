@@ -57,4 +57,16 @@ export const OverheadController = {
       next(err);
     }
   },
+  async bulkCreate(req, res, next) {
+    try {
+      const overheads = await OverheadService.createOverheadsBulk(req.body);
+      return ApiResponse.success(
+        res,
+        overheads,
+        "Overheads inserted successfully"
+      );
+    } catch (err) {
+      next(err);
+    }
+  },
 };

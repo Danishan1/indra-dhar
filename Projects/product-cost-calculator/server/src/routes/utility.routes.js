@@ -3,6 +3,7 @@ import { UtilityController as UC } from "../controllers/utility.controller.js";
 import {
   createUtilityValidator as CUV,
   updateUtilityValidator as UUV,
+  createUtilityBulkValidator as CUBV,
 } from "../validators/utility.validator.js";
 import { validateRequest } from "../middlewares/validateRequest.js";
 
@@ -13,5 +14,6 @@ router.get("/", UC.getAll);
 router.get("/:id", UC.getOne);
 router.put("/:id", UUV, validateRequest, UC.update);
 router.delete("/:id", UC.remove);
+router.post("/bulk", CUBV, validateRequest, UC.bulkCreate);
 
 export const utilityRoutes = router;

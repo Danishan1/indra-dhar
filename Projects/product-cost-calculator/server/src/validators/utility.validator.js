@@ -17,3 +17,18 @@ export const updateUtilityValidator = [
   body("cost_per_unit").optional().isFloat({ min: 0 }),
   body("unit_type").optional().isString().trim().escape(),
 ];
+
+export const createUtilityBulkValidator = [
+  body()
+    .isArray({ min: 1 })
+    .withMessage("Request body must be a non-empty array"),
+  body("*.name").notEmpty().withMessage("Name is required").trim().escape(),
+  body("*.unit_type")
+    .notEmpty()
+    .withMessage("Unit type is required")
+    .trim()
+    .escape(),
+  body("*.cost_per_unit")
+    .isFloat({ min: 0 })
+    .withMessage("Cost per unit must be a positive number"),
+];

@@ -40,4 +40,30 @@ export const UtilityService = {
     if (!existing) throw new ApiError(404, "Utility not found");
     return UtilityRepository.delete(id);
   },
+
+  async createUtilitiesBulk(payloads) {
+    if (!Array.isArray(payloads) || payloads.length === 0) {
+      throw new ApiError(400, "Payload must be a non-empty array");
+    }
+
+    const utilitiesToInsert = payloads.map((u) => {
+      const data = sanitizeInput(u);
+
+      if (
+        !data.name ||
+        !data.unit_type ||
+        isNaN(parseFloat(data.cost_per_unit))
+      ) {
+        throw new ApiError(400, "Invalid utility data");
+      }
+
+      return {
+        name: data.name.trim(),
+        unit_type: data.unit_type.trim(),
+        cost_per_unit: parseFloat(data.cost_per_unit),
+      };
+    });
+
+    return UtilityRepository.createBulk(utilitiesToInsert);
+  },
 };

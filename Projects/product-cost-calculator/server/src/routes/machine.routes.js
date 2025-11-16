@@ -3,6 +3,7 @@ import { MachineController as MC } from "../controllers/machine.controller.js";
 import {
   createMachineValidator as CMV,
   updateMachineValidator as UMV,
+  createMachineBulkValidator as CMBV,
 } from "../validators/machine.validator.js";
 import { validateRequest } from "../middlewares/validateRequest.js";
 
@@ -13,5 +14,6 @@ router.get("/", MC.getAll);
 router.get("/:id", MC.getOne);
 router.put("/:id", UMV, validateRequest, MC.update);
 router.delete("/:id", MC.remove);
+router.post("/bulk", CMBV, validateRequest, MC.bulkCreate);
 
 export const machineRoutes = router;

@@ -65,4 +65,26 @@ export const MachineRepository = {
     await pool.execute(`UPDATE machines SET is_active = 0 WHERE id = ?`, [id]);
     return { success: true };
   },
+
+  async createBulk(machines) {
+    if (machines.length === 0) return [];
+
+    const placeholders = machines
+      .map(() => "(UUID(), ?, ?, ?, true)")
+      .join(", ");
+    const values = [];
+    machines.forEach((m) => {
+      values.push(m.name, m.cost_per_hour, m.maintenance_cost || 0);
+    });
+
+    const sql = `
+      INSERT INTO machines
+      (machine_uuid, name, cost_per_hour, maintenance_cost, is_active)
+      VALUES ${placeholders}
+    `;
+
+    await pool.execute(sql, values);
+
+    return this.findAll(); // returns all active machines; can modify to return inserted only
+  },
 };

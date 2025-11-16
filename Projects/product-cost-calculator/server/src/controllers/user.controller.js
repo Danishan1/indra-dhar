@@ -65,4 +65,13 @@ export const UserController = {
       next(err);
     }
   },
+
+  async bulkCreate(req, res, next) {
+    try {
+      const users = await UserService.createUsersBulk(req.body, req.user);
+      return ApiResponse.success(res, users, "Users inserted successfully");
+    } catch (err) {
+      next(err);
+    }
+  },
 };

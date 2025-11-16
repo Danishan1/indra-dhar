@@ -4,15 +4,14 @@ export const OverheadRepository = {
   async create(data) {
     const sql = `
       INSERT INTO overheads
-      (overhead_uuid, name, type, value, frequency, is_global, is_active)
-      VALUES (UUID(), ?, ?, ?, ?, ?, ?)
+      (overhead_uuid, name, type, value, frequency, is_active)
+      VALUES (UUID(), ?, ?, ?, ?, ?)
     `;
     const [result] = await pool.execute(sql, [
       data.name,
       data.type,
       data.value,
       data.frequency || "per_batch",
-      data.is_global || false,
       true,
     ]);
     return this.findById(result.insertId);
@@ -77,5 +76,32 @@ export const OverheadRepository = {
   async delete(id) {
     await pool.execute(`UPDATE overheads SET is_active = 0 WHERE id = ?`, [id]);
     return { success: true };
+  },
+
+  async createBulk(overheads) {
+    if (overheads.length === 0) return [];
+
+    const placeholders = overheads
+      .map(() => "(UUID(), ?, ?, ?, ?, true)")
+      .join(", ");
+    const values = [];
+    overheads.forEach((o) => {
+      values.push(
+        o.name,
+        o.type,
+        o.value,
+        o.frequency || "per_batch",
+      );
+    });
+
+    const sql = `
+      INSERT INTO overheads
+      (overhead_uuid, name, type, value, frequency, is_active)
+      VALUES ${placeholders}
+    `;
+
+    await pool.execute(sql, values);
+
+    return this.findAll(); // returns all active overheads; can modify to return only inserted
   },
 };

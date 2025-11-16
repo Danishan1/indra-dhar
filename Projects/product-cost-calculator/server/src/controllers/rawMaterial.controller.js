@@ -5,7 +5,11 @@ export const RawMaterialController = {
   async create(req, res, next) {
     try {
       const material = await RawMaterialService.createMaterial(req.body);
-      return ApiResponse.success(res, material, "Raw material created successfully");
+      return ApiResponse.success(
+        res,
+        material,
+        "Raw material created successfully"
+      );
     } catch (err) {
       next(err);
     }
@@ -31,8 +35,15 @@ export const RawMaterialController = {
 
   async update(req, res, next) {
     try {
-      const material = await RawMaterialService.updateMaterial(req.params.id, req.body);
-      return ApiResponse.success(res, material, "Raw material updated successfully");
+      const material = await RawMaterialService.updateMaterial(
+        req.params.id,
+        req.body
+      );
+      return ApiResponse.success(
+        res,
+        material,
+        "Raw material updated successfully"
+      );
     } catch (err) {
       next(err);
     }
@@ -41,7 +52,24 @@ export const RawMaterialController = {
   async remove(req, res, next) {
     try {
       await RawMaterialService.deleteMaterial(req.params.id);
-      return ApiResponse.success(res, null, "Raw material deactivated successfully");
+      return ApiResponse.success(
+        res,
+        null,
+        "Raw material deactivated successfully"
+      );
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async bulkCreate(req, res, next) {
+    try {
+      const materials = await RawMaterialService.createMaterialsBulk(req.body);
+      return ApiResponse.success(
+        res,
+        materials,
+        "Raw materials inserted successfully"
+      );
     } catch (err) {
       next(err);
     }

@@ -41,4 +41,24 @@ export const MachineService = {
     if (!existing) throw new ApiError(404, "Machine not found");
     return MachineRepository.delete(id);
   },
+
+  async createMachinesBulk(payloads) {
+    if (!Array.isArray(payloads) || payloads.length === 0)
+      throw new Error("Payload must be a non-empty array");
+
+    const sanitizedData = payloads.map((p) => {
+      const data = sanitizeInput(p);
+      if (!data.name) throw new Error("Machine name is required");
+      if (isNaN(parseFloat(data.cost_per_hour)))
+        throw new Error("Invalid cost per hour");
+
+      return {
+        name: data.name.trim(),
+        cost_per_hour: parseFloat(data.cost_per_hour),
+        maintenance_cost: parseFloat(data.maintenance_cost || 0),
+      };
+    });
+
+    return MachineRepository.createBulk(sanitizedData);
+  },
 };

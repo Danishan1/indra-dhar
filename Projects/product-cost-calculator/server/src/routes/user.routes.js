@@ -4,6 +4,7 @@ import {
   createUserValidator as CUV,
   updateUserValidator as UUV,
   updatePasswordValidator as UPV,
+  createUserBulkValidator as CUBV,
 } from "../validators/user.validator.js";
 import { validateRequest } from "../middlewares/validateRequest.js";
 // import { authenticate } from "../middlewares/authenticate.js";
@@ -22,5 +23,6 @@ router.get("/:id", UC.getOne);
 router.put("/:id", UUV, validateRequest, UC.update);
 router.put("/:id/password", UPV, validateRequest, UC.updatePassword);
 router.delete("/:id", UC.remove);
+router.post("/bulk", CUBV, validateRequest, UC.bulkCreate);
 
 export const userRoutes = router;

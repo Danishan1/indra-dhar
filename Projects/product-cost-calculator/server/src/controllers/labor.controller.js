@@ -46,4 +46,13 @@ export const LaborController = {
       next(err);
     }
   },
+
+  async bulkCreate(req, res, next) {
+    try {
+      const labors = await LaborService.createLaborsBulk(req.body);
+      return ApiResponse.success(res, labors, "Labors inserted successfully");
+    } catch (err) {
+      next(err);
+    }
+  },
 };

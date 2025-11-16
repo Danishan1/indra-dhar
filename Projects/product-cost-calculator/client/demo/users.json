@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Alice Johnson",
+    "email": "alice.johnson@example.com",
+    "password": "Password123",
+    "repassword": "Password123",
+    "role": "admin"
+  },
+  {
+    "name": "Bob Smith",
+    "email": "bob.smith@example.com",
+    "password": "SecurePass1",
+    "repassword": "SecurePass1",
+    "role": "manager"
+  },
+  {
+    "name": "Charlie Davis",
+    "email": "charlie.davis@example.com",
+    "password": "MyPass456",
+    "repassword": "MyPass456",
+    "role": "user"
+  },
+  {
+    "name": "Diana Prince",
+    "email": "diana.prince@example.com",
+    "password": "Wonder123",
+    "repassword": "Wonder123",
+    "role": "user"
+  }
+]

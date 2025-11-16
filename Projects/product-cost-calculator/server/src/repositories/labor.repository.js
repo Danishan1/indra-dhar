@@ -65,4 +65,25 @@ export const LaborRepository = {
     await pool.execute(`UPDATE labors SET is_active = 0 WHERE id = ?`, [id]);
     return { success: true };
   },
+
+  async createBulk(labors) {
+    if (labors.length === 0) return [];
+
+    const placeholders = labors.map(() => "(UUID(), ?, ?, ?, true)").join(", ");
+    const values = [];
+    labors.forEach((l) => {
+      values.push(l.name, l.rate_per_hour, l.overtime_rate || 0);
+      // values.push(l.name, l.type, l.rate_per_hour, l.overtime_rate || 0); // if using type
+    });
+
+    const sql = `
+      INSERT INTO labors
+      (labor_uuid, name, rate_per_hour, overtime_rate, is_active)
+      VALUES ${placeholders}
+    `;
+
+    await pool.execute(sql, values);
+
+    return this.findAll(); // return all active labors; can modify to return inserted only
+  },
 };

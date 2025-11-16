@@ -1,0 +1,44 @@
+.bulkUploadWrapper {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.fileInput {
+  margin: 1rem 0;
+}
+
+.previewWrapper {
+  margin: 1rem 0;
+}
+
+.previewTable {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.previewTable table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.previewTable th,
+.previewTable td {
+  border: 1px solid var(--color-border);
+  padding: 0.5rem;
+  text-align: left;
+  font-size: var(--font-size-sm);
+}
+
+.previewTable th {
+  background-color: var(--color-bg);
+  font-weight: 600;
+}
+
+.previewTable tr:nth-child(even) {
+  background-color: #fafafa;
+}

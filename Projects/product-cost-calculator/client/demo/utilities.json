@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Electricity",
+    "unit_type": "kWh",
+    "cost_per_unit": 12.5
+  },
+  {
+    "name": "Water",
+    "unit_type": "liter",
+    "cost_per_unit": 0.8
+  },
+  {
+    "name": "Compressed Air",
+    "unit_type": "m³",
+    "cost_per_unit": 5.0
+  },
+  {
+    "name": "Internet",
+    "unit_type": "GB",
+    "cost_per_unit": 2.5
+  }
+]

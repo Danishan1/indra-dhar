@@ -11,19 +11,24 @@ import {
   Zap,
   Workflow,
   ClipboardList,
+  Upload,
 } from "lucide-react";
 import { CONST } from "@/utils/CONST";
 import { BASE_PATH } from "@/utils/basePath";
 
 const ICON_SIZE = CONST.ICON_SIZE;
 
-const adminExtra = [
-  {
-    name: "Users",
-    icon: <Users size={ICON_SIZE} />,
-    path: BASE_PATH.users,
-  },
-];
+const user = {
+  name: "Users",
+  icon: <Users size={ICON_SIZE} />,
+  path: BASE_PATH.users,
+};
+
+const buklUpload = {
+  name: "Bulk Upload",
+  icon: <Upload size={ICON_SIZE} />,
+  path: BASE_PATH.bulkUpload,
+};
 
 const common = [
   // {
@@ -85,8 +90,8 @@ const common = [
 ];
 
 export const menuItems = {
-  admin: [...adminExtra, ...common],
-  manager: [...adminExtra, ...common],
+  admin: [user, ...common, buklUpload],
+  manager: [user, ...common, buklUpload],
   user: common,
 };
 

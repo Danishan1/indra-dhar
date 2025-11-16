@@ -17,7 +17,6 @@ export const OverheadService = {
       type: data.type,
       value: parseFloat(data.value),
       frequency: data.frequency || "per_batch",
-      is_global: data.is_global || false,
     });
   },
 
@@ -42,5 +41,29 @@ export const OverheadService = {
     const existing = await OverheadRepository.findById(id);
     if (!existing) throw new ApiError(404, "Overhead not found");
     return OverheadRepository.delete(id);
+  },
+
+  async createOverheadsBulk(payloads) {
+    if (!Array.isArray(payloads) || payloads.length === 0)
+      throw new Error("Payload must be a non-empty array");
+
+    const sanitizedData = payloads.map((p) => {
+      const data = sanitizeInput(p);
+
+      if (!data.name) throw new Error("Overhead name is required");
+      if (!["fixed", "percentage"].includes(data.type))
+        throw new Error("Invalid overhead type");
+      if (isNaN(parseFloat(data.value)))
+        throw new Error("Invalid overhead value");
+
+      return {
+        name: data.name.trim(),
+        type: data.type,
+        value: parseFloat(data.value),
+        frequency: data.frequency || "per_batch",
+      };
+    });
+
+    return OverheadRepository.createBulk(sanitizedData);
   },
 };

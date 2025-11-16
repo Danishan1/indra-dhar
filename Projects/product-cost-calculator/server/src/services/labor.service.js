@@ -40,4 +40,21 @@ export const LaborService = {
     if (!existing) throw new ApiError(404, "Labor not found");
     return LaborRepository.delete(id);
   },
+
+  async createLaborsBulk(payloads) {
+    if (!Array.isArray(payloads) || payloads.length === 0)
+      throw new Error("Payload must be a non-empty array");
+
+    const sanitizedData = payloads.map((p) => {
+      const data = sanitizeInput(p);
+      return {
+        name: data.name.trim(),
+        rate_per_hour: parseFloat(data.rate_per_hour),
+        overtime_rate: parseFloat(data.overtime_rate || 0),
+        // type: data.type || null, // uncomment if you use type
+      };
+    });
+
+    return LaborRepository.createBulk(sanitizedData);
+  },
 };

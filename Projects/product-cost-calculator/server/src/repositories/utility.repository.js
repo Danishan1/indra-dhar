@@ -68,4 +68,32 @@ export const UtilityRepository = {
     await pool.execute(`DELETE FROM utilities WHERE id = ?`, [id]);
     return { success: true };
   },
+
+  async createBulk(utilities) {
+    if (!utilities.length) return [];
+
+    const placeholders = utilities.map(() => "(UUID(), ?, ?, ?)").join(", ");
+    const values = [];
+    utilities.forEach((u) => {
+      values.push(u.name, u.cost_per_unit, u.unit_type);
+    });
+
+    const sql = `
+      INSERT INTO utilities (utility_uuid, name, cost_per_unit, unit_type)
+      VALUES ${placeholders}
+    `;
+
+    await pool.execute(sql, values);
+
+    // Optionally return inserted records
+    const names = utilities.map((u) => u.name);
+    const [rows] = await pool.execute(
+      `SELECT * FROM utilities WHERE name IN (${names
+        .map(() => "?")
+        .join(",")})`,
+      names
+    );
+
+    return rows;
+  },
 };

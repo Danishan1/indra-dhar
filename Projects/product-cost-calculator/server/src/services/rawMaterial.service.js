@@ -10,9 +10,6 @@ export const RawMaterialService = {
       name: data.name.trim(),
       unit_type: data.unit_type.trim(),
       unit_price: parseFloat(data.unit_price),
-      stock_quantity: parseFloat(data.stock_quantity || 0),
-      reorder_level: parseFloat(data.reorder_level || 0),
-      vendor_id: data.vendor_id || null,
     });
   },
 
@@ -38,5 +35,25 @@ export const RawMaterialService = {
     const existing = await RawMaterialRepository.findById(id);
     if (!existing) throw new ApiError(404, "Raw material not found");
     return RawMaterialRepository.delete(id);
+  },
+
+  async createMaterialsBulk(payloads) {
+    if (!Array.isArray(payloads) || payloads.length === 0)
+      throw new Error("Payload must be a non-empty array");
+
+    const sanitizedData = payloads.map((p) => {
+      const data = sanitizeInput(p);
+      if (!data.name || !data.unit_type || isNaN(parseFloat(data.unit_price))) {
+        throw new Error("Invalid data in bulk insert");
+      }
+
+      return {
+        name: data.name.trim(),
+        unit_type: data.unit_type.trim(),
+        unit_price: parseFloat(data.unit_price),
+      };
+    });
+
+    return RawMaterialRepository.createBulk(sanitizedData);
   },
 };

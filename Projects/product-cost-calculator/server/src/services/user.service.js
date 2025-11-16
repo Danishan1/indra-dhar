@@ -92,4 +92,54 @@ export const UserService = {
 
     return UserRepository.softDelete(id);
   },
+
+  async createUsersBulk(payloads, currentUser) {
+    if (!Array.isArray(payloads) || payloads.length === 0) {
+      throw new ApiError(400, "Payload must be a non-empty array");
+    }
+
+    const usersToInsert = [];
+
+    for (const u of payloads) {
+      const data = sanitizeInput(u);
+
+      // Check role permissions
+      if (currentUser) {
+        if (currentUser.role === "manager" && data.role === "admin") {
+          throw new ApiError(403, "Managers cannot create admin users");
+        }
+        if (currentUser.role === "user") {
+          throw new ApiError(403, "Users cannot create other users");
+        }
+      }
+
+      // Validate required fields
+      if (!data.name || !data.email || !data.password || !data.repassword) {
+        throw new ApiError(400, "Missing required user fields");
+      }
+
+      if (data.password !== data.repassword) {
+        throw new ApiError(400, `Password mismatch for user: ${data.email}`);
+      }
+
+      // Ensure email is not already registered
+      const existing = await UserRepository.findByEmail(data.email);
+      if (existing) {
+        throw new ApiError(400, `Email already registered: ${data.email}`);
+      }
+
+      const hash = await bcrypt.hash(data.password, 10);
+
+      usersToInsert.push({
+        user_uuid: randomUUID(),
+        name: data.name,
+        email: data.email,
+        password_hash: hash,
+        role: data.role || "user",
+        status: "active",
+      });
+    }
+
+    return UserRepository.createBulk(usersToInsert);
+  },
 };

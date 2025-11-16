@@ -76,4 +76,40 @@ export const UserRepository = {
     );
     return { success: true };
   },
+
+  async createBulk(users) {
+    if (!users.length) return [];
+
+    const placeholders = users.map(() => "(?, ?, ?, ?, ?, ?, ?)").join(", ");
+    const values = [];
+    users.forEach((u) => {
+      values.push(
+        u.user_uuid,
+        u.name,
+        u.email,
+        u.password_hash,
+        u.role,
+        u.status,
+        true
+      );
+    });
+
+    const sql = `
+      INSERT INTO users
+      (user_uuid, name, email, password_hash, role, status, is_active)
+      VALUES ${placeholders}
+    `;
+
+    await pool.execute(sql, values);
+
+    // Optionally, return all inserted users
+    const emails = users.map((u) => u.email);
+    const [rows] = await pool.execute(
+      `SELECT id, user_uuid, name, email, role, status, is_active, created_at 
+       FROM users WHERE email IN (${emails.map(() => "?").join(",")})`,
+      emails
+    );
+
+    return rows;
+  },
 };

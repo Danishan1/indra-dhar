@@ -49,4 +49,17 @@ export const UtilityController = {
       next(err);
     }
   },
+
+  async bulkCreate(req, res, next) {
+    try {
+      const utilities = await UtilityService.createUtilitiesBulk(req.body);
+      return ApiResponse.success(
+        res,
+        utilities,
+        "Utilities inserted successfully"
+      );
+    } catch (err) {
+      next(err);
+    }
+  },
 };

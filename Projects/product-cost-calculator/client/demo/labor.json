@@ -1,0 +1,21 @@
+[
+  {
+    "name": "John Doe",
+    "rate_per_hour": 250,
+    "overtime_rate": 350
+  },
+  {
+    "name": "Jane Smith",
+    "rate_per_hour": 300,
+    "overtime_rate": 450
+  },
+  {
+    "name": "Mark Johnson",
+    "rate_per_hour": 200
+  },
+  {
+    "name": "Emily Davis",
+    "rate_per_hour": 280,
+    "overtime_rate": 400
+  }
+]

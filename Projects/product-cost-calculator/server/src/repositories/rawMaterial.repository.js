@@ -81,4 +81,26 @@ export const RawMaterialRepository = {
     ]);
     return { success: true };
   },
+
+  async createBulk(materials) {
+    if (materials.length === 0) return [];
+
+    const placeholders = materials
+      .map(() => "(UUID(), ?, ?, ?, true)")
+      .join(", ");
+    const values = [];
+    materials.forEach((m) => {
+      values.push(m.name, m.unit_type, m.unit_price);
+    });
+
+    const sql = `
+      INSERT INTO raw_materials
+      (material_uuid, name, unit_type, unit_price, is_active)
+      VALUES ${placeholders}
+    `;
+
+    await pool.execute(sql, values);
+
+    return this.findAll(); // returns all active materials; can modify to return only inserted
+  },
 };

@@ -1,0 +1,21 @@
+[
+  {
+    "name": "Lathe Machine",
+    "cost_per_hour": 500,
+    "maintenance_cost": 1500
+  },
+  {
+    "name": "Milling Machine",
+    "cost_per_hour": 700,
+    "maintenance_cost": 2000
+  },
+  {
+    "name": "Drill Press",
+    "cost_per_hour": 300
+  },
+  {
+    "name": "CNC Router",
+    "cost_per_hour": 1200,
+    "maintenance_cost": 3500
+  }
+]
