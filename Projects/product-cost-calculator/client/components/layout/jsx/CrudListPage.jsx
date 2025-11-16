@@ -6,6 +6,7 @@ import { Table } from "@/components/ui";
 import { apiUtil } from "@/utils/api";
 import { useCrud } from "@/components/common/jsx/CrudLayout";
 import { useRole } from "@/hooks/useRole";
+import { BASE_PATH } from "@/utils/basePath";
 
 export function CrudListPage({
   title,
@@ -17,7 +18,10 @@ export function CrudListPage({
   const router = useRouter();
   const { setSelectedId } = useCrud();
   const [data, setData] = useState([]);
-  const { isPrivileged } = useRole();
+  const { isPrivileged, isManager } = useRole();
+
+  const isUserManagement = basePath === BASE_PATH.users && isManager;
+  const isAllowed = !isUserManagement && isPrivileged;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,12 +40,12 @@ export function CrudListPage({
       },
       {
         label: "Edit",
-        allowed: editButton && isPrivileged, // your existing condition
+        allowed: editButton && isAllowed, // your existing condition
         path: `${basePath}/${row.id}/update`,
       },
       {
         label: "Delete",
-        allowed: isPrivileged, // only admin/manager can delete
+        allowed: isAllowed, // only admin/manager can delete
         path: `${basePath}/${row.id}/delete`,
       },
     ];

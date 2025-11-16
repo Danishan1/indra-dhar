@@ -122,11 +122,18 @@ export function CrudFormPage({
         addToast("success", res.message || `${title} saved successfully`);
         router.push(basePath);
       } else {
-        addToast("error", res.message || `${title} save failed`);
+        // addToast("error", res.message || `${title} save failed`);
+        addToast(
+        "error",
+        err?.response.data.message || err.message || `${title} save failed`
+      );
       }
     } catch (err) {
       console.error(err);
-      addToast("error", err.message || `${title} operation failed`);
+      addToast(
+        "error",
+        err?.response.data.message || err.message || `${title} operation failed`
+      );
     } finally {
       setSubmitting(false);
     }

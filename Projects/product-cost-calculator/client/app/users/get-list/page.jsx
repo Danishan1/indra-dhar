@@ -10,7 +10,6 @@ export default function ListPage() {
       columns={[
         { key: "name", title: "User Name" },
         { key: "email", title: "Email" },
-        { key: "password_hash", title: "Password" },
         { key: "role", title: "role" },
         { key: "status", title: "Status" },
       ]}

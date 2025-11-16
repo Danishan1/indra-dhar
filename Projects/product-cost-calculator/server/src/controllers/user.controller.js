@@ -7,6 +7,8 @@ export const UserController = {
       const user = await UserService.createUser(req.body, req.user);
       return ApiResponse.success(res, user, "User created successfully");
     } catch (err) {
+      console.error("DDDD", err);
+
       next(err);
     }
   },
@@ -31,7 +33,11 @@ export const UserController = {
 
   async update(req, res, next) {
     try {
-      const user = await UserService.updateUser(req.params.id, req.body, req.user);
+      const user = await UserService.updateUser(
+        req.params.id,
+        req.body,
+        req.user
+      );
       return ApiResponse.success(res, user, "User updated successfully");
     } catch (err) {
       next(err);
@@ -40,7 +46,11 @@ export const UserController = {
 
   async updatePassword(req, res, next) {
     try {
-      const user = await UserService.updatePassword(req.params.id, req.body.password, req.user);
+      const user = await UserService.updatePassword(
+        req.params.id,
+        req.body.password,
+        req.user
+      );
       return ApiResponse.success(res, user, "Password updated successfully");
     } catch (err) {
       next(err);

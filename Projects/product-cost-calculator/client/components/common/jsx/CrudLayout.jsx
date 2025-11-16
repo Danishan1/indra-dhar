@@ -3,6 +3,7 @@ import { createContext, useContext, useState } from "react";
 import { DashboardLayout } from "./DashboardLayout";
 import { useAuth } from "@/context";
 import { useRole } from "@/hooks/useRole";
+import { BASE_PATH } from "@/utils/basePath";
 
 /**
  * Generic CRUD Layout
@@ -27,7 +28,7 @@ export const useCrud = () => useContext(CrudContext);
 
 export function CrudLayout({ basePath, title, config, children }) {
   const [selectedId, setSelectedId] = useState(null);
-  const { isPrivileged } = useRole();
+  const { isPrivileged, isManager } = useRole();
 
   // restricted tabs only visible to admin/manager
   const restrictedPaths = new Set(["[id]/update", "[id]/delete", "create"]);
@@ -36,6 +37,10 @@ export function CrudLayout({ basePath, title, config, children }) {
     .map((tab) => {
       const isRestricted = restrictedPaths.has(tab.path);
       if (isRestricted && !isPrivileged) return null;
+
+      // Restricting user management for managers
+      if (basePath === BASE_PATH.users && isRestricted && isManager)
+        return null;
 
       // tabs with dynamic id only show when selectedId exists
       const hasDynamicId = tab.path.includes("[id]");

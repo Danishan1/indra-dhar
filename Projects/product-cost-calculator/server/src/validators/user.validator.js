@@ -6,6 +6,9 @@ export const createUserValidator = [
   body("password")
     .isLength({ min: 6 })
     .withMessage("Password must be at least 6 chars"),
+  body("repassword")
+    .isLength({ min: 6 })
+    .withMessage("Re-Password must be at least 6 chars"),
   body("role")
     .optional()
     .isIn(["admin", "manager", "user"])

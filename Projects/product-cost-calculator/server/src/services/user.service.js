@@ -22,6 +22,9 @@ export const UserService = {
     const existing = await UserRepository.findByEmail(data.email);
     if (existing) throw new ApiError(400, "Email already registered");
 
+    const isSame = data.password === data.repassword;
+    if (!isSame) throw new ApiError(400, "Password & Repassword do not match");
+
     const hash = await bcrypt.hash(data.password, 10);
 
     return UserRepository.create({

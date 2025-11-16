@@ -24,8 +24,14 @@ export default function CreatePage() {
         },
         { key: "email", label: "Email", type: FORM_TYPE.EMAIL, required: true },
         {
-          key: "password_hash",
+          key: "password",
           label: "Password",
+          type: FORM_TYPE.PASSWORD,
+          required: true,
+        },
+        {
+          key: "repassword",
+          label: "Re-Password",
           type: FORM_TYPE.PASSWORD,
           required: true,
         },
