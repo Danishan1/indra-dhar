@@ -17,17 +17,21 @@ import { BASE_PATH } from "@/utils/basePath";
 
 const ICON_SIZE = CONST.ICON_SIZE;
 
-const admin = [
-  // {
-  //   name: "Dashboard",
-  //   icon: <Home size={ICON_SIZE} />,
-  //   path: BASE_PATH.dashboard,
-  // },
+const adminExtra = [
   {
     name: "Users",
     icon: <Users size={ICON_SIZE} />,
     path: BASE_PATH.users,
   },
+];
+
+const common = [
+  // {
+  //   name: "Dashboard",
+  //   icon: <Home size={ICON_SIZE} />,
+  //   path: BASE_PATH.dashboard,
+  // },
+
   // {
   //   name: "Products",
   //   icon: <Boxes size={ICON_SIZE} />,
@@ -81,11 +85,9 @@ const admin = [
 ];
 
 export const menuItems = {
-  admin: admin,
-
-  manager: admin,
-
-  user: admin,
+  admin: [...adminExtra, ...common],
+  manager: [...adminExtra, ...common],
+  user: common,
 };
 
 export default menuItems;

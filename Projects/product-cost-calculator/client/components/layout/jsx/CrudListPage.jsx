@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Table } from "@/components/ui";
 import { apiUtil } from "@/utils/api";
 import { useCrud } from "@/components/common/jsx/CrudLayout";
+import { useRole } from "@/hooks/useRole";
 
 export function CrudListPage({
   title,
@@ -16,6 +17,7 @@ export function CrudListPage({
   const router = useRouter();
   const { setSelectedId } = useCrud();
   const [data, setData] = useState([]);
+  const { isPrivileged } = useRole();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,22 +28,30 @@ export function CrudListPage({
   }, [endpoint]);
 
   const rowButtons = (row) => {
-    const buttons = [
+    const config = [
       {
         label: "View",
-        onClick: () => router.push(`${basePath}/${row.id}/get`),
+        allowed: true,
+        path: `${basePath}/${row.id}/get`,
       },
-      editButton && {
+      {
         label: "Edit",
-        onClick: () => router.push(`${basePath}/${row.id}/update`),
+        allowed: editButton && isPrivileged, // your existing condition
+        path: `${basePath}/${row.id}/update`,
       },
       {
         label: "Delete",
-        onClick: () => router.push(`${basePath}/${row.id}/delete`),
+        allowed: isPrivileged, // only admin/manager can delete
+        path: `${basePath}/${row.id}/delete`,
       },
     ];
 
-    return buttons.filter(Boolean); // removes null/false
+    return config
+      .filter((btn) => btn.allowed)
+      .map((btn) => ({
+        label: btn.label,
+        onClick: () => router.push(btn.path),
+      }));
   };
 
   return (

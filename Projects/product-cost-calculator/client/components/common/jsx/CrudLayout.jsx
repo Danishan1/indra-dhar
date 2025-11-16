@@ -1,6 +1,8 @@
 "use client";
 import { createContext, useContext, useState } from "react";
 import { DashboardLayout } from "./DashboardLayout";
+import { useAuth } from "@/context";
+import { useRole } from "@/hooks/useRole";
 
 /**
  * Generic CRUD Layout
@@ -25,15 +27,25 @@ export const useCrud = () => useContext(CrudContext);
 
 export function CrudLayout({ basePath, title, config, children }) {
   const [selectedId, setSelectedId] = useState(null);
+  const { isPrivileged } = useRole();
 
-  // dynamically map tab paths
+  // restricted tabs only visible to admin/manager
+  const restrictedPaths = new Set(["[id]/update", "[id]/delete", "create"]);
+
   const tabs = config
     .map((tab) => {
+      const isRestricted = restrictedPaths.has(tab.path);
+      if (isRestricted && !isPrivileged) return null;
+
       // tabs with dynamic id only show when selectedId exists
-      if (tab.path.includes("[id]") && !selectedId) return null;
+      const hasDynamicId = tab.path.includes("[id]");
+      if (hasDynamicId && !selectedId) return null;
 
       const resolvedPath = tab.path.replace("[id]", selectedId || "");
-      return { label: tab.label, path: `${basePath}/${resolvedPath}` };
+      return {
+        label: tab.label,
+        path: `${basePath}/${resolvedPath}`,
+      };
     })
     .filter(Boolean);
 
