@@ -7,8 +7,6 @@ export const UserController = {
       const user = await UserService.createUser(req.body, req.user);
       return ApiResponse.success(res, user, "User created successfully");
     } catch (err) {
-      console.error("DDDD", err);
-
       next(err);
     }
   },

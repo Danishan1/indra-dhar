@@ -3,6 +3,11 @@
   overflow-x: auto;
 }
 
+.searchFilter {
+  display: flex;
+  gap: 10px;
+}
+
 .table {
   width: 100%;
   border-collapse: collapse;
@@ -34,7 +39,6 @@
   background-color: var(--color-primary);
   color: var(--color-surface);
 }
-
 
 .clickable {
   cursor: pointer;

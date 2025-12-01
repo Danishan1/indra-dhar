@@ -79,11 +79,13 @@
 }
 
 .option:hover {
-  background: var(--color-primary-light);
+  background: var(--color-border);
 }
 
-.active {
-  background: var(--color-primary-light);
+.active,
+.active:hover {
+  background: var(--color-primary);
+  color: var(--color-bg);
   font-weight: 500;
 }
 

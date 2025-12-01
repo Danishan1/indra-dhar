@@ -1,4 +1,5 @@
 import { pool } from "../config/db.js";
+import { applyPagination } from "../utils/applyPagination.js";
 
 export const MachineRepository = {
   async create(data) {
@@ -32,6 +33,7 @@ export const MachineRepository = {
     }
 
     sql += ` ORDER BY created_at DESC`;
+    sql = applyPagination(sql, filters);
     const [rows] = await pool.execute(sql, params);
     return rows;
   },

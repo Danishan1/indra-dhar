@@ -1,5 +1,6 @@
 import { pool } from "../config/db.js";
 import { randomUUID } from "crypto";
+import { applyPagination } from "../utils/applyPagination.js";
 
 export const ProjectCostRepository = {
   async createProject({ project_name, total_cost }) {
@@ -74,13 +75,27 @@ export const ProjectCostRepository = {
     };
   },
 
-  async findAllProjects() {
-    const [rows] = await pool.execute(`
-      SELECT * FROM cost_projects 
-      WHERE is_active = 1
-      ORDER BY created_at DESC
-    `);
+  async findAllProjects(filters = {}) {
+    let sql = `
+    SELECT *
+    FROM cost_projects
+    WHERE 1=1
+  `;
+    const params = [];
 
+    sql += ` AND is_active = 1`;
+
+    // Filtering by project name
+    if (filters.project_name) {
+      sql += ` AND project_name LIKE ?`;
+      params.push(`%${filters.project_name}%`);
+    }
+
+    // Sorting
+    sql += ` ORDER BY created_at DESC`;
+    sql = applyPagination(sql, filters);
+
+    const [rows] = await pool.execute(sql, params);
     return rows;
   },
 
@@ -89,5 +104,15 @@ export const ProjectCostRepository = {
       id,
     ]);
     return { success: true };
+  },
+
+  async updateImage(project_id, image_url) {
+    const sql = `
+    UPDATE cost_projects 
+    SET image_url = ?
+    WHERE id = ? AND is_active = 1
+  `;
+    const [res] = await pool.execute(sql, [image_url, project_id]);
+    return res;
   },
 };

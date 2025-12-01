@@ -28,7 +28,7 @@ export const ProjectCostController = {
 
   async getAll(req, res, next) {
     try {
-      const projects = await ProjectCostService.getAllProjects();
+      const projects = await ProjectCostService.getAllProjects(req.query);
       return ApiResponse.success(res, projects);
     } catch (err) {
       next(err);
@@ -39,6 +39,27 @@ export const ProjectCostController = {
     try {
       await ProjectCostService.deleteProject(req.params.id);
       return ApiResponse.success(res, null, "Project deleted successfully");
+    } catch (err) {
+      next(err);
+    }
+  },
+  async updateImage(req, res, next) {
+    try {
+      const { project_id } = req.body;
+      const file = req.file;
+
+      if (!project_id || !file) {
+        return ApiResponse.error(res, "project_id and image are required", 400);
+      }
+
+      const image_url = `/uploads/images/${file.filename}`;
+
+      const updated = await ProjectCostService.updateImage(
+        project_id,
+        image_url
+      );
+
+      return ApiResponse.success(res, updated, "Image updated successfully");
     } catch (err) {
       next(err);
     }

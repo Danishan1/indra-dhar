@@ -8,9 +8,11 @@ import { filterByType } from "../helper/resourceColumns";
 import { Button } from "@/components/ui";
 import { apiUtil } from "@/utils/api";
 import { DataDetails, useToast } from "@/components/common";
+import ImageInput from "@/components/ui/jsx/ImageInput";
 
 export function Projects() {
   const [resources, setResources] = useState([]);
+  const [file, setFile] = useState(null);
   const [calculatedResult, setCalculatedResult] = useState(null);
   const [projectMeta, setProjectMeta] = useState({});
   const { addToast } = useToast();
@@ -47,22 +49,51 @@ export function Projects() {
 
   const handleSave = async () => {
     try {
+      // 1 Save project without image first
       const res = await apiUtil.post("/project-cost", {
         data: resources,
         meta: projectMeta,
       });
 
-      addToast("success", "Project cost saved successfully");
+      const projectId = res?.data?.id;
+      if (!projectId) {
+        throw new Error("Project ID not returned from backend");
+      }
 
+      addToast("success", "Project saved! Any image will now be uploaded.");
+
+      // 2 Upload image only if selected
+      if (file) {
+        const formData = new FormData();
+        formData.append("project_id", projectId);
+        formData.append("image", file);
+
+        console.log("Uploading: ", formData);
+
+        await apiUtil.post("/project-cost/image", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
+        addToast("success", "Image uploaded successfully");
+      }
+
+      // 3 Reset UI State
       setProjectMeta({});
+      setResources([]);
+      setCalculatedResult(null);
+      setFile(null);
     } catch (error) {
       addToast(
         "error",
-        error?.response?.data?.message || "Error saving project cost"
+        error?.response?.data?.message ||
+          "Error saving project or uploading image"
       );
-
-      console.error("Error calculating project cost:", error);
+      console.error(error);
     }
+  };
+
+  const handleImageChange = (f) => {
+    setFile(f);
   };
 
   const handleClear = () => {
@@ -78,13 +109,14 @@ export function Projects() {
         projectMeta={projectMeta}
       />
       {resources.length > 0 && (
-        <Button onClick={handleSubmit}>Calculate Project Cost</Button>
+        <Button onClick={handleSubmit}>Calculate Product Cost</Button>
       )}
       {calculatedResult && (
         <>
           <DataDetails data={calculatedResult} />
+          <ImageInput onChange={handleImageChange} maxSize={1024 * 1024 * 3} />
           <div className={styles.calculatedButtons}>
-            <Button onClick={handleSave}>Save Project Cost</Button>
+            <Button onClick={handleSave}>Save Product Cost</Button>
             <Button onClick={handleClear}>Clear</Button>
           </div>
         </>

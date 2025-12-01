@@ -34,8 +34,8 @@ export const ProjectCostService = {
     return project;
   },
 
-  async getAllProjects() {
-    return ProjectCostRepository.findAllProjects();
+  async getAllProjects(filters = {}) {
+    return ProjectCostRepository.findAllProjects(filters);
   },
 
   async deleteProject(id) {
@@ -43,5 +43,13 @@ export const ProjectCostService = {
     if (!project) throw new ApiError(404, "Project not found");
 
     return ProjectCostRepository.deleteProject(id);
+  },
+  async updateImage(project_id, image_url) {
+    const project = await ProjectCostRepository.findProjectById(project_id);
+    if (!project) throw new ApiError(404, "Project not found");
+
+    await ProjectCostRepository.updateImage(project_id, image_url);
+
+    return { project_id, image_url };
   },
 };

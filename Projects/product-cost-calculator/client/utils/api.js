@@ -30,8 +30,8 @@ export const apiUtil = {
   },
 
   // POST new record
-  post: async (endpoint, data = {}) => {
-    const response = await api.post(endpoint, data);
+  post: async (endpoint, data = {}, config = {}) => {
+    const response = await api.post(endpoint, data, config);
     return response.data;
   },
 

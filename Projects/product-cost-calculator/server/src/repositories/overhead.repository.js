@@ -1,4 +1,5 @@
 import { pool } from "../config/db.js";
+import { applyPagination } from "../utils/applyPagination.js";
 
 export const OverheadRepository = {
   async create(data) {
@@ -43,6 +44,7 @@ export const OverheadRepository = {
     }
 
     sql += ` ORDER BY created_at DESC`;
+    sql = applyPagination(sql, filters);
     const [rows] = await pool.execute(sql, params);
     return rows;
   },
@@ -86,12 +88,7 @@ export const OverheadRepository = {
       .join(", ");
     const values = [];
     overheads.forEach((o) => {
-      values.push(
-        o.name,
-        o.type,
-        o.value,
-        o.frequency || "per_batch",
-      );
+      values.push(o.name, o.type, o.value, o.frequency || "per_batch");
     });
 
     const sql = `

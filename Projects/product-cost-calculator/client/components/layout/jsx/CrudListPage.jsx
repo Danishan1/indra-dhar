@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Table } from "@/components/ui";
 import { apiUtil } from "@/utils/api";
 import { useCrud } from "@/components/common/jsx/CrudLayout";
 import { useRole } from "@/hooks/useRole";
 import { BASE_PATH } from "@/utils/basePath";
+import { getFilterList } from "../helper/getFilterList";
 
 export function CrudListPage({
   title,
@@ -16,6 +17,9 @@ export function CrudListPage({
   editButton = true,
 }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const { setSelectedId } = useCrud();
   const [data, setData] = useState([]);
   const { isPrivileged, isManager } = useRole();
@@ -23,13 +27,20 @@ export function CrudListPage({
   const isUserManagement = basePath === BASE_PATH.users && isManager;
   const isAllowed = !isUserManagement && isPrivileged;
 
+  const filters = getFilterList(pathname);
+
+  // Fetch data whenever query params change
   useEffect(() => {
     const fetchData = async () => {
-      const res = await apiUtil.get(endpoint);
+      const query = searchParams.toString();
+      const url = query ? `${endpoint}?${query}` : endpoint;
+
+      const res = await apiUtil.get(url);
       if (res.success) setData(res.data);
     };
+
     fetchData();
-  }, [endpoint]);
+  }, [endpoint, searchParams]);
 
   const rowButtons = (row) => {
     const config = [
@@ -58,6 +69,18 @@ export function CrudListPage({
       }));
   };
 
+  const onApplyFilters = (values) => {
+    const params = new URLSearchParams();
+
+    Object.entries(values).forEach(([key, value]) => {
+      if (value !== "" && value !== undefined) {
+        params.set(key, value);
+      }
+    });
+
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
   return (
     <div style={{ padding: "1rem" }}>
       <h2>{title}</h2>
@@ -67,6 +90,8 @@ export function CrudListPage({
         rowClickable
         onRowClick={(row) => setSelectedId(row.id)}
         rowButtons={rowButtons}
+        filtersConfig={filters}
+        onApplyFilters={onApplyFilters}
       />
     </div>
   );

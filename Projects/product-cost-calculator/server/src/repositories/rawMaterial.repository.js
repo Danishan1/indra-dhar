@@ -1,4 +1,5 @@
 import { pool } from "../config/db.js";
+import { applyPagination } from "../utils/applyPagination.js";
 
 export const RawMaterialRepository = {
   async create(data) {
@@ -18,14 +19,11 @@ export const RawMaterialRepository = {
 
   async findAll(filters = {}) {
     let sql = `
-      SELECT
-        rm.*
-      FROM raw_materials rm
-      WHERE 1=1
-    `;
+    SELECT rm.*
+    FROM raw_materials rm
+    WHERE rm.is_active = 1
+  `;
     const params = [];
-
-    sql += ` AND rm.is_active = 1`;
 
     if (filters.name) {
       sql += ` AND rm.name LIKE ?`;
@@ -33,6 +31,8 @@ export const RawMaterialRepository = {
     }
 
     sql += ` ORDER BY rm.created_at DESC`;
+    sql = applyPagination(sql, filters);
+
     const [rows] = await pool.execute(sql, params);
     return rows;
   },

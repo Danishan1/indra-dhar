@@ -21,7 +21,7 @@ export function ResourceSection({ onAdd, setProjectMeta, projectMeta }) {
       <div className={styles.metadata}>
         <div className={styles.metadata_input}>
           <TextInput
-            label={"Project name"}
+            label={"Product name"}
             value={projectMeta.project_name || ""}
             onChange={(e) =>
               setProjectMeta((r) => ({ ...r, project_name: e.target.value }))
@@ -47,7 +47,7 @@ export function ResourceSection({ onAdd, setProjectMeta, projectMeta }) {
       <div className={styles.metadata}>
         <div className={styles.metadata_input}>
           <TextInput
-            label={"Project Profit Amount"}
+            label={"Product Profit Amount"}
             value={projectMeta.profit_value || ""}
             onChange={(e) =>
               setProjectMeta((r) => ({ ...r, profit_value: e.target.value }))

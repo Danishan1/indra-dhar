@@ -1,4 +1,5 @@
 import { pool } from "../config/db.js";
+import { applyPagination } from "../utils/applyPagination.js";
 
 export const UserRepository = {
   async create(data) {
@@ -20,7 +21,11 @@ export const UserRepository = {
   },
 
   async findAll(filters = {}) {
-    let sql = `SELECT id, user_uuid, name, email, role, status, is_active, created_at FROM users WHERE 1=1`;
+    let sql = `
+    SELECT id, user_uuid, name, email, role, status, is_active, created_at
+    FROM users
+    WHERE is_active = 1
+  `;
     const params = [];
 
     if (filters.role) {
@@ -28,9 +33,19 @@ export const UserRepository = {
       params.push(filters.role);
     }
 
-    sql += ` AND is_active = 1`;
+    if (filters.name) {
+      sql += ` AND name LIKE ?`;
+      params.push(`%${filters.name}%`);
+    }
+
+    if (filters.email) {
+      sql += ` AND email LIKE ?`;
+      params.push(`%${filters.email}%`);
+    }
 
     sql += ` ORDER BY created_at DESC`;
+    sql = applyPagination(sql, filters);
+
     const [rows] = await pool.execute(sql, params);
     return rows;
   },

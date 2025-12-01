@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import styles from "../css/Table.module.css";
+import { TableSearch } from "./TableSearch";
+import { FilterOverlay } from "./FilterOverlay";
+import { Button } from "..";
 
 export function Table({
   columns = [],
@@ -7,13 +10,26 @@ export function Table({
   rowClickable = false,
   onRowClick,
   rowButtons,
+  filtersConfig = [],
+  onApplyFilters,
 }) {
   const [selectedRow, setSelectedRow] = useState(null);
+
+  const [searchText, setSearchText] = useState("");
+  const [showFilter, setShowFilter] = useState(false);
+  const [filterValues, setFilterValues] = useState({});
+
+  // 🔹 Search match logic (local only)
+  const searchFilteredData = data.filter((row) => {
+    if (!searchText) return true;
+    return columns.some((col) =>
+      row[col.key]?.toString().toLowerCase().includes(searchText.toLowerCase())
+    );
+  });
 
   const handleRowClick = (row, index) => {
     if (!rowClickable) return;
 
-    // Select only one row at a time
     setSelectedRow(index);
 
     if (onRowClick) onRowClick(row, index);
@@ -21,8 +37,27 @@ export function Table({
 
   const isSelected = (index) => selectedRow === index;
 
+  const updateFilterValue = (key, value) => {
+    setFilterValues((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const applyFilters = () => {
+    setShowFilter(false);
+    if (onApplyFilters) onApplyFilters(filterValues); // Send to backend
+  };
+
   return (
     <div className={styles.tableWrapper}>
+      {/* 🔹 Search + Filters Actions */}
+      <div className={styles.searchFilter}>
+        <TableSearch value={searchText} onChange={setSearchText} />
+
+        {filtersConfig.length > 0 && (
+          <Button onClick={() => setShowFilter(true)}>Filters</Button>
+        )}
+      </div>
+
+      {/* 🔹 Table Rendering */}
       <table className={styles.table}>
         <thead>
           <tr>
@@ -34,8 +69,8 @@ export function Table({
         </thead>
 
         <tbody>
-          {data.length > 0 ? (
-            data.map((row, index) => (
+          {searchFilteredData.length > 0 ? (
+            searchFilteredData.map((row, index) => (
               <tr
                 key={index}
                 className={`${styles.tableRow} ${
@@ -80,97 +115,17 @@ export function Table({
           )}
         </tbody>
       </table>
+
+      {/* 🔹 Filter Overlay Modal */}
+      {showFilter && (
+        <FilterOverlay
+          filtersConfig={filtersConfig}
+          values={filterValues}
+          onChange={updateFilterValue}
+          onApply={applyFilters}
+          onClose={() => setShowFilter(false)}
+        />
+      )}
     </div>
   );
 }
-
-
-/*
-
-import React, { useState } from "react";
-import { Table } from "../components/Table/Table";
-
-export default function ProductList() {
-  const [products, setProducts] = useState([
-    { id: 101, name: "Wireless Mouse", category: "Accessories", price: 799, stock: 45 },
-    { id: 102, name: "Mechanical Keyboard", category: "Accessories", price: 2499, stock: 20 },
-    { id: 103, name: "Gaming Laptop", category: "Electronics", price: 89999, stock: 5 },
-    { id: 104, name: "USB-C Hub", category: "Accessories", price: 1499, stock: 10 },
-  ]);
-
-  // ✅ Define columns for the table
-  const columns = [
-    { key: "id", title: "Product ID" },
-    { key: "name", title: "Name" },
-    { key: "category", title: "Category" },
-    {
-      key: "price",
-      title: "Price",
-      render: (value) => <span>₹{value.toLocaleString()}</span>,
-    },
-    {
-      key: "stock",
-      title: "Stock",
-      render: (value) => (
-        <span
-          style={{
-            color: value < 10 ? "red" : "green",
-            fontWeight: value < 10 ? 600 : 400,
-          }}
-        >
-          {value}
-        </span>
-      ),
-    },
-  ];
-
-  // ✅ Define action buttons for each row
-  const rowButtons = (row) => [
-    {
-      label: "View",
-      className: "btn-view",
-      onClick: (data) => alert(`Viewing: ${data.name}`),
-    },
-    {
-      label: "Edit",
-      className: "btn-edit",
-      onClick: (data) => alert(`Editing: ${data.name}`),
-    },
-    {
-      label: "Delete",
-      className: "btn-delete",
-      onClick: (data) => {
-        if (window.confirm(`Delete product: ${data.name}?`)) {
-          setProducts((prev) => prev.filter((p) => p.id !== data.id));
-        }
-      },
-    },
-  ];
-
-  // ✅ Handle row click (single selection)
-  const handleRowClick = (row) => {
-    console.log("Selected product:", row);
-  };
-
-  return (
-    <div style={{ padding: "20px" }}>
-      <h2>Product Inventory</h2>
-      <p style={{ color: "#666" }}>
-        Click a row to select it or use the action buttons to manage products.
-      </p>
-
-      <Table
-        columns={columns}
-        data={products}
-        rowClickable
-        onRowClick={handleRowClick}
-        rowButtons={rowButtons}
-      />
-    </div>
-  );
-}
-
-
-
-
-*/
