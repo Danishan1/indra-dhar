@@ -9,6 +9,7 @@ export default function ListPage() {
       basePath={BASE_PATH.projects}
       columns={[
         { key: "id", title: "Product Id" },
+        { key: "image_url", title: "Product Image", image: true },
         { key: "project_name", title: "Product Name" },
         { key: "total_cost", title: "Total Cost" },
         { key: "created_at", title: "Created At" },

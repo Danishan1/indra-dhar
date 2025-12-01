@@ -17,6 +17,9 @@ import { verifyToken } from "./middlewares/auth.middleware.js";
 import { costCalculationRoutes } from "./routes/costCalculation.routes.js";
 import { projectCostRoutes } from "./routes/projectCost.routes.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
+import path from "path";
+
+const __dirname = path.resolve();
 
 dotenv.config();
 const app = express();

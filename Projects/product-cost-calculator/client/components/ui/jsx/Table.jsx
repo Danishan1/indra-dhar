@@ -3,6 +3,7 @@ import styles from "../css/Table.module.css";
 import { TableSearch } from "./TableSearch";
 import { FilterOverlay } from "./FilterOverlay";
 import { Button } from "..";
+import { baseUrl } from "@/utils/baseURL";
 
 export function Table({
   columns = [],
@@ -46,6 +47,11 @@ export function Table({
     if (onApplyFilters) onApplyFilters(filterValues); // Send to backend
   };
 
+  const getImageURL = (value) => {
+    const t = `${baseUrl}${value.slice(1)}`;
+    return t;
+  };
+
   return (
     <div className={styles.tableWrapper}>
       {/* 🔹 Search + Filters Actions */}
@@ -80,9 +86,17 @@ export function Table({
               >
                 {columns.map((col) => (
                   <td key={col.key}>
-                    {col.render
-                      ? col.render(row[col.key], row, index)
-                      : row[col.key]}
+                    {col.render ? (
+                      col.render(row[col.key], row, index)
+                    ) : col.image && row[col.key] ? (
+                      <img
+                        src={getImageURL(row[col.key])}
+                        alt="Image"
+                        className={styles.tableImage}
+                      />
+                    ) : (
+                      row[col.key]
+                    )}
                   </td>
                 ))}
 
