@@ -7,7 +7,7 @@ export default function RedirectPage() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace("/dashboard/");
+    router.replace("/projects/get-list");
   }, [router]);
 
   return <p style={{ padding: "2rem" }}>Redirecting to users list...</p>;

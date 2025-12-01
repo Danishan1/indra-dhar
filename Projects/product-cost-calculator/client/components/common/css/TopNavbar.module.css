@@ -26,7 +26,6 @@
   align-items: center;
   justify-content: center;
   gap: 1.5rem;
-  
 }
 
 .tab {
@@ -47,4 +46,36 @@
   color: var(--color-accent);
   border-bottom: 2px solid var(--color-accent);
   font-weight: 600;
+}
+
+.mobileMenuBtn {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    justify-content: space-between;
+    padding: 0 10px;
+  }
+
+  .tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    gap: 1rem;
+  }
+
+  .tab {
+    font-size: 0.85rem;
+    white-space: nowrap;
+    padding-bottom: 6px;
+  }
+
+  .mobileMenuBtn {
+    display: flex;
+    align-items: center;
+    color: var(--color-primary);
+  }
 }

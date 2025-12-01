@@ -29,3 +29,19 @@
   align-items: center;
   height: 100vh;
 }
+
+@media (max-width: 768px) {
+  .layout {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .main {
+    width: 100%;
+  }
+
+  .content {
+    height: auto;
+    padding-bottom: 80px; /* Room for a mobile menu if needed */
+  }
+}
