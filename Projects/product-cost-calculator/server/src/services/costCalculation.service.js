@@ -35,10 +35,22 @@ export const CostCalculationService = {
         const wastage = parseFloat(data.wastage_percent || 0);
         const scrap = parseFloat(data.scrap_value || 0);
 
-        const effectiveQty = qty + qty * (wastage / 100);
-        const cost = effectiveQty * parseFloat(rm.unit_price) - scrap;
+        const unitPrice = parseFloat(rm.unit_price || 0);
+        const gstRate = parseFloat(rm.gst || 0);
 
-        rawMaterialTotal += cost;
+        // Quantity including wastage
+        const effectiveQty = qty + qty * (wastage / 100);
+
+        // Taxable value (before GST)
+        const taxableCost = effectiveQty * unitPrice - scrap;
+
+        // GST amount
+        const gstAmount = taxableCost * (gstRate / 100);
+
+        // Total cost including GST
+        const totalCost = taxableCost + gstAmount;
+
+        rawMaterialTotal += totalCost;
       }
 
       // LABORS --------------------------------------
@@ -46,9 +58,12 @@ export const CostCalculationService = {
         const lb = await Repo.findLaborById(data.resource_id);
         if (!lb) throw new ApiError(404, "Labor not found");
 
-        const hours = parseFloat(data.hours || 0);
-        const overtime = parseFloat(data.overtime_hours || 0);
+        const hours = parseFloat(data.hours || 0); // these are effort based on labor Type
+        const overtime = parseFloat(data.overtime_hours || 0); // these are overtime based on labor type
 
+        const laborType = lb.labor_type; // 'Per Hour', 'Per Process', 'Salary'
+
+        // rate_per_hour is a generic gate based on the labourType
         const cost =
           hours * parseFloat(lb.rate_per_hour) +
           overtime * parseFloat(lb.overtime_rate);
@@ -56,56 +71,72 @@ export const CostCalculationService = {
         laborTotal += cost;
       }
 
-      // MACHINES ------------------------------------
-      else if (type === BASE_PATH.machines) {
-        const mc = await Repo.findMachineById(data.resource_id);
-        if (!mc) throw new ApiError(404, "Machine not found");
+      // // MACHINES ------------------------------------
+      // else if (type === BASE_PATH.machines) {
+      //   const mc = await Repo.findMachineById(data.resource_id);
+      //   if (!mc) throw new ApiError(404, "Machine not found");
 
-        const hours = parseFloat(data.hours || 0);
+      //   const hours = parseFloat(data.hours || 0);
 
-        const cost =
-          hours * parseFloat(mc.cost_per_hour) +
-          parseFloat(mc.maintenance_cost) / 12; // Monthly maintenance apportioned
+      //   const cost =
+      //     hours * parseFloat(mc.cost_per_hour) +
+      //     parseFloat(mc.maintenance_cost) / 12; // Monthly maintenance apportioned
 
-        machineTotal += cost;
-      }
+      //   machineTotal += cost;
+      // }
 
-      // UTILITIES -----------------------------------
-      else if (type === BASE_PATH.utilities) {
-        const ut = await Repo.findUtilityById(data.resource_id);
-        if (!ut) throw new ApiError(404, "Utility not found");
+      // // UTILITIES -----------------------------------
+      // else if (type === BASE_PATH.utilities) {
+      //   const ut = await Repo.findUtilityById(data.resource_id);
+      //   if (!ut) throw new ApiError(404, "Utility not found");
 
-        const units = parseFloat(data.units_consumed || 0);
-        const cost = units * parseFloat(ut.cost_per_unit);
+      //   const units = parseFloat(data.units_consumed || 0);
+      //   const cost = units * parseFloat(ut.cost_per_unit);
 
-        utilityTotal += cost;
-      }
-
-      // OVERHEADS -----------------------------------
+      //   utilityTotal += cost;
+      // }
       else if (type === BASE_PATH.overheads) {
         const oh = await Repo.findOverheadById(data.resource_id);
         if (!oh) throw new ApiError(404, "Overhead not found");
 
+        // const totalMonths = normalizeDurationToMonths(duration, durationUnit);
+
+        let overheadAmount = 0;
+
         // FIXED
         if (oh.type === "fixed") {
-          overheadTotal += parseFloat(data.applied_value || oh.value);
+          overheadAmount = parseFloat(data.applied_value ?? oh.value);
         }
 
         // PERCENTAGE
         if (oh.type === "percentage") {
-          const base = parseFloat(data.applied_value || oh.value);
+          const percentageRate = parseFloat(data.percentage_value ?? oh.value);
+          const percentageBase = parseFloat(data.applied_value);
 
-          const p = parseFloat(data.percentage_value || oh.value);
-
-          overheadTotal += base * (p / 100);
+          overheadAmount = percentageBase * (percentageRate / 100);
         }
 
-        const duration = parseInt(meta.project_duration_months || 1);
-        if (oh.frequency === "monthly") {
-          overheadTotal *= duration; // Monthly Recurrence
-        } else {
-          overheadTotal *= duration / 12; // Yearly Recurrence
-        }
+        let multiplier = 1;
+
+        // switch (oh.frequency) {
+        //   case "Machine Hour":
+        //     multiplier = parseFloat(meta.machine_hours || 0);
+        //     break;
+
+        //   case "Labor Hour":
+        //     multiplier = parseFloat(meta.labor_hours || 0);
+        //     break;
+
+        //   case "Unit Produced":
+        //     multiplier = parseFloat(meta.units_produced || 1);
+        //     break;
+
+        //   case "% of Direct Cost":
+        //     multiplier = parseFloat(meta.direct_cost || 0);
+        //     break;
+        // }
+
+        overheadTotal += overheadAmount * multiplier;
       }
     }
 
@@ -116,19 +147,27 @@ export const CostCalculationService = {
       utilityTotal +
       overheadTotal;
 
+    const projectGstRate = parseFloat(meta.project_gst || 0);
+
+    // Project-level GST amount
+    const projectGstAmount = totalBeforeProfit * (projectGstRate / 100);
+
+    // Base amount on which profit is calculated
+    const profitBaseAmount = totalBeforeProfit + projectGstAmount;
+
     // PROFIT ---------------------------------------------
     const profitValue = parseFloat(meta.profit_value || 0);
-    const profitType = meta.profit_type || "percentage";
+    const profitType = meta.profit_type || "Percentage";
 
     let profit = 0;
 
-    if (profitType === "percentage") {
-      profit = totalBeforeProfit * (profitValue / 100);
-    } else if (profitType === "fixed") {
+    if (profitType === "Percentage") {
+      profit = profitBaseAmount * (profitValue / 100);
+    } else if (profitType === "Fixed") {
       profit = profitValue;
     }
 
-    const finalCost = totalBeforeProfit + profit;
+    const finalCost = totalBeforeProfit + projectGstAmount + profit;
 
     return {
       rawMaterialTotal: `₹${rawMaterialTotal.toFixed(2)}`,
@@ -136,9 +175,25 @@ export const CostCalculationService = {
       machineTotal: `₹${machineTotal.toFixed(2)}`,
       utilityTotal: `₹${utilityTotal.toFixed(2)}`,
       overheadTotal: `₹${overheadTotal.toFixed(2)}`,
-      totalBeforeProfit: `₹${totalBeforeProfit.toFixed(2)}`,
+      totalBeforeProfit: `₹${profitBaseAmount.toFixed(2)}`,
+      projectGST: `₹${projectGstAmount.toFixed(2)}`,
       profit: `₹${profit.toFixed(2)}`,
       finalCost: `₹${finalCost.toFixed(2)}`,
     };
   },
 };
+
+// function normalizeDurationToMonths(duration, unit) {
+//   switch (unit) {
+//     case "Years":
+//       return duration * 12;
+//     case "Months":
+//       return duration;
+//     case "Days":
+//       return duration / 30;
+//     case "Pieces":
+//       return 1; // Pieces usually shouldn't scale time-based overheads
+//     default:
+//       return 1;
+//   }
+// }

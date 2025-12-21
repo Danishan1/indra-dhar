@@ -11,7 +11,7 @@ export default function ListPage() {
         { key: "name", title: "Overhead Name" },
         { key: "type", title: "Type" },
         { key: "value", title: "Amount" },
-        { key: "frequency", title: "Frequency" },
+        { key: "frequency", title: "Allocation Bases" },
         // { key: "is_global", title: "Is Global" },
       ]}
     />

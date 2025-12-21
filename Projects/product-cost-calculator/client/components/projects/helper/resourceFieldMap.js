@@ -39,39 +39,47 @@ export const RESOURCE_FIELD_MAP = {
   [BASE_PATH.labors]: [
     {
       key: "hours",
-      label: "Hours",
+      label: "Effort",
       ui: FORM_TYPE.NUMBER,
       required: true,
-      props: { min: 0, step: "0.01", placeholder: "Total hours worked" },
+      props: {
+        min: 0,
+        step: "0.01",
+        placeholder: "Total time to complete (Hours/Peice/Months)",
+      },
     },
     {
       key: "overtime_hours",
-      label: "Overtime Hours",
+      label: "Overtime Effort",
       ui: FORM_TYPE.NUMBER,
       required: true,
-      props: { min: 0, step: "0.01", placeholder: "Overtime hours (optional)" },
+      props: {
+        min: 0,
+        step: "0.01",
+        placeholder: "Over time to complete (Hours/Peice/Days/Months)",
+      },
     },
   ],
 
-  [BASE_PATH.machines]: [
-    {
-      key: "hours",
-      label: "Hours Used",
-      ui: FORM_TYPE.NUMBER,
-      required: true,
-      props: { min: 0, step: "0.01", placeholder: "Machine usage hours" },
-    },
-  ],
+  // [BASE_PATH.machines]: [
+  //   {
+  //     key: "hours",
+  //     label: "Hours Used",
+  //     ui: FORM_TYPE.NUMBER,
+  //     required: true,
+  //     props: { min: 0, step: "0.01", placeholder: "Machine usage hours" },
+  //   },
+  // ],
 
-  [BASE_PATH.utilities]: [
-    {
-      key: "units_consumed",
-      label: "Units Consumed",
-      ui: FORM_TYPE.NUMBER,
-      required: true,
-      props: { min: 0, step: "0.01", placeholder: "e.g. kWh or liters" },
-    },
-  ],
+  // [BASE_PATH.utilities]: [
+  //   {
+  //     key: "units_consumed",
+  //     label: "Units Consumed",
+  //     ui: FORM_TYPE.NUMBER,
+  //     required: true,
+  //     props: { min: 0, step: "0.01", placeholder: "e.g. kWh or liters" },
+  //   },
+  // ],
 
   [BASE_PATH.overheads]: [
     // UI will show either applied_value or percentage_value depending on DB overhead type;

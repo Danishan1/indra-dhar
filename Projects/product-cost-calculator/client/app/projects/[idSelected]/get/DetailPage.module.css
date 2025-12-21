@@ -7,7 +7,7 @@
 
 .metaCard {
   display: flex;
-  gap: 15px;
+  gap: 30px;
   align-items: flex-start;
   background: var(--color-surface);
   border: 1px solid var(--color-border);

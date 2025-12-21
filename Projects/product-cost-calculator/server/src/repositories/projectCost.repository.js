@@ -3,16 +3,32 @@ import { randomUUID } from "crypto";
 import { applyPagination } from "../utils/applyPagination.js";
 
 export const ProjectCostRepository = {
-  async createProject({ project_name, total_cost }) {
+  async createProject({
+    project_name,
+    total_cost,
+    profit_value,
+    profit_type,
+    project_gst,
+    product_type,
+    project_progress,
+  }) {
     const sql = `
-      INSERT INTO cost_projects (project_uuid, project_name, total_cost)
-      VALUES (?, ?, ?)
+      INSERT INTO cost_projects (
+        project_uuid, project_name, total_cost, 
+        profit_value, profit_type, project_gst, 
+        product_type, project_progress)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const [res] = await pool.execute(sql, [
       randomUUID(),
       project_name,
       total_cost,
+      profit_value,
+      profit_type,
+      project_gst,
+      product_type,
+      project_progress,
     ]);
     return this.findProjectById(res.insertId);
   },
@@ -96,7 +112,13 @@ export const ProjectCostRepository = {
     sql = applyPagination(sql, filters);
 
     const [rows] = await pool.execute(sql, params);
-    return rows;
+
+    const finalRow = rows.map((r) => ({
+      ...r,
+      total_cost: r.total_cost.finalCost,
+    }));
+
+    return finalRow;
   },
 
   async deleteProject(id) {

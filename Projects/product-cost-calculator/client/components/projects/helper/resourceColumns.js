@@ -20,15 +20,15 @@ export const RESOURCE_COLUMNS_MAP = {
     { key: "scrap_value", title: "Scrap Value" },
   ],
 
-  [BASE_PATH.machines]: [
-    ...commonColumns,
-    { key: "hours", title: "Hours Used" },
-  ],
+  // [BASE_PATH.machines]: [
+  //   ...commonColumns,
+  //   { key: "hours", title: "Hours Used" },
+  // ],
 
-  [BASE_PATH.utilities]: [
-    ...commonColumns,
-    { key: "units_consumed", title: "Units" },
-  ],
+  // [BASE_PATH.utilities]: [
+  //   ...commonColumns,
+  //   { key: "units_consumed", title: "Units" },
+  // ],
 
   [BASE_PATH.overheads]: [
     ...commonColumns,
@@ -40,8 +40,8 @@ export const RESOURCE_COLUMNS_MAP = {
 export const RESOURCE_ORDER = [
   BASE_PATH.labors,
   BASE_PATH.rawMaterial,
-  BASE_PATH.machines,
-  BASE_PATH.utilities,
+  // BASE_PATH.machines,
+  // BASE_PATH.utilities,
   BASE_PATH.overheads,
 ];
 

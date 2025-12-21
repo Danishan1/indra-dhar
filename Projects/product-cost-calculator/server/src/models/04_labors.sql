@@ -3,7 +3,7 @@ CREATE TABLE labors (
     labor_uuid CHAR(36) NOT NULL UNIQUE,
     name VARCHAR(255) NOT NULL,
     labor_type ENUM('Per Hour', 'Per Process', 'Salary') NOT NULL,
-    rate_per_hour DECIMAL(10, 2) NOT NULL,
+    rate_per_hour DECIMAL(10, 2) NOT NULL, -- generic rate, not just per hour
     overtime_rate DECIMAL(10, 2) DEFAULT 0.00,
     remark text,
     is_active BOOLEAN DEFAULT TRUE,

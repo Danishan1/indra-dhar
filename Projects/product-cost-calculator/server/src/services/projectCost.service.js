@@ -18,7 +18,12 @@ export const ProjectCostService = {
     // Insert project
     const project = await ProjectCostRepository.createProject({
       project_name: meta.project_name,
-      total_cost: total_cost.finalCost.slice(1),
+      profit_value: meta.profit_value,
+      profit_type: meta.profit_type,
+      project_gst: meta.project_gst,
+      product_type: meta.product_type,
+      project_progress: meta.project_progress,
+      total_cost: total_cost,
     });
 
     // Insert related inputs

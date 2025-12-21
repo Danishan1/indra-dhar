@@ -10,7 +10,7 @@ export const createOverheadValidator = [
     .withMessage("Value must be a positive number"),
   body("frequency")
     .optional()
-    .isIn(["monthly", "annual", "per_batch"])
+    .isIn(["Machine Hour", "Labor Hour", "Unit Produced", "% of Direct Cost"])
     .withMessage("Invalid frequency"),
 ];
 
@@ -18,7 +18,9 @@ export const updateOverheadValidator = [
   body("name").optional().isString().trim().escape(),
   body("type").optional().isIn(["fixed", "percentage"]),
   body("value").optional().isFloat({ min: 0 }),
-  body("frequency").optional().isIn(["monthly", "annual", "per_batch"]),
+  body("frequency")
+    .optional()
+    .isIn(["Machine Hour", "Labor Hour", "Unit Produced", "% of Direct Cost"]),
 ];
 
 export const createOverheadBulkValidator = [
@@ -34,6 +36,6 @@ export const createOverheadBulkValidator = [
     .withMessage("Value must be a positive number"),
   body("*.frequency")
     .optional()
-    .isIn(["monthly", "annual", "per_batch"])
+    .isIn(["Machine Hour", "Labor Hour", "Unit Produced", "% of Direct Cost"])
     .withMessage("Invalid frequency"),
 ];
