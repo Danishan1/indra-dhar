@@ -8,9 +8,9 @@ const CRUD_MODULES = [
   "products",
   "raw-material",
   "labors",
-  "machines",
+  // "machines",
   "overheads",
-  "utilities",
+  // "utilities",
 ];
 
 function generateCrudPermissions(modules) {

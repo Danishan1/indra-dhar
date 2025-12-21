@@ -57,21 +57,21 @@ const common = [
     icon: <Hammer size={ICON_SIZE} />,
     path: BASE_PATH.labors,
   },
-  {
-    name: "Machines",
-    icon: <Factory size={ICON_SIZE} />,
-    path: BASE_PATH.machines,
-  },
+  // {
+  //   name: "Machines",
+  //   icon: <Factory size={ICON_SIZE} />,
+  //   path: BASE_PATH.machines,
+  // },
   {
     name: "Overheads",
     icon: <Wrench size={ICON_SIZE} />,
     path: BASE_PATH.overheads,
   },
-  {
-    name: "Utilities",
-    icon: <Zap size={ICON_SIZE} />,
-    path: BASE_PATH.utilities,
-  },
+  // {
+  //   name: "Utilities",
+  //   icon: <Zap size={ICON_SIZE} />,
+  //   path: BASE_PATH.utilities,
+  // },
   // {
   //   name: "Batches",
   //   icon: <Workflow size={ICON_SIZE} />,
