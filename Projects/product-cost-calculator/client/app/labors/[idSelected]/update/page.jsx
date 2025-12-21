@@ -6,10 +6,11 @@ import { CONST } from "@/utils/CONST";
 const { FORM_TYPE } = CONST;
 
 export default function UpdatePage() {
-  // const options = [
-  //   { value: "direct", label: "Direct" },
-  //   { value: "indirect", label: "In Direct" },
-  // ];
+  const options = [
+    { value: "Per Hour", label: "Per Hour" },
+    { value: "Per Process", label: "Per Process" },
+    { value: "Salary", label: "Salary" },
+  ];
 
   return (
     <CrudFormPage
@@ -22,6 +23,13 @@ export default function UpdatePage() {
         // { key: "type", label: "Type", type: FORM_TYPE.RADIO, options: options },
         { key: "rate_per_hour", label: "Rate/Hr", type: FORM_TYPE.TEXT },
         { key: "overtime_rate", label: "Over Time Rate", type: FORM_TYPE.TEXT },
+        {
+          key: "labor_type",
+          label: "Type",
+          type: FORM_TYPE.RADIO,
+          options: options,
+        },
+        { key: "remark", label: "Remark", type: FORM_TYPE.TEXTAREA },
       ]}
     />
   );

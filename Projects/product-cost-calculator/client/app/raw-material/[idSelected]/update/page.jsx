@@ -14,8 +14,9 @@ export default function UpdatePage() {
       title="Raw Material"
       fields={[
         { key: "name", label: "Raw Material Name", type: FORM_TYPE.TEXT },
-        { key: "unit_type", label: "Unit Type", type: FORM_TYPE.TEXT },
-        { key: "unit_price", label: "Unit Price", type: FORM_TYPE.TEXT },
+        { key: "unit_type", label: "Unit of Measure", type: FORM_TYPE.TEXT },
+        { key: "unit_price", label: "Material Rate", type: FORM_TYPE.TEXT },
+        { key: "gst", label: "GST", type: FORM_TYPE.TEXT },
       ]}
     />
   );

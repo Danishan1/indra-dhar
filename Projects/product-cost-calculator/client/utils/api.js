@@ -3,7 +3,7 @@ import { getAuth } from "./storage";
 
 // Create a pre-configured axios instance
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/",
+  baseURL: process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://localhost:5000/",
   headers: {
     "Content-Type": "application/json",
   },

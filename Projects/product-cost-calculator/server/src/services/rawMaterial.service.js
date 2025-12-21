@@ -10,6 +10,7 @@ export const RawMaterialService = {
       name: data.name.trim(),
       unit_type: data.unit_type.trim(),
       unit_price: parseFloat(data.unit_price),
+      gst: parseFloat(data.gst),
     });
   },
 

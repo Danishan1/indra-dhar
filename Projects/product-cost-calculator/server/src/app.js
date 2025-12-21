@@ -27,7 +27,7 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin: ["http://localhost:3000"], // allowed frontend URLs
+    origin: ["http://localhost:3000", "https://trtcvpc8-3000.inc1.devtunnels.ms"], // allowed frontend URLs
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true, // if you're using cookies or session auth
   })

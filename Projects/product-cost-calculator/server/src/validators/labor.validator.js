@@ -9,12 +9,20 @@ export const createLaborValidator = [
     .optional()
     .isFloat({ min: 0 })
     .withMessage("Invalid overtime rate"),
+  body("labor_type")
+    .isIn(["Per Hour", "Per Process", "Salary"])
+    .withMessage("Type must be either 'Per Hour', 'Salary' or 'Per Process'"),
+  body("remark").optional().isString().withMessage("Remark must be text"),
 ];
 
 export const updateLaborValidator = [
   body("name").optional().isString().trim().escape(),
   body("rate_per_hour").optional().isFloat({ min: 0 }),
   body("overtime_rate").optional().isFloat({ min: 0 }),
+  body("labor_type")
+    .isIn(["Per Hour", "Per Process", "Salary"])
+    .withMessage("Type must be either 'Per Hour', 'Salary' or 'Per Process'"),
+  body("remark").optional().isString().withMessage("Remark must be text"),
 ];
 
 export const createLaborBulkValidator = [
@@ -29,4 +37,8 @@ export const createLaborBulkValidator = [
     .optional()
     .isFloat({ min: 0 })
     .withMessage("Invalid overtime rate"),
+  body("*.labor_type")
+    .isIn(["Per Hour", "Per Process", "Salary"])
+    .withMessage("Type must be either 'Per Hour', 'Salary' or 'Per Process'"),
+  body("*.remark").optional().isString().withMessage("Remark must be text"),
 ];

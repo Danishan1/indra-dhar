@@ -8,12 +8,14 @@ export const createMaterialValidator = [
     .trim()
     .escape(),
   body("unit_price").isFloat({ min: 0 }).withMessage("Invalid unit price"),
+  body("gst").isFloat({ min: 0 }).withMessage("Invalid gst price"),
 ];
 
 export const updateMaterialValidator = [
   body("name").optional().isString().trim().escape(),
   body("unit_type").optional().isString().trim().escape(),
   body("unit_price").optional().isFloat({ min: 0 }),
+  body("gst").isFloat({ min: 0 }).withMessage("Invalid gst price"),
 ];
 
 export const createMaterialBulkValidator = [
@@ -27,4 +29,5 @@ export const createMaterialBulkValidator = [
     .trim()
     .escape(),
   body("*.unit_price").isFloat({ min: 0 }).withMessage("Invalid unit price"),
+  body("*.gst").isFloat({ min: 0 }).withMessage("Invalid gst price"),
 ];

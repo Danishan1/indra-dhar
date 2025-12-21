@@ -8,9 +8,11 @@ export default function ListPage() {
       endpoint={BASE_PATH.rawMaterial}
       basePath={BASE_PATH.rawMaterial}
       columns={[
-        { key: "name", title: "Raw Material Name"},
-        { key: "unit_type", title: "Unit Type",},
-        { key: "unit_price", title: "Unit Price"},
+        { key: "id", title: "RM Code" },
+        { key: "name", title: "Raw Material Name" },
+        { key: "unit_type", title: "Unit of Measure" },
+        { key: "unit_price", title: "Material Rate" },
+        { key: "gst", title: "GST" },
         // { key: "stock_quantity", title: "Stock Quantity"},
         // { key: "reorder_level", title: "Reorder Level"},
         // { key: "vendor_name", title: "Vendor Name"},

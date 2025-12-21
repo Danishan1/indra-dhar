@@ -9,9 +9,10 @@ export default function ListPage() {
       basePath={BASE_PATH.labors}
       columns={[
         { key: "name", title: "Labor Name" },
-        // { key: "type", title: "Type" },
+        { key: "labor_type", title: "Type" },
         { key: "rate_per_hour", title: "Rate/Hr" },
         { key: "overtime_rate", title: "Over Time Rate" },
+        { key: "remark", title: "Remark" },
       ]}
     />
   );

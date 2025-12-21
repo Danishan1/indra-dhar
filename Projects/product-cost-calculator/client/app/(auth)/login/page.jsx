@@ -22,9 +22,10 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const res = await login(email, password);
-      if (res.success) router.push("/dashboard");
+      if (res.success) router.push("/projects/get-list");
       else setError(res.message);
     } catch (err) {
+      console.error(err);
       setError("Invalid credentials");
     }
     setLoading(false);

@@ -5,13 +5,15 @@ export const LaborRepository = {
   async create(data) {
     const sql = `
       INSERT INTO labors
-      (labor_uuid, name, rate_per_hour, overtime_rate, is_active)
-      VALUES (UUID(), ?, ?, ?, ?)
+      (labor_uuid, name, rate_per_hour, overtime_rate, labor_type, remark, is_active)
+      VALUES (UUID(), ?, ?, ?, ?, ?, ?)
     `;
     const [result] = await pool.execute(sql, [
       data.name,
       data.rate_per_hour,
       data.overtime_rate || 0.0,
+      data.labor_type,
+      data.remark,
       true,
     ]);
     return this.findById(result.insertId);
@@ -73,16 +75,18 @@ export const LaborRepository = {
   async createBulk(labors) {
     if (labors.length === 0) return [];
 
-    const placeholders = labors.map(() => "(UUID(), ?, ?, ?, true)").join(", ");
+    const placeholders = labors
+      .map(() => "(UUID(), ?, ?, ?, ?, ?, true)")
+      .join(", ");
     const values = [];
     labors.forEach((l) => {
-      values.push(l.name, l.rate_per_hour, l.overtime_rate || 0);
+      values.push(l.name, l.rate_per_hour, l.overtime_rate || 0, l.labor_type,  l.remark);
       // values.push(l.name, l.type, l.rate_per_hour, l.overtime_rate || 0); // if using type
     });
 
     const sql = `
       INSERT INTO labors
-      (labor_uuid, name, rate_per_hour, overtime_rate, is_active)
+      (labor_uuid, name, rate_per_hour, overtime_rate, labor_type, remark, is_active)
       VALUES ${placeholders}
     `;
 

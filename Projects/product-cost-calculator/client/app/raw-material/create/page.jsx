@@ -24,13 +24,19 @@ export default function CreatePage() {
         },
         {
           key: "unit_type",
-          label: "Unit Type",
+          label: "Unit of Measure",
           type: FORM_TYPE.TEXT,
           required: true,
         },
         {
           key: "unit_price",
-          label: "Unit Price",
+          label: "Material Rate",
+          type: FORM_TYPE.TEXT,
+          required: true,
+        },
+        {
+          key: "gst",
+          label: "GST",
           type: FORM_TYPE.TEXT,
           required: true,
         },

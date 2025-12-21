@@ -5,14 +5,15 @@ export const RawMaterialRepository = {
   async create(data) {
     const sql = `
       INSERT INTO raw_materials
-      (material_uuid, name, unit_type, unit_price, is_active)
-      VALUES (UUID(), ?, ?, ?, ?)
+      (material_uuid, name, unit_type, unit_price, is_active, gst)
+      VALUES (UUID(), ?, ?, ?, ?, ?)
     `;
     const [result] = await pool.execute(sql, [
       data.name,
       data.unit_type,
       data.unit_price,
       true,
+      data.gst || 0.0,
     ]);
     return this.findById(result.insertId);
   },
@@ -86,16 +87,16 @@ export const RawMaterialRepository = {
     if (materials.length === 0) return [];
 
     const placeholders = materials
-      .map(() => "(UUID(), ?, ?, ?, true)")
+      .map(() => "(UUID(), ?, ?, ?, ?, true)")
       .join(", ");
     const values = [];
     materials.forEach((m) => {
-      values.push(m.name, m.unit_type, m.unit_price);
+      values.push(m.name, m.unit_type, m.unit_price, m.type);
     });
 
     const sql = `
       INSERT INTO raw_materials
-      (material_uuid, name, unit_type, unit_price, is_active)
+      (material_uuid, name, unit_type, unit_price, gst, is_active)
       VALUES ${placeholders}
     `;
 
