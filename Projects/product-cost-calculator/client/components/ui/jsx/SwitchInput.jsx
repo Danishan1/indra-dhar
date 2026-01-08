@@ -20,6 +20,16 @@ export function SwitchInput({
 }) {
   return (
     <div className={styles.switchWrapper}>
+      <div className={styles.textBlock}>
+        {label && (
+          <p className={styles.label}>
+            {label}
+            {required && <span className={styles.required}>*</span>}
+          </p>
+        )}
+        {helperText && <p className={styles.helper}>{helperText}</p>}
+      </div>
+
       <label className={styles.container}>
         <input
           type="checkbox"
@@ -30,16 +40,6 @@ export function SwitchInput({
         />
         <span className={styles.slider}></span>
       </label>
-
-      <div className={styles.textBlock}>
-        {label && (
-          <p className={styles.label}>
-            {label}
-            {required && <span className={styles.required}>*</span>}
-          </p>
-        )}
-        {helperText && <p className={styles.helper}>{helperText}</p>}
-      </div>
     </div>
   );
 }

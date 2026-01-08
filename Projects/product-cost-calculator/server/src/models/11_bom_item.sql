@@ -1,0 +1,11 @@
+CREATE TABLE bom_items (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    material_id BIGINT UNSIGNED,
+    bom_meta_id BIGINT UNSIGNED,
+    quantity VARCHAR(10) NOT NULL,
+    decimal_allowed BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (material_id) REFERENCES raw_materials(id),
+    FOREIGN KEY (bom_meta_id) REFERENCES bom_meta(id),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);

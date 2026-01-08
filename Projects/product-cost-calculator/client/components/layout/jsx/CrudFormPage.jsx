@@ -38,6 +38,25 @@ export function CrudFormPage({
   const [loading, setLoading] = useState(mode === "update");
   const [submitting, setSubmitting] = useState(false);
 
+  useEffect(() => {
+    if (!fields?.length) return;
+
+    setFormData((prev) => {
+      const updated = { ...prev };
+      let changed = false;
+
+      fields.forEach((field) => {
+        const { key, value: defaultValue } = field;
+        if (defaultValue !== undefined && updated[key] === undefined) {
+          updated[key] = defaultValue;
+          changed = true;
+        }
+      });
+
+      return changed ? updated : prev;
+    });
+  }, [fields]);
+
   // Fetch record data when updating
   useEffect(() => {
     if (mode !== "update") return;
@@ -86,7 +105,8 @@ export function CrudFormPage({
       case FORM_TYPE.PASSWORD:
         return <PasswordInput key={key} {...props} />;
       case FORM_TYPE.NUMBER:
-        return <NumberInput key={key} {...props} />;
+        // return <NumberInput key={key} {...props} />;
+        return <TextInput key={key} {...props} type="number" />;
       case FORM_TYPE.SELECT:
         return <SelectInput key={key} {...props} />;
       case FORM_TYPE.SWITCH:
@@ -113,6 +133,7 @@ export function CrudFormPage({
 
     try {
       const payload = { ...formData };
+
       const res =
         mode === "create"
           ? await apiUtil.post(endpoint, payload)
@@ -124,9 +145,9 @@ export function CrudFormPage({
       } else {
         // addToast("error", res.message || `${title} save failed`);
         addToast(
-        "error",
-        err?.response.data.message || err.message || `${title} save failed`
-      );
+          "error",
+          err?.response.data.message || err.message || `${title} save failed`
+        );
       }
     } catch (err) {
       console.error(err);

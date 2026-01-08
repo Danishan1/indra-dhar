@@ -36,6 +36,7 @@ export function CrudListPage({
       const url = query ? `${endpoint}?${query}` : endpoint;
 
       const res = await apiUtil.get(url);
+
       if (res.success) setData(res.data);
     };
 

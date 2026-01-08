@@ -18,6 +18,9 @@ import { costCalculationRoutes } from "./routes/costCalculation.routes.js";
 import { projectCostRoutes } from "./routes/projectCost.routes.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import path from "path";
+import { unitRoutes } from "./routes/unit.routes.js";
+import { bomMetaRoutes } from "./routes/bomMeta.routes.js";
+import { bomItemRoutes } from "./routes/bomItem.routes.js";
 
 const __dirname = path.resolve();
 
@@ -47,6 +50,7 @@ app.use(verifyToken);
 // app.use("/cost-allocations", costAllocationRoutes);
 app.use("/users", userRoutes);
 // app.use("/vendors", vendorRoutes);
+app.use("/unit", unitRoutes);
 app.use("/raw-material", rawMaterialRoutes);
 app.use("/labors", laborRoutes);
 // app.use("/utilities", utilityRoutes);
@@ -54,6 +58,8 @@ app.use("/overheads", overheadRoutes);
 // app.use("/machines", machineRoutes);
 app.use("/calculate-project-cost", costCalculationRoutes);
 app.use("/project-cost", projectCostRoutes);
+app.use("/bom", bomMetaRoutes);
+app.use("/bom-item", bomItemRoutes);
 
 // GLOBAL ERROR HANDLER — MUST BE LAST
 app.use(errorHandler);

@@ -33,6 +33,7 @@
   transition: border var(--transition-fast), box-shadow var(--transition-fast);
 }
 
+
 .inputField:focus {
   outline: none;
   border-color: var(--color-primary);
@@ -40,7 +41,7 @@
 }
 
 .inputField::placeholder {
-  color: var(--color-text-muted);
+  color: var(--color-border);
 }
 
 .errorInput {
@@ -48,8 +49,8 @@
 }
 
 .disabled {
-  background-color: var(--color-disabled-bg);
-  color: var(--color-disabled-text);
+  background-color: var(--color-border);
+  color: var(--color-text-muted);
   cursor: not-allowed;
 }
 

@@ -1,4 +1,5 @@
 import { RawMaterialRepository } from "../repositories/rawMaterial.repository.js";
+import { UnitRepository } from "../repositories/unit.repository.js";
 import { ApiError } from "../utils/ApiError.js";
 import { sanitizeInput } from "../utils/sanitizeInput.js";
 
@@ -6,11 +7,15 @@ export const RawMaterialService = {
   async createMaterial(payload) {
     const data = sanitizeInput(payload);
 
+    const unit = await UnitRepository.findById(data.unit_type_id);
+    if (!unit) throw new ApiError(400, "Invalid unit type");
+
     return RawMaterialRepository.create({
       name: data.name.trim(),
-      unit_type: data.unit_type.trim(),
+      unit_type_id: data.unit_type_id,
       unit_price: parseFloat(data.unit_price),
-      gst: parseFloat(data.gst),
+      is_gst_itc: data.is_gst_itc ?? false,
+      gst: parseFloat(data.gst || 0),
     });
   },
 
@@ -26,8 +31,14 @@ export const RawMaterialService = {
 
   async updateMaterial(id, updates) {
     const sanitized = sanitizeInput(updates);
+
     const existing = await RawMaterialRepository.findById(id);
     if (!existing) throw new ApiError(404, "Raw material not found");
+
+    if (sanitized.unit_type_id) {
+      const unit = await UnitRepository.findById(sanitized.unit_type_id);
+      if (!unit) throw new ApiError(400, "Invalid unit type");
+    }
 
     return RawMaterialRepository.update(id, sanitized);
   },
@@ -39,22 +50,31 @@ export const RawMaterialService = {
   },
 
   async createMaterialsBulk(payloads) {
-    if (!Array.isArray(payloads) || payloads.length === 0)
-      throw new Error("Payload must be a non-empty array");
+    if (!Array.isArray(payloads) || !payloads.length) {
+      throw new ApiError(400, "Payload must be a non-empty array");
+    }
 
-    const sanitizedData = payloads.map((p) => {
+    const sanitized = [];
+
+    for (const p of payloads) {
       const data = sanitizeInput(p);
-      if (!data.name || !data.unit_type || isNaN(parseFloat(data.unit_price))) {
-        throw new Error("Invalid data in bulk insert");
+
+      if (!data.name || !data.unit_type_id || isNaN(data.unit_price)) {
+        throw new ApiError(400, "Invalid data in bulk insert");
       }
 
-      return {
-        name: data.name.trim(),
-        unit_type: data.unit_type.trim(),
-        unit_price: parseFloat(data.unit_price),
-      };
-    });
+      const unit = await UnitRepository.findById(data.unit_type_id);
+      if (!unit) throw new ApiError(400, "Invalid unit type");
 
-    return RawMaterialRepository.createBulk(sanitizedData);
+      sanitized.push({
+        name: data.name.trim(),
+        unit_type_id: data.unit_type_id,
+        unit_price: parseFloat(data.unit_price),
+        is_gst_itc: data.is_gst_itc ?? false,
+        gst: parseFloat(data.gst || 0),
+      });
+    }
+
+    return RawMaterialRepository.createBulk(sanitized);
   },
 };

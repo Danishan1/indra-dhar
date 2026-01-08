@@ -1,7 +1,7 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import styles from "../css/Select.module.css";
-import { ChevronDown, Check } from "lucide-react";
+import { ChevronDown, Check, Search } from "lucide-react";
 
 /**
  * Reusable Select / Dropdown component
@@ -9,7 +9,6 @@ import { ChevronDown, Check } from "lucide-react";
  * - label, options, value, onChange
  * - placeholder, error, helperText, disabled
  */
-
 export function SelectInput({
   label = "Select Option",
   options = [],
@@ -20,8 +19,10 @@ export function SelectInput({
   helperText,
   disabled = false,
   required = false,
+  searchable = true,
 }) {
   const [open, setOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const ref = useRef(null);
 
   const handleToggle = () => {
@@ -31,6 +32,7 @@ export function SelectInput({
   const handleSelect = (option) => {
     onChange({ target: { value: option.value, label: option.label } });
     setOpen(false);
+    setSearchTerm("");
   };
 
   // Close dropdown on outside click
@@ -43,6 +45,14 @@ export function SelectInput({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Filter options
+  const filteredOptions = useMemo(() => {
+    if (!searchTerm) return options;
+    return options.filter((opt) =>
+      opt.label.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [options, searchTerm]);
 
   return (
     <div className={styles.selectWrapper} ref={ref}>
@@ -71,7 +81,21 @@ export function SelectInput({
 
       {open && (
         <ul className={styles.dropdown}>
-          {options.map((option) => (
+          {searchable && (
+            <li className={styles.searchWrapper}>
+              <Search size={16} />
+              <input
+                type="text"
+                className={styles.searchInput}
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </li>
+          )}
+
+          {filteredOptions.map((option) => (
             <li
               key={option.value}
               className={`${styles.option} ${
@@ -85,8 +109,9 @@ export function SelectInput({
               )}
             </li>
           ))}
-          {options.length === 0 && (
-            <li className={styles.noOption}>No options available</li>
+
+          {filteredOptions.length === 0 && (
+            <li className={styles.noOption}>No results found</li>
           )}
         </ul>
       )}

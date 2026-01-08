@@ -5,25 +5,32 @@ export const RawMaterialRepository = {
   async create(data) {
     const sql = `
       INSERT INTO raw_materials
-      (material_uuid, name, unit_type, unit_price, is_active, gst)
-      VALUES (UUID(), ?, ?, ?, ?, ?)
+      (material_uuid, name, unit_type_id, unit_price, is_gst_itc, gst, is_active)
+      VALUES (UUID(), ?, ?, ?, ?, ?, 1)
     `;
+
     const [result] = await pool.execute(sql, [
       data.name,
-      data.unit_type,
+      data.unit_type_id,
       data.unit_price,
-      true,
-      data.gst || 0.0,
+      data.is_gst_itc ?? false,
+      data.gst ?? 0,
     ]);
+
     return this.findById(result.insertId);
   },
 
   async findAll(filters = {}) {
     let sql = `
-    SELECT rm.*
-    FROM raw_materials rm
-    WHERE rm.is_active = 1
-  `;
+      SELECT 
+        rm.*,
+        u.name AS unit_name,
+        u.unit_code
+      FROM raw_materials rm
+      LEFT JOIN units u ON rm.unit_type_id = u.id
+      WHERE rm.is_active = 1
+    `;
+
     const params = [];
 
     if (filters.name) {
@@ -41,8 +48,11 @@ export const RawMaterialRepository = {
   async findById(id) {
     const sql = `
       SELECT 
-        rm.*
+        rm.*,
+        u.name AS unit_name,
+        u.unit_code
       FROM raw_materials rm
+      LEFT JOIN units u ON rm.unit_type_id = u.id
       WHERE rm.id = ?
     `;
     const [rows] = await pool.execute(sql, [id]);
@@ -60,19 +70,24 @@ export const RawMaterialRepository = {
           "material_uuid",
           "created_at",
           "updated_at",
-          "vendor_name",
+          "unit_name",
+          "unit_code",
+          "unit_price",
         ].includes(key)
       )
-        continue; // skip immutable fields like id
+        continue;
+
       fields.push(`${key} = ?`);
       values.push(value);
     }
 
-    if (fields.length === 0) return this.findById(id);
+    if (!fields.length) return this.findById(id);
 
-    const sql = `UPDATE raw_materials SET ${fields.join(", ")} WHERE id = ?`;
-    values.push(id);
-    await pool.execute(sql, values);
+    await pool.execute(
+      `UPDATE raw_materials SET ${fields.join(", ")} WHERE id = ?`,
+      [...values, id]
+    );
+
     return this.findById(id);
   },
 
@@ -84,24 +99,28 @@ export const RawMaterialRepository = {
   },
 
   async createBulk(materials) {
-    if (materials.length === 0) return [];
-
     const placeholders = materials
-      .map(() => "(UUID(), ?, ?, ?, ?, true)")
+      .map(() => "(UUID(), ?, ?, ?, ?, ?, 1)")
       .join(", ");
+
     const values = [];
     materials.forEach((m) => {
-      values.push(m.name, m.unit_type, m.unit_price, m.type);
+      values.push(
+        m.name,
+        m.unit_type_id,
+        m.unit_price,
+        m.is_gst_itc ?? false,
+        m.gst ?? 0
+      );
     });
 
     const sql = `
       INSERT INTO raw_materials
-      (material_uuid, name, unit_type, unit_price, gst, is_active)
+      (material_uuid, name, unit_type_id, unit_price, is_gst_itc, gst, is_active)
       VALUES ${placeholders}
     `;
 
     await pool.execute(sql, values);
-
-    return this.findAll(); // returns all active materials; can modify to return only inserted
+    return { inserted: materials.length };
   },
 };

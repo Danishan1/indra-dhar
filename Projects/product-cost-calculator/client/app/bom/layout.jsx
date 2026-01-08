@@ -3,18 +3,18 @@ import { CrudLayout } from "@/components/common/jsx/CrudLayout";
 import { BASE_PATH } from "@/utils/basePath";
 
 export default function Layout({ children }) {
-  const basePath = BASE_PATH.rawMaterial;
+  const basePath = BASE_PATH.bom;
 
   const config = [
-    { label: "Create New Cost of Martials", path: "create" },
-    { label: "Cost of Martials", path: "get-list" },
+    { label: "Create New BOM", path: "create" },
+    { label: "BOMs", path: "get-list" },
     { label: "View", path: "[id]/get" },
     { label: "Update", path: "[id]/update" },
     { label: "Delete", path: "[id]/delete" },
   ];
 
   return (
-    <CrudLayout basePath={basePath} title="Cost of Martials Management" config={config}>
+    <CrudLayout basePath={basePath} title="BOM Management" config={config}>
       {children}
     </CrudLayout>
   );

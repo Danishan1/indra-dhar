@@ -10,7 +10,9 @@ import {
   Wrench,
   Zap,
   Workflow,
+  BrickWallFire,
   ClipboardList,
+  RulerDimensionLine,
   Upload,
 } from "lucide-react";
 import { CONST } from "@/utils/CONST";
@@ -48,9 +50,19 @@ const common = [
   //   path: BASE_PATH.vendors,
   // },
   {
-    name: "Raw Materials",
+    name: "Unit of Measure",
+    icon: <RulerDimensionLine size={ICON_SIZE} />,
+    path: BASE_PATH.unit,
+  },
+  {
+    name: "Cost of Martials",
     icon: <Package size={ICON_SIZE} />,
     path: BASE_PATH.rawMaterial,
+  },
+  {
+    name: "BOM",
+    icon: <BrickWallFire size={ICON_SIZE} />,
+    path: BASE_PATH.bom,
   },
   {
     name: "Labors",
