@@ -1,3 +1,4 @@
+export { Modal } from "./jsx/Modal";
 export { FormWrapper } from "./jsx/FormWrapper";
 export { Table } from "./jsx/Table";
 export { Button } from "./jsx/Button";

@@ -6,14 +6,15 @@ import {
   updateUnitValidator as UUV,
 } from "../validators/unit.validator.js";
 import { validateRequest } from "../middlewares/validateRequest.js";
+import { onlyAdminManager as OAM } from "../middlewares/onlyTop.middleware.js";
 
 const router = express.Router();
 
-router.post("/", CUV, validateRequest, UC.create);
-router.post("/bulk", BCUV, validateRequest, UC.bulkCreate);
+router.post("/", OAM, CUV, validateRequest, UC.create);
 router.get("/", UC.getAll);
 router.get("/:id", UC.getOne);
-router.put("/:id", UUV, validateRequest, UC.update);
-router.delete("/:id", UC.remove);
+router.put("/:id", OAM, UUV, validateRequest, UC.update);
+router.delete("/:id", OAM, UC.remove);
+router.post("/bulk", OAM, BCUV, validateRequest, UC.bulkCreate);
 
 export const unitRoutes = router;

@@ -56,4 +56,17 @@ export const BomItemController = {
       next(e);
     }
   },
+
+  async bulkCreate(req, res, next) {
+    try {
+      const bomItems = await BomItemService.createBomItemsBulk(req.body);
+      return ApiResponse.success(
+        res,
+        bomItems,
+        "BOM items inserted successfully"
+      );
+    } catch (err) {
+      next(err);
+    }
+  },
 };

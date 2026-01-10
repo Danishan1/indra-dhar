@@ -94,4 +94,32 @@ export const BomItemRepository = {
     await pool.execute(`DELETE FROM bom_items WHERE id = ?`, [id]);
     return { success: true };
   },
+
+  async createBulk(items) {
+    if (!items || !items.length) return { inserted: 0 };
+
+    // Build placeholders for each row
+    const placeholders = items.map(() => "(?, ?, ?, ?)").join(", ");
+
+    // Flatten values
+    const values = [];
+    items.forEach((item) => {
+      values.push(
+        item.bom_meta_id,
+        item.material_id,
+        item.quantity,
+        item.decimal_allowed ?? true
+      );
+    });
+
+    const sql = `
+      INSERT INTO bom_items
+      (bom_meta_id, material_id, quantity, decimal_allowed)
+      VALUES ${placeholders}
+    `;
+
+    const [result] = await pool.execute(sql, values);
+
+    return { inserted: result.affectedRows };
+  },
 };

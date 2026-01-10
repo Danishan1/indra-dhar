@@ -2,17 +2,19 @@
 
 import React, { useState } from "react";
 import styles from "../css/BulkUpload.module.css";
-import * as XLSX from "xlsx"; // for Excel files
-import Papa from "papaparse"; // for CSV parsing
-import { Button, SelectInput } from "@/components/ui";
+import * as XLSX from "xlsx";
+import Papa from "papaparse";
+import { Button, SelectInput, Modal } from "@/components/ui";
 import { useToast } from "..";
 import { apiUtil } from "@/utils/api";
+import { getUploadInfo } from "../helper/getUploadInfo";
 
 export function BulkUpload({ uploadOptions }) {
   const [selectedType, setSelectedType] = useState(null);
   const [file, setFile] = useState(null);
   const [previewData, setPreviewData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
   const { addToast } = useToast();
 
   const handleFileChange = (e) => {
@@ -26,9 +28,7 @@ export function BulkUpload({ uploadOptions }) {
       Papa.parse(f, {
         header: true,
         skipEmptyLines: true,
-        complete: (results) => {
-          setPreviewData(results.data);
-        },
+        complete: (results) => setPreviewData(results.data),
       });
     } else if (ext === "xlsx" || ext === "xls") {
       const reader = new FileReader();
@@ -46,8 +46,7 @@ export function BulkUpload({ uploadOptions }) {
       reader.onload = (evt) => {
         try {
           const data = JSON.parse(evt.target.result);
-          if (Array.isArray(data)) setPreviewData(data);
-          else setPreviewData([]);
+          setPreviewData(Array.isArray(data) ? data : []);
         } catch {
           setPreviewData([]);
         }
@@ -58,21 +57,18 @@ export function BulkUpload({ uploadOptions }) {
         "error",
         "Unsupported file type. Please use CSV, Excel, or JSON."
       );
-
       setPreviewData([]);
     }
   };
 
   const handleUpload = async () => {
     if (!selectedType?.value) return addToast("error", "Select upload type.");
-
     if (!file) return addToast("error", "Select a file to upload");
 
     const apiUrl = selectedType.value;
     if (!apiUrl) return addToast("error", "No API configured for this type");
 
     setLoading(true);
-
     try {
       const res = await apiUtil.post(apiUrl, previewData);
       if (res.success) {
@@ -80,29 +76,34 @@ export function BulkUpload({ uploadOptions }) {
         setPreviewData([]);
         setSelectedType(null);
         setFile(null);
-      } else {
-        addToast("error", res.message || "Upload failed");
-      }
+      } else addToast("error", res.message || "Upload failed");
     } catch (err) {
       console.error(err);
-      addToast("error", err?.response.data.message || "Error uploading file");
+      addToast("error", err?.response?.data?.message || "Error uploading file");
     } finally {
       setLoading(false);
     }
   };
 
+  const uploadInfo = getUploadInfo(selectedType);
+
   return (
     <div className={styles.bulkUploadWrapper}>
       <h2>Bulk Upload</h2>
 
-      <SelectInput
-        label="Select Type"
-        placeholder="Choose type"
-        options={uploadOptions}
-        value={selectedType?.value || ""}
-        onChange={(e) => setSelectedType(e.target)}
-        required
-      />
+      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <SelectInput
+          label="Select Type"
+          placeholder="Choose type"
+          options={uploadOptions}
+          value={selectedType?.value || ""}
+          onChange={(e) => setSelectedType(e.target)}
+          required
+        />
+        {selectedType && (
+          <Button onClick={() => setShowInfo(true)}>Info</Button>
+        )}
+      </div>
 
       <input
         type="file"
@@ -145,6 +146,41 @@ export function BulkUpload({ uploadOptions }) {
       >
         {loading ? "Uploading..." : "Upload"}
       </Button>
+
+      {/* Info Modal */}
+      {showInfo && selectedType && (
+        <Modal
+          title={`Upload Info: ${selectedType.label}`}
+          onClose={() => setShowInfo(false)}
+        >
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Purpose</th>
+                <th>Accepted Values</th>
+              </tr>
+            </thead>
+            <tbody>
+              {uploadInfo.fields.map((field) => (
+                <tr key={field.key}>
+                  <td style={{ border: "1px solid #ccc", padding: "0.5rem" }}>
+                    {field.key}
+                  </td>
+                  <td style={{ border: "1px solid #ccc", padding: "0.5rem" }}>
+                    {field.purpose}
+                  </td>
+                  <td style={{ border: "1px solid #ccc", padding: "0.5rem" }}>
+                    {Array.isArray(field.acceptedValues)
+                      ? field.acceptedValues.join(", ")
+                      : field.acceptedValues}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Modal>
+      )}
     </div>
   );
 }

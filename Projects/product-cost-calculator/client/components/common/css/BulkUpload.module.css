@@ -5,6 +5,7 @@
   background: var(--color-surface);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
+  font-family: var(--font-family);
 }
 
 .fileInput {
@@ -41,4 +42,84 @@
 
 .previewTable tr:nth-child(even) {
   background-color: #fafafa;
+}
+
+/* Modal styling */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalContent {
+  background: var(--color-surface);
+  padding: 1.5rem 2rem;
+  border-radius: var(--radius-md);
+  max-width: 700px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+}
+
+.modalContent h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: var(--font-size-lg);
+}
+
+.modalCloseBtn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--color-text);
+}
+
+.modalContent table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.modalContent th,
+.modalContent td {
+  border: 1px solid var(--color-border);
+  padding: 0.5rem;
+  text-align: left;
+  font-size: var(--font-size-sm);
+}
+
+.modalContent th {
+  background-color: var(--color-bg);
+  font-weight: 600;
+}
+
+.modalContent tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+/* Optional: make scrollbar look nicer */
+.modalContent::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modalContent::-webkit-scrollbar-thumb {
+  background-color: var(--color-border);
+  border-radius: 4px;
+}
+
+.modalContent::-webkit-scrollbar-track {
+  background-color: #f0f0f0;
 }
