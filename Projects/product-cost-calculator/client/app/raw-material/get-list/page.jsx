@@ -13,6 +13,7 @@ export default function ListPage() {
         { key: "unit_code", title: "Unit of Measure" },
         { key: "unit_price", title: "Material Rate" },
         { key: "gst", title: "GST" },
+        { key: "is_gst_itc", title: "Is ITC" },
         // { key: "stock_quantity", title: "Stock Quantity"},
         // { key: "reorder_level", title: "Reorder Level"},
         // { key: "vendor_name", title: "Vendor Name"},

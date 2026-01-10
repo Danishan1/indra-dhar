@@ -13,12 +13,14 @@ export const RESOURCE_COLUMNS_MAP = {
     { key: "overtime_hours", title: "Overtime" },
   ],
 
-  [BASE_PATH.rawMaterial]: [
-    ...commonColumns,
-    { key: "quantity", title: "Qty" },
-    { key: "wastage_percent", title: "Wastage %" },
-    { key: "scrap_value", title: "Scrap Value" },
-  ],
+  [BASE_PATH.bom]: [...commonColumns],
+
+  // [BASE_PATH.rawMaterial]: [
+  //   ...commonColumns,
+  //   { key: "quantity", title: "Qty" },
+  //   { key: "wastage_percent", title: "Wastage %" },
+  //   { key: "scrap_value", title: "Scrap Value" },
+  // ],
 
   // [BASE_PATH.machines]: [
   //   ...commonColumns,
@@ -38,8 +40,9 @@ export const RESOURCE_COLUMNS_MAP = {
 };
 
 export const RESOURCE_ORDER = [
+  BASE_PATH.bom,
   BASE_PATH.labors,
-  BASE_PATH.rawMaterial,
+  // BASE_PATH.rawMaterial,
   // BASE_PATH.machines,
   // BASE_PATH.utilities,
   BASE_PATH.overheads,
@@ -49,3 +52,28 @@ export const filterByType = (list, type) => {
   const rawList = list.filter((item) => item.resource_type === type);
   return rawList.map((r) => r.data);
 };
+
+[
+  {
+    resource_type: "/bom",
+    data: { resource_id: 1, resource_name: "Tire" },
+  },
+  {
+    resource_type: "/labors",
+    data: {
+      resource_id: 1,
+      resource_name: "Moral",
+      hours: 30,
+      overtime_hours: 20,
+    },
+  },
+  {
+    resource_type: "/overheads",
+    data: {
+      resource_id: 1,
+      resource_name: "electricity",
+      applied_value: 30,
+      percentage_value: 40,
+    },
+  },
+];

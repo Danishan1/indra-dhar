@@ -7,7 +7,7 @@ import { useState } from "react";
 
 const RESOURCE_OPTIONS = [
   { value: "/labors", label: "Labors" },
-  { value: "/raw-material", label: "Raw Materials" },
+  { value: "/bom", label: "BOM" },
   // { value: "/machines", label: "Machines" },
   { value: "/overheads", label: "Overheads" },
   // { value: "/utilities", label: "Utilities" },

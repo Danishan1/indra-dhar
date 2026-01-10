@@ -9,7 +9,6 @@ import {
 } from "../helper/resourceColumns";
 
 export function ResourceTables({ resources, onDelete = null }) {
-
   return (
     <div className={styles.resouceTables}>
       {RESOURCE_ORDER.map((type) => {

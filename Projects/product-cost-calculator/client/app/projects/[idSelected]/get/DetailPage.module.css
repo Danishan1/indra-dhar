@@ -1,38 +1,80 @@
 .wrapper {
+  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 16px;
 }
 
+/* Main container */
 .metaCard {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Image */
+.imageWrapper {
   display: flex;
-  gap: 30px;
-  align-items: flex-start;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  padding: 14px 18px;
-  border-radius: 8px;
-  box-shadow: var(--shadow-sm);
-  width: fit-content;
+  justify-content: center;
 }
 
 .metaImage {
-  width: 150px;
-  height: 150px;
+  width: 120px;
+  height: 120px;
   object-fit: cover;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid var(--color-border);
 }
 
-.metaInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+/* Cards */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 14px;
+  box-shadow: var(--shadow-sm);
 }
 
+/* Titles */
 .title {
-  font-size: 18px;
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+/* Cost grid */
+.costGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.costGrid p {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* Final summary highlight */
+.finalCard {
+  border-left: 4px solid var(--color-primary);
+}
+
+.finalCost {
+  margin-top: 8px;
+  font-size: 16px;
   font-weight: bold;
-  margin: 0;
+}
+
+/*  Tablet & Desktop */
+@media (max-width: 500px) {
+  .metaCard {
+    grid-template-columns: 1fr;
+  }
 }
