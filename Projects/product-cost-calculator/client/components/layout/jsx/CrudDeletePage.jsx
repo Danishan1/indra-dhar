@@ -6,16 +6,18 @@ import { apiUtil } from "@/utils/api";
 import { DeleteConfirm } from "@/components/common";
 import { useCrud } from "@/components/common/jsx/CrudLayout";
 
-export function CrudDeletePage({ endpoint, basePath = null }) {
-  const { idSelected } = useParams();
+export function CrudDeletePage({ endpoint, basePath = null, isBomItem = false }) {
+  const { idSelected, bomItem } = useParams();
   const [record, setRecord] = useState(null);
   const [loading, setLoading] = useState(true);
   const { setSelectedId } = useCrud();
 
+  const finalIdSelected = isBomItem ? bomItem : idSelected;
+
   useEffect(() => {
     async function fetchRecord() {
       try {
-        const res = await apiUtil.get(`${endpoint}/${idSelected}`);
+        const res = await apiUtil.get(`${endpoint}/${finalIdSelected}`);
         if (res.success) setRecord(res.data);
       } catch (err) {
         console.error("Failed to fetch record:", err);
@@ -23,7 +25,7 @@ export function CrudDeletePage({ endpoint, basePath = null }) {
       setLoading(false);
     }
     fetchRecord();
-  }, [endpoint, idSelected]);
+  }, [endpoint, finalIdSelected]);
 
   if (loading) return <p style={{ textAlign: "center" }}>Loading...</p>;
   if (!record)
@@ -35,7 +37,7 @@ export function CrudDeletePage({ endpoint, basePath = null }) {
 
   return (
     <DeleteConfirm
-      id={idSelected}
+      id={finalIdSelected}
       endpoint={endpoint}
       record={record}
       setSelectedId={setSelectedId}

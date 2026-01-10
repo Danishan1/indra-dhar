@@ -10,8 +10,8 @@ export const LaborService = {
       name: data.name.trim(),
       rate_per_hour: parseFloat(data.rate_per_hour),
       overtime_rate: parseFloat(data.overtime_rate || 0),
-      labor_type: data.labor_type.trim(),
-      remark: data.remark.trim(),
+      labor_type: data.labor_type?.trim(),
+      remark: data.remark?.trim(),
     });
   },
 

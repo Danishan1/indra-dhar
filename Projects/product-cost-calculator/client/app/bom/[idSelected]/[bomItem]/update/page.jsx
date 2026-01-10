@@ -5,34 +5,35 @@ import { BASE_PATH } from "@/utils/basePath";
 import { CONST } from "@/utils/CONST";
 const { FORM_TYPE } = CONST;
 import { useFetchOptions } from "@/hooks/useFetchOptions";
+import { useParams } from "next/navigation";
 
 export default function UpdatePage() {
-  const unitOptions = useFetchOptions({
-    endpoint: BASE_PATH.unit,
-    label: "unit_code",
-  });
+  const materialOptions = useFetchOptions({ endpoint: BASE_PATH.rawMaterial });
+  const { idSelected, bomItem } = useParams();
 
   return (
     <CrudFormPage
       mode="update"
-      endpoint={BASE_PATH.rawMaterial}
-      basePath={BASE_PATH.rawMaterial}
-      title="Raw Material"
+      endpoint={BASE_PATH.bomItem}
+      basePath={BASE_PATH.bom + `/${idSelected}/update`}
+      title="BOM Item"
       fields={[
-        { key: "name", label: "Raw Material Name", type: FORM_TYPE.TEXT },
         {
-          key: "unit_type_id",
-          label: "Unit of Measure",
+          key: "material_id",
+          label: "Material",
           type: FORM_TYPE.SELECT,
-          options: unitOptions,
+          options: materialOptions,
         },
-        { key: "unit_price", label: "Material Rate", type: FORM_TYPE.TEXT },
         {
-          key: "is_gst_itc",
-          label: "GST ITC",
+          key: "quantity",
+          label: "Quantity",
+          type: FORM_TYPE.NUMBER,
+        },
+        {
+          key: "decimal_allowed",
+          label: "Decimal Allowed",
           type: FORM_TYPE.SWITCH,
         },
-        { key: "gst", label: "GST % (if applicable)", type: FORM_TYPE.TEXT },
       ]}
     />
   );

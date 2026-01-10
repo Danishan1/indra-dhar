@@ -22,7 +22,7 @@ export default function UpdatePage() {
 
     <CrudListPage
       endpoint={`${BASE_PATH.bomItem}/bom/${idSelected}`}
-      basePath={BASE_PATH.bom}
+      basePath={`${BASE_PATH.bom}/${idSelected}`}
       columns={[
         { key: "material_name", title: "Material Name" },
         { key: "decimal_allowed", title: "Decimal Allowed" },

@@ -24,7 +24,7 @@ export default function Layout({ children }) {
       <div className={styles.topbar}>
         <p>{`BOM for ${data?.data?.name || ""}`}</p>
         <Button onClick={() => window.location.href = `${BASE_PATH.bom}/${idSelected}/create`}>
-          Create BOM Item
+          Add New BOM Item
         </Button>
       </div>
       {children}

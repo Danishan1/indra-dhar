@@ -13,6 +13,9 @@ export const BomItemService = {
   async getByBom(bomId) {
     return BomItemRepository.findByBomId(bomId);
   },
+  async getOne(itemId) {
+    return BomItemRepository.findByItemId(itemId);
+  },
 
   async update(id, updates) {
     const existing = await BomItemRepository.findById(id);

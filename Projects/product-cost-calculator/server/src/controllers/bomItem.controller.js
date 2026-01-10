@@ -25,6 +25,16 @@ export const BomItemController = {
       next(e);
     }
   },
+  async getOne(req, res, next) {
+    try {
+      return ApiResponse.success(
+        res,
+        await BomItemService.getOne(req.params.itemId)
+      );
+    } catch (e) {
+      next(e);
+    }
+  },
 
   async update(req, res, next) {
     try {

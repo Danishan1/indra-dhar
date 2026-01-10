@@ -34,6 +34,24 @@ export const BomItemRepository = {
     );
     return rows;
   },
+  async findByItemId(itemId) {
+    const [[rows]] = await pool.execute(
+      `
+      SELECT 
+        rm.name AS material_name, 
+        rm.unit_price AS material_unit_price, 
+        rm.is_gst_itc AS material_is_gst_itc, 
+        rm.gst AS material_gst,
+        bi.*
+      FROM bom_items bi
+      JOIN raw_materials rm ON rm.id = bi.material_id
+      WHERE bi.id = ?
+      `,
+      [itemId]
+    );
+
+    return rows;
+  },
 
   async findById(id) {
     const [rows] = await pool.execute(`SELECT * FROM bom_items WHERE id = ?`, [
@@ -47,6 +65,19 @@ export const BomItemRepository = {
     const values = [];
 
     for (const [k, v] of Object.entries(updates)) {
+      if (
+        [
+          "material_name",
+          "material_unit_price",
+          "material_is_gst_itc",
+          "material_gst",
+          "id",
+          "bom_meta_id",
+          "created_at",
+          "updated_at",
+        ].includes(k)
+      )
+        continue;
       fields.push(`${k} = ?`);
       values.push(v);
     }
