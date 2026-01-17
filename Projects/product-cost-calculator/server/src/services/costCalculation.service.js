@@ -76,7 +76,7 @@ export const CostCalculationService = {
           amount: formatINR(base),
           gst_rate: `${gstRate}%`,
           gst_amount: formatINR(isITC ? 0 : gstAmount),
-          total: formatINR(total),
+          // total: formatINR(total),
           gst_type: isITC ? "ITC" : "Non-ITC",
         });
       }
@@ -105,7 +105,7 @@ export const CostCalculationService = {
           quantity_total: hours * productionQuantity,
           rate: formatINR(labor.rate_per_hour),
           amount: formatINR(cost),
-          total: formatINR(cost),
+          // total: formatINR(cost),
         });
       }
 
@@ -121,7 +121,7 @@ export const CostCalculationService = {
           quantity_total: overtime * productionQuantity,
           rate: formatINR(labor.overtime_rate),
           amount: formatINR(cost),
-          total: formatINR(cost),
+          // total: formatINR(cost),
         });
       }
     }
@@ -164,7 +164,7 @@ export const CostCalculationService = {
         quantity_total: null,
         rate: null,
         amount: formatINR(overheadAmount),
-        total: formatINR(overheadAmount),
+        // total: formatINR(overheadAmount),
       });
     }
 
@@ -189,17 +189,29 @@ export const CostCalculationService = {
       profit = profitValue * productionQuantity;
     }
 
+    /* ----------------------------------------------------
+       8. ADD SUMMARY LINES TO INVOICE ITEMS
+    ---------------------------------------------------- */
     invoiceItems.push({
-      category: "Profit",
-      description: profitLabel,
+      category: "Summary",
+      description: "Total Cost",
+      quantity: null,
+      rate: null,
+      amount: formatINR(costBeforeProfit),
+      // total: formatINR(costBeforeProfit),
+    });
+
+    invoiceItems.push({
+      category: "Summary",
+      description: "Total Profit",
       quantity: null,
       rate: null,
       amount: formatINR(profit),
-      total: formatINR(profit),
+      // total: formatINR(profit),
     });
 
     /* ----------------------------------------------------
-       8. GST (SCALED)
+       9. GST (SCALED)
     ---------------------------------------------------- */
     const taxableValue = costBeforeProfit + profit;
     const gstRate = Number(meta.project_gst || 0);
@@ -211,10 +223,19 @@ export const CostCalculationService = {
       quantity: null,
       rate: null,
       amount: formatINR(gstAmount),
-      total: formatINR(gstAmount),
+      // total: formatINR(gstAmount),
     });
 
     const finalCost = taxableValue + gstAmount;
+
+    invoiceItems.push({
+      category: "Summary",
+      description: `Grand Total`,
+      quantity: null,
+      rate: null,
+      amount: formatINR(finalCost),
+      // total: formatINR(gstAmount),
+    });
 
     /* ----------------------------------------------------
        9. FINAL RESPONSE

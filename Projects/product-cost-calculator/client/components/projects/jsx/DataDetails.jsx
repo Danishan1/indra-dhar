@@ -95,7 +95,7 @@ export function DataDetails({ data = {} }) {
           { key: "quantity_total", title: "Quantity Total" },
           { key: "rate", title: "Unit Price" },
           { key: "amount", title: "Amount" },
-          { key: "total", title: "Total" },
+          // { key: "total", title: "Total" },
         ]}
         data={data.items}
       />
