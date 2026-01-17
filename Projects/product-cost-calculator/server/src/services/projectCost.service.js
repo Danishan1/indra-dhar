@@ -23,6 +23,7 @@ export const ProjectCostService = {
       project_gst: meta.project_gst,
       product_type: meta.product_type,
       project_progress: meta.project_progress,
+      production_quantity : meta.production_quantity ,
       total_cost: total_cost,
     });
 

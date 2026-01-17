@@ -11,6 +11,11 @@ export const CostCalculationService = {
   async calculate(payload) {
     const resources = payload.data || [];
     const meta = payload.meta || {};
+    const productionQuantity = Number(meta.production_quantity || 1);
+
+    if (productionQuantity <= 0) {
+      throw new ApiError(400, "production_quantity must be greater than zero");
+    }
 
     if (!Array.isArray(resources) || !resources.length) {
       throw new ApiError(400, "No resources provided");
@@ -30,34 +35,23 @@ export const CostCalculationService = {
         throw new ApiError(400, "Invalid resource payload");
       }
 
-      if (r.resource_type === BASE_PATH.bom) {
-        bomIds.add(r.data.resource_id);
-      }
-
-      if (r.resource_type === BASE_PATH.labors) {
-        laborItems.push(r.data);
-      }
-
-      if (r.resource_type === BASE_PATH.overheads) {
-        overheadItems.push(r.data);
-      }
+      if (r.resource_type === BASE_PATH.bom) bomIds.add(r.data.resource_id);
+      if (r.resource_type === BASE_PATH.labors) laborItems.push(r.data);
+      if (r.resource_type === BASE_PATH.overheads) overheadItems.push(r.data);
     }
 
-    if (!bomIds.size) {
-      throw new ApiError(400, "At least one BOM is required");
-    }
+    if (!bomIds.size) throw new ApiError(400, "At least one BOM is required");
 
     /* ----------------------------------------------------
-       2. MATERIAL COST (INVOICE ROWS)
+       2. MATERIAL COST (SCALED BY PRODUCTION QUANTITY)
     ---------------------------------------------------- */
     let materialBaseTotal = 0;
     let materialGST_NonITC = 0;
 
     for (const bomId of bomIds) {
       const bomItems = await BomItemRepository.findByBomId(bomId);
-      if (!bomItems.length) {
+      if (!bomItems.length)
         throw new ApiError(404, `No BOM items for BOM ${bomId}`);
-      }
 
       for (const item of bomItems) {
         const qty = Number(item.quantity || 0);
@@ -65,7 +59,8 @@ export const CostCalculationService = {
         const gstRate = Number(item.material_gst || 0);
         const isITC = Boolean(item.material_is_gst_itc);
 
-        const base = qty * rate;
+        // Scale by production quantity
+        const base = qty * rate * productionQuantity;
         const gstAmount = base * (gstRate / 100);
         const total = base + (isITC ? 0 : gstAmount);
 
@@ -75,7 +70,8 @@ export const CostCalculationService = {
         invoiceItems.push({
           category: "Material",
           description: item.material_name,
-          quantity: qty,
+          quantity_per_unit: qty,
+          quantity_total: qty * productionQuantity,
           rate: formatINR(rate),
           amount: formatINR(base),
           gst_rate: `${gstRate}%`,
@@ -87,7 +83,7 @@ export const CostCalculationService = {
     }
 
     /* ----------------------------------------------------
-       3. LABOR COST (INVOICE ROWS)
+       3. LABOR COST (SCALED)
     ---------------------------------------------------- */
     let laborTotal = 0;
 
@@ -99,13 +95,14 @@ export const CostCalculationService = {
       const overtime = Number(l.overtime_hours || 0);
 
       if (hours > 0) {
-        const cost = hours * Number(labor.rate_per_hour);
+        const cost = hours * Number(labor.rate_per_hour) * productionQuantity;
         laborTotal += cost;
 
         invoiceItems.push({
           category: "Labor",
           description: `${labor.name} (Regular)`,
-          quantity: hours,
+          quantity_per_unit: hours,
+          quantity_total: hours * productionQuantity,
           rate: formatINR(labor.rate_per_hour),
           amount: formatINR(cost),
           total: formatINR(cost),
@@ -113,13 +110,15 @@ export const CostCalculationService = {
       }
 
       if (overtime > 0) {
-        const cost = overtime * Number(labor.overtime_rate);
+        const cost =
+          overtime * Number(labor.overtime_rate) * productionQuantity;
         laborTotal += cost;
 
         invoiceItems.push({
           category: "Labor",
           description: `${labor.name} (Overtime)`,
-          quantity: overtime,
+          quantity_per_unit: overtime,
+          quantity_total: overtime * productionQuantity,
           rate: formatINR(labor.overtime_rate),
           amount: formatINR(cost),
           total: formatINR(cost),
@@ -134,7 +133,7 @@ export const CostCalculationService = {
     const directCost = rawMaterialTotal + laborTotal;
 
     /* ----------------------------------------------------
-       5. OVERHEAD COST (INVOICE ROWS)
+       5. OVERHEAD COST (SCALED)
     ---------------------------------------------------- */
     let overheadTotal = 0;
 
@@ -146,12 +145,13 @@ export const CostCalculationService = {
       let description = oh.name;
 
       if (oh.type === "fixed") {
-        overheadAmount = Number(o.applied_value ?? oh.value);
+        overheadAmount =
+          Number(o.applied_value ?? oh.value) * productionQuantity;
       }
 
       if (oh.type === "percentage") {
         const rate = Number(o.percentage_value ?? oh.value);
-        overheadAmount = directCost * (rate / 100);
+        overheadAmount = directCost * (rate / 100); // directCost already scaled
         description = `${oh.name} (${rate}%)`;
       }
 
@@ -160,7 +160,8 @@ export const CostCalculationService = {
       invoiceItems.push({
         category: "Overhead",
         description,
-        quantity: null,
+        quantity_per_unit: null,
+        quantity_total: null,
         rate: null,
         amount: formatINR(overheadAmount),
         total: formatINR(overheadAmount),
@@ -173,7 +174,7 @@ export const CostCalculationService = {
     const costBeforeProfit = directCost + overheadTotal;
 
     /* ----------------------------------------------------
-       7. PROFIT (INVOICE ROW)
+       7. PROFIT (SCALED)
     ---------------------------------------------------- */
     const profitValue = Number(meta.profit_value || 0);
     const profitType = meta.profit_type || "Percentage";
@@ -185,7 +186,7 @@ export const CostCalculationService = {
       profit = costBeforeProfit * (profitValue / 100);
       profitLabel = `Profit (${profitValue}%)`;
     } else {
-      profit = profitValue;
+      profit = profitValue * productionQuantity;
     }
 
     invoiceItems.push({
@@ -198,7 +199,7 @@ export const CostCalculationService = {
     });
 
     /* ----------------------------------------------------
-       8. GST (FINAL PRODUCT)
+       8. GST (SCALED)
     ---------------------------------------------------- */
     const taxableValue = costBeforeProfit + profit;
     const gstRate = Number(meta.project_gst || 0);
@@ -231,6 +232,7 @@ export const CostCalculationService = {
           taxable_value: formatINR(taxableValue),
           gst: formatINR(gstAmount),
           grand_total: formatINR(finalCost),
+          production_quantity: productionQuantity,
         },
       },
     };

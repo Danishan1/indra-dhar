@@ -110,6 +110,17 @@ export function ResourceSection({ onAdd, setProjectMeta, projectMeta }) {
             required
           />
         </div>
+        <div className={styles.metadata_input}>
+          <TextInput
+            label={"Production quantity"}
+            type={"number"}
+            value={projectMeta.production_quantity || ""}
+            onChange={(e) =>
+              setProjectMeta((r) => ({ ...r, production_quantity: e.target.value }))
+            }
+            required
+          />
+        </div>
       </div>
 
       <SelectInput

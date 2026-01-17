@@ -7,8 +7,9 @@ import styles from "../css/Project.module.css";
 import { filterByType } from "../helper/resourceColumns";
 import { Button } from "@/components/ui";
 import { apiUtil } from "@/utils/api";
-import { DataDetails, useToast } from "@/components/common";
+import { useToast } from "@/components/common";
 import ImageInput from "@/components/ui/jsx/ImageInput";
+import { DataDetails } from "./DataDetails";
 
 export function Projects() {
   const [resources, setResources] = useState([]);

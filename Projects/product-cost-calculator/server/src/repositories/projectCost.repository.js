@@ -10,14 +10,15 @@ export const ProjectCostRepository = {
     profit_type,
     project_gst,
     product_type,
+    production_quantity,
     project_progress,
   }) {
     const sql = `
       INSERT INTO cost_projects (
         project_uuid, project_name, total_cost, 
         profit_value, profit_type, project_gst, 
-        product_type, project_progress)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        product_type, project_progress, production_quantity)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const [res] = await pool.execute(sql, [
@@ -29,6 +30,7 @@ export const ProjectCostRepository = {
       project_gst,
       product_type,
       project_progress,
+      production_quantity,
     ]);
     return this.findProjectById(res.insertId);
   },

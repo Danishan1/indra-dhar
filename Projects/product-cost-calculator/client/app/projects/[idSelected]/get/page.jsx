@@ -7,7 +7,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import styles from "./DetailPage.module.css";
 import { baseUrl } from "@/utils/baseURL";
-import { DataDetails } from "@/components/common";
+import { DataDetails } from "@/components/projects/jsx/DataDetails";
 
 export default function DetailPage() {
   const [resources, setResources] = useState([]);

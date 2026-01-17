@@ -6,6 +6,7 @@ CREATE TABLE cost_projects (
     profit_value DECIMAL(14, 2),
     profit_type ENUM('Fixed', 'Percentage'),
     project_gst DECIMAL(14, 2),
+    production_quantity INT DEFAULT 1,
     product_type ENUM('Finished', 'Semi Finished', 'Raw Material') DEFAULT 'Finished',
     project_progress ENUM('Planned', 'Completed', 'In-Active', 'Active') DEFAULT 'Planned',
     image_url VARCHAR(255),

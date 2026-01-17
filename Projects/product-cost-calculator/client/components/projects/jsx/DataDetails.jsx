@@ -22,6 +22,8 @@ export function DataDetails({ data = {} }) {
     return <p className={styles.empty}>No data available.</p>;
   }
 
+  console.log("DDDD DataDetails data:", data);
+
   /* =====================
      EXPORT: EXCEL
   ====================== */
@@ -91,7 +93,8 @@ export function DataDetails({ data = {} }) {
         columns={[
           { key: "category", title: "Category" },
           { key: "description", title: "Description" },
-          { key: "quantity", title: "Quantity" },
+          { key: "quantity_per_unit", title: "Quantity Per Unit" },
+          { key: "quantity_total", title: "Quantity Total" },
           { key: "rate", title: "Unit Price" },
           { key: "amount", title: "Amount" },
           { key: "total", title: "Total" },

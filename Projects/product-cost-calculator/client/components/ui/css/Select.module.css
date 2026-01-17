@@ -27,6 +27,7 @@
   position: sticky;
   top: 0;
   z-index: 1;
+  
 }
 
 .searchWrapper svg {
@@ -46,7 +47,7 @@
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: 10px 12px;
+  padding: 7.5px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
