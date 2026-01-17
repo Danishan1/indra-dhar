@@ -1,22 +1,22 @@
 .detailsContainer {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: var(--space-lg);
   box-shadow: var(--shadow-sm);
   width: 100%;
-  max-width: 700px;
+  max-width: 900px;
   margin: var(--space-lg) auto;
+  gap: 30px;
 }
 
 .row {
   display: grid;
   grid-template-columns: 1fr 2fr;
   align-items: start;
-  padding: var(--space-sm) 0;
+  padding: 7px 0;
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -49,4 +49,24 @@
   color: var(--color-text-muted);
   font-style: italic;
   padding: var(--space-lg);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.exportBtn {
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-primary);
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.exportBtn:hover {
+  background: var(--color-primary-hover);
 }

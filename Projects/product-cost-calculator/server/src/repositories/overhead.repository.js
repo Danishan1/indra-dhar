@@ -3,16 +3,21 @@ import { applyPagination } from "../utils/applyPagination.js";
 
 export const OverheadRepository = {
   async create(data) {
+    // const sql = `
+    //   INSERT INTO overheads
+    //   (overhead_uuid, name, type, value, frequency, is_active)
+    //   VALUES (UUID(), ?, ?, ?, ?, ?)
+    // `;
     const sql = `
       INSERT INTO overheads
-      (overhead_uuid, name, type, value, frequency, is_active)
-      VALUES (UUID(), ?, ?, ?, ?, ?)
+      (overhead_uuid, name, type, value,  is_active)
+      VALUES (UUID(), ?, ?, ?, ?)
     `;
     const [result] = await pool.execute(sql, [
       data.name,
       data.type,
       data.value,
-      data.frequency || "per_batch",
+      // data.frequency || "per_batch",
       true,
     ]);
     return this.findById(result.insertId);
@@ -33,10 +38,10 @@ export const OverheadRepository = {
       params.push(filters.type);
     }
 
-    if (filters.frequency) {
-      sql += ` AND frequency = ?`;
-      params.push(filters.frequency);
-    }
+    // if (filters.frequency) {
+    //   sql += ` AND frequency = ?`;
+    //   params.push(filters.frequency);
+    // }
 
     if (filters.name) {
       sql += ` AND name LIKE ?`;
@@ -84,16 +89,16 @@ export const OverheadRepository = {
     if (overheads.length === 0) return [];
 
     const placeholders = overheads
-      .map(() => "(UUID(), ?, ?, ?, ?, true)")
+      .map(() => "(UUID(), ?, ?, ?, true)")
       .join(", ");
     const values = [];
     overheads.forEach((o) => {
-      values.push(o.name, o.type, o.value, o.frequency || "per_batch");
+      values.push(o.name, o.type, o.value);
     });
 
     const sql = `
       INSERT INTO overheads
-      (overhead_uuid, name, type, value, frequency, is_active)
+      (overhead_uuid, name, type, value, is_active)
       VALUES ${placeholders}
     `;
 

@@ -1,7 +1,6 @@
 import { BASE_PATH } from "@/utils/basePath";
 
 export const getUploadInfo = (selectedType) => {
-
   const info = {
     [`${BASE_PATH.labors}/bulk`]: {
       key: "labors",
@@ -52,16 +51,16 @@ export const getUploadInfo = (selectedType) => {
           purpose: "Overhead value (amount or percentage)",
           acceptedValues: "Decimal number (> 0)",
         },
-        {
-          key: "frequency",
-          purpose: "Allocation Bases",
-          acceptedValues: [
-            "Machine Hour",
-            "Labor Hour",
-            "Unit Produced",
-            "% of Direct Cost",
-          ],
-        },
+        // {
+        //   key: "frequency",
+        //   purpose: "Allocation Bases",
+        //   acceptedValues: [
+        //     "Machine Hour",
+        //     "Labor Hour",
+        //     "Unit Produced",
+        //     "% of Direct Cost",
+        //   ],
+        // },
       ],
     },
 
