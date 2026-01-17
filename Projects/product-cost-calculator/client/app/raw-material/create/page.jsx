@@ -40,7 +40,7 @@ export default function CreatePage() {
         },
         {
           key: "is_gst_itc",
-          label: "GST ITC",
+          label: "Is GST Input Available",
           type: FORM_TYPE.SWITCH,
           required: true,
         },

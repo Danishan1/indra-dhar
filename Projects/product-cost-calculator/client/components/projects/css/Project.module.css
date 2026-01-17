@@ -40,3 +40,14 @@
 .calculatedButtons button {
   flex: 1;
 }
+
+.btnDelete {
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+}
+
+.btnDelete:hover {
+  border: 1px solid var(--color-danger);
+  color: var(--color-surface);
+  background-color: var(--color-danger);
+}

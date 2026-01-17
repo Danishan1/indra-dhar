@@ -50,9 +50,10 @@ export const RESOURCE_ORDER = [
 
 export const filterByType = (list, type) => {
   const rawList = list.filter((item) => item.resource_type === type);
-  return rawList.map((r) => r.data);
+  return rawList.map((r) => ({ ...r.data, resource_type: type }));
 };
 
+/*
 [
   {
     resource_type: "/bom",
@@ -77,3 +78,5 @@ export const filterByType = (list, type) => {
     },
   },
 ];
+
+*/

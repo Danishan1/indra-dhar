@@ -29,7 +29,7 @@ export default function UpdatePage() {
         { key: "unit_price", label: "Material Rate", type: FORM_TYPE.TEXT },
         {
           key: "is_gst_itc",
-          label: "GST ITC",
+          label: "Is GST Input Available",
           type: FORM_TYPE.SWITCH,
         },
         { key: "gst", label: "GST % (if applicable)", type: FORM_TYPE.TEXT },
