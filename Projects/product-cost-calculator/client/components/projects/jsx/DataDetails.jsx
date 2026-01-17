@@ -22,8 +22,6 @@ export function DataDetails({ data = {} }) {
     return <p className={styles.empty}>No data available.</p>;
   }
 
-  console.log("DDDD DataDetails data:", data);
-
   /* =====================
      EXPORT: EXCEL
   ====================== */
