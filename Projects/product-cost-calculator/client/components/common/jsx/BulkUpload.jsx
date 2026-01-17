@@ -8,6 +8,7 @@ import { Button, SelectInput, Modal } from "@/components/ui";
 import { useToast } from "..";
 import { apiUtil } from "@/utils/api";
 import { getUploadInfo } from "../helper/getUploadInfo";
+import { downloadTemplate } from "../helper/downloadTemplate";
 
 export function BulkUpload({ uploadOptions }) {
   const [selectedType, setSelectedType] = useState(null);
@@ -101,7 +102,10 @@ export function BulkUpload({ uploadOptions }) {
           required
         />
         {selectedType && (
-          <Button onClick={() => setShowInfo(true)}>Info</Button>
+          <div className={styles.actions}>
+            <Button onClick={() => setShowInfo(true)}>Info</Button>
+            <Button onClick={() => downloadTemplate(selectedType)}>⬇</Button>
+          </div>
         )}
       </div>
 

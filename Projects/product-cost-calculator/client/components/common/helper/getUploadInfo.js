@@ -1,7 +1,6 @@
 import { BASE_PATH } from "@/utils/basePath";
 
 export const getUploadInfo = (selectedType) => {
-  console.log("DDDD : ", selectedType, BASE_PATH.labors);
 
   const info = {
     [`${BASE_PATH.labors}/bulk`]: {

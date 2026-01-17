@@ -115,7 +115,7 @@ export const ProjectCostRepository = {
 
     const finalRow = rows.map((r) => ({
       ...r,
-      total_cost: r.total_cost.finalCost,
+      total_cost: r.total_cost?.invoice?.totals?.grand_total,
     }));
 
     return finalRow;

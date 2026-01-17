@@ -7,19 +7,42 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import styles from "./DetailPage.module.css";
 import { baseUrl } from "@/utils/baseURL";
+import { DataDetails } from "@/components/common";
 
 export default function DetailPage() {
   const [resources, setResources] = useState([]);
   const [meta, setMeta] = useState({});
+  const [invoice, setInvoice] = useState({});
   const { idSelected } = useParams();
 
   useEffect(() => {
     async function fetchData() {
       const res = await apiUtil.get(`${BASE_PATH.projectsCost}/${idSelected}`);
 
+      const invoiceData = res.data.total_cost?.invoice || {};
+
       if (res.success) {
         setResources(res.data.items || []);
-        setMeta(res.data);
+        setInvoice(invoiceData);
+        setMeta({
+          id: res.data.id,
+          product_type: res.data.product_type,
+          image_url: res.data.image_url,
+          profit_value: res.data.profit_value,
+          profit_type: res.data.profit_type,
+          project_gst: res.data.project_gst,
+          project_name: res.data.project_name,
+          project_progress: res.data.project_progress,
+          project_currency: invoiceData.currency,
+          cost_before_profit: invoiceData.cost_before_profit,
+          grand_total: invoiceData.grand_total,
+          gst: invoiceData.gst,
+          labor_total: invoiceData.labor_total,
+          material_total: invoiceData.material_total,
+          overhead_total: invoiceData.overhead_total,
+          profit: invoiceData.profit,
+          taxable_value: invoiceData.taxable_value,
+        });
       }
     }
     fetchData();
@@ -27,24 +50,22 @@ export default function DetailPage() {
 
   const getImageURL = (value) => `${baseUrl}${value.slice(1)}`;
 
-  const cost = meta.total_cost || {};
+  const cost = meta || {};
 
   return (
     <div className={styles.wrapper}>
-      {meta.id && (
+      {meta.image_url && (
+        <div className={styles.imageWrapper}>
+          <img
+            src={getImageURL(meta.image_url)}
+            alt="Project"
+            className={styles.metaImage}
+          />
+        </div>
+      )}
+      {/* {meta.id && (
         <div className={styles.metaCard}>
-          {/* Image */}
-          {meta.image_url && (
-            <div className={styles.imageWrapper}>
-              <img
-                src={getImageURL(meta.image_url)}
-                alt="Project"
-                className={styles.metaImage}
-              />
-            </div>
-          )}
 
-          {/* Project Info */}
           <div className={styles.card}>
             <h2 className={styles.title}>{meta.project_name}</h2>
             <div className={styles.costGrid}>
@@ -71,7 +92,6 @@ export default function DetailPage() {
             </div>
           </div>
 
-          {/* Cost Breakdown */}
           <div className={styles.card}>
             <h3 className={styles.sectionTitle}>Cost Breakdown</h3>
             <div className={styles.costGrid}>
@@ -106,7 +126,6 @@ export default function DetailPage() {
             </div>
           </div>
 
-          {/* Final Summary */}
           <div className={`${styles.card} ${styles.costGrid}`}>
             <p>
               <b>Cost Before Profit</b> <span>{cost.costBeforeProfit}</span>
@@ -126,7 +145,9 @@ export default function DetailPage() {
             </p>
           </div>
         </div>
-      )}
+      )} */}
+
+      <DataDetails data={invoice} />
 
       <ResourceTables resources={resources} />
     </div>

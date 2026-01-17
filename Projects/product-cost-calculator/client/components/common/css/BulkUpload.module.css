@@ -123,3 +123,9 @@
 .modalContent::-webkit-scrollbar-track {
   background-color: #f0f0f0;
 }
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}

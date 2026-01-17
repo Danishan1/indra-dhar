@@ -13,14 +13,14 @@ import ImageInput from "@/components/ui/jsx/ImageInput";
 export function Projects() {
   const [resources, setResources] = useState([]);
   const [file, setFile] = useState(null);
-  const [calculatedResult, setCalculatedResult] = useState(null);
+  const [invoice, setInvoice] = useState(null);
   const [projectMeta, setProjectMeta] = useState({});
   const { addToast } = useToast();
 
   // Add from input builder
   const handleAddResource = (item) => {
     setResources((prev) => [...prev, item]);
-    setCalculatedResult(null);
+    setInvoice(null);
   };
 
   // Delete inside a grouped table
@@ -41,7 +41,9 @@ export function Projects() {
         meta: projectMeta,
       });
 
-      if (res.success === true) setCalculatedResult(res.data);
+      console.log("Calculation response:", res);
+
+      if (res.success === true) setInvoice(res.data.invoice);
     } catch (error) {
       console.error("Error calculating project cost:", error);
     }
@@ -80,7 +82,7 @@ export function Projects() {
       // 3 Reset UI State
       setProjectMeta({});
       setResources([]);
-      setCalculatedResult(null);
+      setInvoice(null);
       setFile(null);
     } catch (error) {
       addToast(
@@ -98,7 +100,7 @@ export function Projects() {
 
   const handleClear = () => {
     setResources([]);
-    setCalculatedResult(null);
+    setInvoice(null);
   };
 
   return (
@@ -111,9 +113,9 @@ export function Projects() {
       {resources.length > 0 && (
         <Button onClick={handleSubmit}>Calculate Product Cost</Button>
       )}
-      {calculatedResult && (
+      {invoice && (
         <>
-          <DataDetails data={calculatedResult} />
+          <DataDetails data={invoice} />
           <ImageInput onChange={handleImageChange} maxSize={1024 * 1024 * 3} />
           <div className={styles.calculatedButtons}>
             <Button onClick={handleSave}>Save Product Cost</Button>
