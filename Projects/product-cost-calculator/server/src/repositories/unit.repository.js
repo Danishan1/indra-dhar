@@ -3,13 +3,12 @@ import { pool } from "../config/db.js";
 export const UnitRepository = {
   async create(data) {
     const sql = `
-      INSERT INTO units (name, unit_code, base_unit, decimal_allowed)
-      VALUES (?, ?, ?, ?)
+      INSERT INTO units (name, unit_code,  decimal_allowed)
+      VALUES (?, ?, ?)
     `;
     const [result] = await pool.execute(sql, [
       data.name,
       data.unit_code,
-      data.base_unit,
       data.decimal_allowed ?? true,
     ]);
     return this.findById(result.insertId);
@@ -19,14 +18,13 @@ export const UnitRepository = {
     if (!units.length) return [];
 
     const sql = `
-      INSERT INTO units (name, unit_code, base_unit, decimal_allowed)
-      VALUES ?
+      INSERT INTO units (name, unit_code,  decimal_allowed)
+      VALUES ?, ?, ?
     `;
 
     const values = units.map((u) => [
       u.name,
       u.unit_code,
-      u.base_unit,
       u.decimal_allowed ?? true,
     ]);
 
@@ -58,14 +56,7 @@ export const UnitRepository = {
     const values = [];
 
     for (const [key, value] of Object.entries(updates)) {
-      if (
-        [
-          "id",
-          "created_at",
-          "updated_at",
-        ].includes(key)
-      )
-        continue;
+      if (["id", "created_at", "updated_at"].includes(key)) continue;
       fields.push(`${key} = ?`);
       values.push(value);
     }

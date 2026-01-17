@@ -12,7 +12,7 @@ export const UnitService = {
     return UnitRepository.create({
       name: data.name.trim(),
       unit_code: data.unit_code.trim(),
-      base_unit: data.base_unit.trim(),
+      // base_unit: data.base_unit.trim(),
       decimal_allowed: data.decimal_allowed ?? true,
     });
   },
@@ -27,7 +27,7 @@ export const UnitService = {
       return {
         name: data.name.trim(),
         unit_code: data.unit_code.trim(),
-        base_unit: data.base_unit.trim(),
+        // base_unit: data.base_unit.trim(),
         decimal_allowed: data.decimal_allowed ?? true,
       };
     });

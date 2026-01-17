@@ -28,12 +28,12 @@ export default function CreatePage() {
           type: FORM_TYPE.TEXT,
           required: true,
         },
-        {
-          key: "base_unit",
-          label: "Base Unit",
-          type: FORM_TYPE.TEXT,
-          required: true,
-        },
+        // {
+        //   key: "base_unit",
+        //   label: "Base Unit",
+        //   type: FORM_TYPE.TEXT,
+        //   required: true,
+        // },
         {
           key: "decimal_allowed",
           label: "Decimal Allowed",

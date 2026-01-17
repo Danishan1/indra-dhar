@@ -23,11 +23,11 @@ export default function UpdatePage() {
           label: "Unit Name",
           type: FORM_TYPE.TEXT,
         },
-        {
-          key: "base_unit",
-          title: "Base Unit",
-          type: FORM_TYPE.TEXT,
-        },
+        // {
+        //   key: "base_unit",
+        //   title: "Base Unit",
+        //   type: FORM_TYPE.TEXT,
+        // },
         {
           key: "decimal_allowed",
           title: "Decimal Allowed",
