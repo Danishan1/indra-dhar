@@ -1,4 +1,5 @@
-const HOURS_PER_MONTH = 25 * 9;
+// const HOURS_PER_MONTH = 25 * 9;
+const HOURS_PER_MONTH = 208;
 
 export function normalizeOverheadValues(rawValue, frequency) {
   const value = Number(rawValue); // 👈 CRITICAL FIX

@@ -26,6 +26,7 @@ export function CrudListPage({
 
   const isUserManagement = basePath === BASE_PATH.users && isManager;
   const isAllowed = !isUserManagement && isPrivileged;
+  const isBom = basePath === BASE_PATH.bom;
 
   const filters = getFilterList(pathname);
 
@@ -51,7 +52,7 @@ export function CrudListPage({
         path: `${basePath}/${row.id}/get`,
       },
       {
-        label: "Edit",
+        label: isBom ? "Add BOM Items": "Edit",
         allowed: editButton && isAllowed, // your existing condition
         path: `${basePath}/${row.id}/update`,
       },

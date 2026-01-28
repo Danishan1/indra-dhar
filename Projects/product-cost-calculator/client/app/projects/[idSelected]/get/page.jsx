@@ -149,7 +149,7 @@ export default function DetailPage() {
 
       <DataDetails data={invoice} />
 
-      <ResourceTables resources={resources} />
+      {/* <ResourceTables resources={resources} /> */}
     </div>
   );
 }

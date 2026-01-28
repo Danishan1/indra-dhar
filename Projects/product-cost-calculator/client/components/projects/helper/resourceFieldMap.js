@@ -39,24 +39,24 @@ export const RESOURCE_FIELD_MAP = {
   [BASE_PATH.labors]: [
     {
       key: "hours",
-      label: "Effort",
+      label: "Effort (per product)",
       ui: FORM_TYPE.NUMBER,
       required: true,
       props: {
         min: 0,
         step: "0.01",
-        placeholder: "Total time to complete (Hours/Peice/Months)",
+        placeholder: "Total time to complete (Hours/Peice)",
       },
     },
     {
       key: "overtime_hours",
-      label: "Overtime Effort",
+      label: "Overtime Effort (per product)",
       ui: FORM_TYPE.NUMBER,
       required: true,
       props: {
         min: 0,
         step: "0.01",
-        placeholder: "Over time to complete (Hours/Peice/Days/Months)",
+        placeholder: "Over time to complete (Hours/Peice/Days)",
       },
     },
   ],
