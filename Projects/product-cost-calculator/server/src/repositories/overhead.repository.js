@@ -1,23 +1,20 @@
 import { pool } from "../config/db.js";
 import { applyPagination } from "../utils/applyPagination.js";
+import { normalizeOverheadValues } from "../utils/normalizeOverheadValues.js";
 
 export const OverheadRepository = {
   async create(data) {
-    // const sql = `
-    //   INSERT INTO overheads
-    //   (overhead_uuid, name, type, value, frequency, is_active)
-    //   VALUES (UUID(), ?, ?, ?, ?, ?)
-    // `;
     const sql = `
       INSERT INTO overheads
-      (overhead_uuid, name, type, value,  is_active)
-      VALUES (UUID(), ?, ?, ?, ?)
+      (overhead_uuid, name, type, value, frequency, is_active)
+      VALUES (UUID(), ?, ?, ?, ?, ?)
     `;
+
     const [result] = await pool.execute(sql, [
       data.name,
       data.type,
       data.value,
-      // data.frequency || "per_batch",
+      data.frequency,
       true,
     ]);
     return this.findById(result.insertId);
@@ -38,10 +35,10 @@ export const OverheadRepository = {
       params.push(filters.type);
     }
 
-    // if (filters.frequency) {
-    //   sql += ` AND frequency = ?`;
-    //   params.push(filters.frequency);
-    // }
+    if (filters.frequency) {
+      sql += ` AND frequency = ?`;
+      params.push(filters.frequency);
+    }
 
     if (filters.name) {
       sql += ` AND name LIKE ?`;
@@ -51,14 +48,22 @@ export const OverheadRepository = {
     sql += ` ORDER BY created_at DESC`;
     sql = applyPagination(sql, filters);
     const [rows] = await pool.execute(sql, params);
-    return rows;
+
+    return rows.map((row) => ({
+      ...row,
+      ...normalizeOverheadValues(row.value, row.frequency),
+    }));
   },
 
   async findById(id) {
     const [rows] = await pool.execute(`SELECT * FROM overheads WHERE id = ?`, [
       id,
     ]);
-    return rows[0] || null;
+
+    return {
+      ...rows[0],
+      ...normalizeOverheadValues(rows[0].value, rows[0].frequency),
+    };
   },
 
   async update(id, updates) {
@@ -66,7 +71,17 @@ export const OverheadRepository = {
     const values = [];
 
     for (const [key, value] of Object.entries(updates)) {
-      if (["id", "overhead_uuid", "created_at", "updated_at"].includes(key))
+      if (
+        [
+          "id",
+          "overhead_uuid",
+          "created_at",
+          "updated_at",
+          "monthly_value",
+          "yearly_value",
+          "per_hour_value",
+        ].includes(key)
+      )
         continue;
       fields.push(`${key} = ?`);
       values.push(value);
@@ -89,16 +104,16 @@ export const OverheadRepository = {
     if (overheads.length === 0) return [];
 
     const placeholders = overheads
-      .map(() => "(UUID(), ?, ?, ?, true)")
+      .map(() => "(UUID(), ?, ?, ?, ?, true)")
       .join(", ");
     const values = [];
     overheads.forEach((o) => {
-      values.push(o.name, o.type, o.value);
+      values.push(o.name, o.type, o.value, o.frequency);
     });
 
     const sql = `
       INSERT INTO overheads
-      (overhead_uuid, name, type, value, is_active)
+      (overhead_uuid, name, type, value, frequency, is_active)
       VALUES ${placeholders}
     `;
 

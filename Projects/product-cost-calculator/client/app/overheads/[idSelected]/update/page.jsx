@@ -11,11 +11,12 @@ export default function UpdatePage() {
     { value: "percentage", label: "Percentage" },
   ];
 
-  const freOptions = [
-    { value: "Machine Hour", label: "Machine Hour" },
-    { value: "Labor Hour", label: "Labor Hour" },
-    { value: "Unit Produced", label: "Unit Produced" },
-    { value: "% of Direct Cost", label: "% of Direct Cost" },
+   const freOptions = [
+    { value: "Monthly", label: "Monthly" },
+    { value: "Yearly", label: "Yearly" },
+    { value: "Per Hour", label: "Per Hour" },
+    // { value: "Unit Produced", label: "Unit Produced" },
+    // { value: "% of Direct Cost", label: "% of Direct Cost" },
     // { value: "per_batch", label: "Per Batch" },
   ];
 
@@ -33,13 +34,13 @@ export default function UpdatePage() {
           type: FORM_TYPE.RADIO,
           options: typeOptions,
         },
-        { key: "value", label: "Amount/Month", type: FORM_TYPE.TEXT },
         {
           key: "frequency",
           label: "Allocation Bases",
           type: FORM_TYPE.SELECT,
           options: freOptions,
         },
+        { key: "value", label: "Amount/Month", type: FORM_TYPE.TEXT },
         // { key: "is_global", label: "Is Global", type: FORM_TYPE.SWITCH },
       ]}
     />

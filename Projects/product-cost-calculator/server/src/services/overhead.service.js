@@ -16,7 +16,7 @@ export const OverheadService = {
       name: data.name.trim(),
       type: data.type,
       value: parseFloat(data.value),
-      frequency: data.frequency || "per_batch",
+      frequency: data.frequency,
     });
   },
 
@@ -60,7 +60,7 @@ export const OverheadService = {
         name: data.name.trim(),
         type: data.type,
         value: parseFloat(data.value),
-        frequency: data.frequency || "per_batch",
+        frequency: data.frequency,
       };
     });
 

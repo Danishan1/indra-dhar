@@ -10,13 +10,14 @@ export default function CreatePage() {
     { value: "fixed", label: "Fixed" },
     { value: "percentage", label: "Percentage" },
   ];
-  // const freOptions = [
-  //   { value: "Machine Hour", label: "Machine Hour" },
-  //   { value: "Labor Hour", label: "Labor Hour" },
-  //   { value: "Unit Produced", label: "Unit Produced" },
-  //   { value: "% of Direct Cost", label: "% of Direct Cost" },
-  //   // { value: "per_batch", label: "Per Batch" },
-  // ];
+  const freOptions = [
+    { value: "Monthly", label: "Monthly" },
+    { value: "Yearly", label: "Yearly" },
+    { value: "Per Hour", label: "Per Hour" },
+    // { value: "Unit Produced", label: "Unit Produced" },
+    // { value: "% of Direct Cost", label: "% of Direct Cost" },
+    // { value: "per_batch", label: "Per Batch" },
+  ];
 
   return (
     <CrudFormPage
@@ -38,14 +39,14 @@ export default function CreatePage() {
           options: typeOptions,
           required: true,
         },
+        {
+          key: "frequency",
+          label: "Allocation Bases",
+          type: FORM_TYPE.SELECT,
+          required: true,
+          options: freOptions,
+        },
         { key: "value", label: "Amount", type: FORM_TYPE.TEXT, required: true },
-        // {
-        //   key: "frequency",
-        //   label: "Allocation Bases",
-        //   type: FORM_TYPE.SELECT,
-        //   required: true,
-        //   options: freOptions,
-        // },
         // { key: "is_global", label: "Is Global", type: FORM_TYPE.SWITCH },
       ]}
     />

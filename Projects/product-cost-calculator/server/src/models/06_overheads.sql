@@ -4,12 +4,11 @@ CREATE TABLE overheads (
     name VARCHAR(255) NOT NULL,
     type ENUM('fixed', 'percentage') NOT NULL,
     value DECIMAL(12, 4) NOT NULL,
-    -- frequency ENUM(
-    --     'Machine Hour',
-    --     'Labor Hour',
-    --     'Unit Produced',
-    --     '% of Direct Cost'
-    -- ) DEFAULT 'Unit Produced',
+    frequency ENUM(
+        'Monthly',
+        'Yearly',
+        'Per Hour'
+    ),
     is_global BOOLEAN DEFAULT FALSE,
     -- if true, applies to all batches
     is_active BOOLEAN DEFAULT TRUE,

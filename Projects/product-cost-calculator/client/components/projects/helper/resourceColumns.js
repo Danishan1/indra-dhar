@@ -36,6 +36,7 @@ export const RESOURCE_COLUMNS_MAP = {
     ...commonColumns,
     { key: "applied_value", title: "Applied Value" },
     { key: "percentage_value", title: "Percentage %" },
+    { key: "expected_duration", title: "Expacted Duration" },
   ],
 };
 

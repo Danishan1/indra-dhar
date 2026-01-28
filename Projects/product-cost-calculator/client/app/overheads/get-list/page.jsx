@@ -10,8 +10,10 @@ export default function ListPage() {
       columns={[
         { key: "name", title: "Overhead Name" },
         { key: "type", title: "Type" },
-        { key: "value", title: "Amount/Month" },
-        // { key: "frequency", title: "Allocation Bases" },
+        { key: "monthly_value", title: "Month Amount" },
+        { key: "yearly_value", title: "Yearly Amount" },
+        { key: "per_hour_value", title: "Per Hour" },
+        { key: "frequency", title: "Allocation Bases" },
         // { key: "is_global", title: "Is Global" },
       ]}
     />

@@ -145,14 +145,14 @@ export const CostCalculationService = {
       let description = oh.name;
 
       if (oh.type === "fixed") {
-        overheadAmount =
-          Number(o.applied_value ?? oh.value);
+        overheadAmount = Number(o.applied_value ?? oh.value);
       }
 
       if (oh.type === "percentage") {
-        const rate = Number(o.percentage_value ?? oh.value);
-        overheadAmount = directCost * (rate / 100); // directCost already scaled
-        description = `${oh.name} (${rate}%)`;
+        const rate = Number(o.percentage_value ?? 100);
+        overheadAmount =
+          Number(oh.monthly_value) * (rate / 100) * Number(o.expected_duration); // directCost already scaled
+        description = `${oh.name} (${o.expected_duration}M ${rate}%)`;
       }
 
       overheadTotal += overheadAmount;
