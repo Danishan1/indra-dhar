@@ -33,7 +33,7 @@ export default function UpdatePage() {
           type: FORM_TYPE.RADIO,
           options: typeOptions,
         },
-        { key: "value", label: "Amount", type: FORM_TYPE.TEXT },
+        { key: "value", label: "Amount/Month", type: FORM_TYPE.TEXT },
         {
           key: "frequency",
           label: "Allocation Bases",

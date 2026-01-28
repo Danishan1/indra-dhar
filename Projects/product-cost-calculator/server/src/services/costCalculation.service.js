@@ -146,7 +146,7 @@ export const CostCalculationService = {
 
       if (oh.type === "fixed") {
         overheadAmount =
-          Number(o.applied_value ?? oh.value) * productionQuantity;
+          Number(o.applied_value ?? oh.value);
       }
 
       if (oh.type === "percentage") {

@@ -9,7 +9,7 @@ export default function CreatePage() {
   const options = [
     { value: "Per Hour", label: "Per Hour" },
     { value: "Per Process", label: "Per Process" },
-    { value: "Salary", label: "Salary" },
+    // { value: "Salary", label: "Salary" },
   ];
 
   return (
