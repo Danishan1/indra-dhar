@@ -5,6 +5,7 @@ import { BomItemRepository } from "../repositories/bomItem.repository.js";
 import { LaborRepository } from "../repositories/labor.repository.js";
 import { OverheadRepository } from "../repositories/overhead.repository.js";
 import { IndirectExpRepository } from "../repositories/indirectExpense.repository.js";
+import { getTotalIndirectCost } from "./helper/getTotalIndirectCost.js";
 
 const formatINR = (value) => `₹${Number(value).toFixed(2)}`;
 
@@ -40,7 +41,8 @@ export const CostCalculationService = {
       if (r.resource_type === BASE_PATH.bom) bomIds.add(r.data.resource_id);
       if (r.resource_type === BASE_PATH.labors) laborItems.push(r.data);
       if (r.resource_type === BASE_PATH.overheads) overheadItems.push(r.data);
-      if (r.resource_type === BASE_PATH.indirectExpense) indirectExpenseItems.push(r.data);
+      if (r.resource_type === BASE_PATH.indirectExpense)
+        indirectExpenseItems.push(r.data);
     }
 
     if (!bomIds.size) throw new ApiError(400, "At least one BOM is required");
@@ -174,26 +176,15 @@ export const CostCalculationService = {
        6. INDIRECT EXPENSE COST (SCALED)
     ---------------------------------------------------- */
     let indirectExpenseTotal = 0;
-
     for (const o of indirectExpenseItems) {
-      const inexp = await IndirectExpRepository.findById(o.resource_id);
-      if (!inexp) throw new ApiError("Indirect Expense not found");
+      const totalIndirectExpAmount = await getTotalIndirectCost();
 
       let indirectAmount = 0;
-      let description = inexp.name;
 
-      if (inexp.type === "fixed") {
-        indirectAmount = Number(o.applied_value ?? inexp.value);
-      }
-
-      if (inexp.type === "percentage") {
-        const rate = Number(o.percentage_value ?? 100);
-        indirectAmount =
-          Number(inexp.monthly_value) * (rate / 100) * Number(o.expected_duration); // directCost already scaled
-        description = `${inexp.name} (${o.expected_duration}M ${rate}%)`;
-      }
-
+      indirectAmount =
+        totalIndirectExpAmount * o.expected_duration * o.applied_value;
       indirectExpenseTotal += indirectAmount;
+      let description = "Indirect Expense";
 
       invoiceItems.push({
         category: "Indirect Expense",

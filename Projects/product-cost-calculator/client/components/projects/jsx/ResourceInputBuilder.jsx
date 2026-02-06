@@ -3,9 +3,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { RESOURCE_FIELD_MAP } from "../helper/resourceFieldMap";
 import { SelectRemote } from "@/components/ui/jsx/SelectRemote";
-import { TextInput, Button, RadioGroup } from "@/components/ui";
+import { TextInput, Button, RadioGroup, SelectInput } from "@/components/ui";
 import styles from "../css/ResourceBuilder.module.css";
 import { CONST } from "@/utils/CONST";
+import { BASE_PATH } from "@/utils/basePath";
 
 const { FORM_TYPE } = CONST;
 
@@ -34,7 +35,7 @@ export function ResourceInputBuilder({
   // fields to render for this resource type
   const fields = useMemo(
     () => RESOURCE_FIELD_MAP[resourceType] || [],
-    [resourceType]
+    [resourceType],
   );
 
   // helper: set single input value
@@ -59,7 +60,7 @@ export function ResourceInputBuilder({
             onChange={(e) =>
               handleInputChange(
                 key,
-                e.target.value === "" ? "" : Number(e.target.value)
+                e.target.value === "" ? "" : Number(e.target.value),
               )
             }
             error={errors[key]}
@@ -141,26 +142,41 @@ export function ResourceInputBuilder({
       onSubmit?.(payload);
       handleReset();
     },
-    [resourceType, resourceId, inputs, onSubmit, validate]
+    [resourceType, resourceId, inputs, onSubmit, validate],
   );
 
   return (
     <form className={styles.container} onSubmit={handleSubmit}>
       {/* resource selector (remote-driven) */}
       <div className={styles.row}>
-        <SelectRemote
-          label="Select Resource"
-          endpoint={endpointForLookup}
-          value={resourceId}
-          onChange={(e) => {
-            setResourceId(e.target.value);
-            setResourceName(e.target.label);
-          }}
-          valueField={valueField}
-          labelField={labelField}
-          placeholder="Choose resource..."
-          required
-        />
+        {BASE_PATH.indirectExpense === resourceType ? (
+          <SelectInput
+            label="Select Resource"
+            options={[{ label: "All Values", value: 1 }]}
+            value={resourceId}
+            onChange={(e) => {
+              setResourceId(e.target.value);
+              setResourceName(e.target.label);
+            }}
+            placeholder="Choose resource..."
+            required
+          />
+        ) : (
+          <SelectRemote
+            label="Select Resource"
+            endpoint={endpointForLookup}
+            value={resourceId}
+            onChange={(e) => {
+              setResourceId(e.target.value);
+              setResourceName(e.target.label);
+            }}
+            valueField={valueField}
+            labelField={labelField}
+            placeholder="Choose resource..."
+            required
+          />
+        )}
+
         {!!errors.resource_id && (
           <div className={styles.errorText}>{errors.resource_id}</div>
         )}

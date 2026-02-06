@@ -8,13 +8,13 @@ const { FORM_TYPE } = CONST;
 export default function UpdatePage() {
   const typeOptions = [
     { value: "fixed", label: "Fixed" },
-    { value: "percentage", label: "Percentage" },
+    // { value: "percentage", label: "Percentage" },
   ];
 
    const freOptions = [
     { value: "Monthly", label: "Monthly" },
-    { value: "Yearly", label: "Yearly" },
-    { value: "Per Hour", label: "Per Hour" },
+    // { value: "Yearly", label: "Yearly" },
+    // { value: "Per Hour", label: "Per Hour" },
     // { value: "Unit Produced", label: "Unit Produced" },
     // { value: "% of Direct Cost", label: "% of Direct Cost" },
     // { value: "per_batch", label: "Per Batch" },

@@ -4,6 +4,7 @@
 // ui: FORM_TYPE.NUMBER | "text" | "textarea" | "select" | "remoteSelect" | "switch" | "radio" | "checkbox"
 import { BASE_PATH } from "@/utils/basePath";
 import { CONST } from "@/utils/CONST";
+import { getTotalIndirectCost } from "./getTotalIndirectCost";
 
 const { FORM_TYPE } = CONST;
 
@@ -124,6 +125,19 @@ export const RESOURCE_FIELD_MAP = {
     // UI will show either applied_value or percentage_value depending on DB indirect expense type;
     // frontend still supports both to be flexible.
     {
+      key: "total_cost",
+      label: "Total Indirect Cost (Monthly)",
+      ui: FORM_TYPE.NUMBER,
+      required: false,
+      props: {
+        min: 0,
+        step: "0.01",
+        placeholder: "Total indirect expense (monthly)",
+        disabled: true,
+        value: await getTotalIndirectCost(),
+      },
+    },
+    {
       key: "applied_value",
       label: "Applied Value (fixed)",
       ui: FORM_TYPE.NUMBER,
@@ -134,18 +148,18 @@ export const RESOURCE_FIELD_MAP = {
         placeholder: "Applied fixed indirect expense (optional)",
       },
     },
-    {
-      key: "percentage_value",
-      label: "Percentage (%)",
-      ui: FORM_TYPE.NUMBER,
-      required: false,
-      props: {
-        min: 0,
-        max: 100,
-        step: "0.01",
-        placeholder: "Percentage for indirect expense",
-      },
-    },
+    // {
+    //   key: "percentage_value",
+    //   label: "Percentage (%)",
+    //   ui: FORM_TYPE.NUMBER,
+    //   required: false,
+    //   props: {
+    //     min: 0,
+    //     max: 100,
+    //     step: "0.01",
+    //     placeholder: "Percentage for indirect expense",
+    //   },
+    // },
     {
       key: "expected_duration",
       label: "Expacted Duration (Months)",

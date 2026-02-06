@@ -89,7 +89,7 @@ export function Projects() {
       addToast(
         "error",
         error?.response?.data?.message ||
-          "Error saving project or uploading image"
+          "Error saving project or uploading image",
       );
       console.error(error);
     }
