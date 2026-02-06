@@ -4,13 +4,15 @@ import { SelectInput, TextInput } from "@/components/ui";
 import styles from "../css/Project.module.css";
 import { ResourceInputBuilder } from "./ResourceInputBuilder";
 import { useState } from "react";
+import { BASE_PATH } from "@/utils/basePath";
 
 const RESOURCE_OPTIONS = [
-  { value: "/labors", label: "Labors" },
-  { value: "/bom", label: "BOM" },
-  // { value: "/machines", label: "Machines" },
-  { value: "/overheads", label: "Overheads" },
-  // { value: "/utilities", label: "Utilities" },
+  { value: `${BASE_PATH.labors}`, label: "Labors" },
+  { value: `${BASE_PATH.bom}`, label: "BOM" },
+  // { value: `${BASE_PATH.machines}`, label: "Machines" },
+  { value: `${BASE_PATH.overheads}`, label: "Overheads" },
+  { value: `${BASE_PATH.indirectExpense}`, label: "Indirect Expenses" },
+  // { value: `${BASE_PATH.utilities}`, label: "Utilities" },
 ];
 
 export function ResourceSection({ onAdd, setProjectMeta, projectMeta }) {
@@ -116,7 +118,10 @@ export function ResourceSection({ onAdd, setProjectMeta, projectMeta }) {
             type={"number"}
             value={projectMeta.production_quantity || ""}
             onChange={(e) =>
-              setProjectMeta((r) => ({ ...r, production_quantity: e.target.value }))
+              setProjectMeta((r) => ({
+                ...r,
+                production_quantity: e.target.value,
+              }))
             }
             required
           />

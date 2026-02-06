@@ -10,6 +10,7 @@ const CRUD_MODULES = [
   "labors",
   // "machines",
   "overheads",
+  "indirect-expense",
   // "utilities",
 ];
 

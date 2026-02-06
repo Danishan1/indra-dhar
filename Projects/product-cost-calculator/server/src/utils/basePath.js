@@ -8,6 +8,7 @@ export const BASE_PATH = {
   labors: "/labors",
   machines: "/machines",
   overheads: "/overheads",
+  indirectExpense: "/indirect-expense",
   utilities: "/utilities",
   batches: "/batches",
   projects: "/projects",

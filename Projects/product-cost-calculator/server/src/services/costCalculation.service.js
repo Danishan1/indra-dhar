@@ -4,6 +4,7 @@ import { BASE_PATH } from "../utils/basePath.js";
 import { BomItemRepository } from "../repositories/bomItem.repository.js";
 import { LaborRepository } from "../repositories/labor.repository.js";
 import { OverheadRepository } from "../repositories/overhead.repository.js";
+import { IndirectExpRepository } from "../repositories/indirectExpense.repository.js";
 
 const formatINR = (value) => `₹${Number(value).toFixed(2)}`;
 
@@ -29,6 +30,7 @@ export const CostCalculationService = {
     const bomIds = new Set();
     const laborItems = [];
     const overheadItems = [];
+    const indirectExpenseItems = [];
 
     for (const r of resources) {
       if (!r.resource_type || !r.data?.resource_id) {
@@ -38,6 +40,7 @@ export const CostCalculationService = {
       if (r.resource_type === BASE_PATH.bom) bomIds.add(r.data.resource_id);
       if (r.resource_type === BASE_PATH.labors) laborItems.push(r.data);
       if (r.resource_type === BASE_PATH.overheads) overheadItems.push(r.data);
+      if (r.resource_type === BASE_PATH.indirectExpense) indirectExpenseItems.push(r.data);
     }
 
     if (!bomIds.size) throw new ApiError(400, "At least one BOM is required");
@@ -167,11 +170,46 @@ export const CostCalculationService = {
         // total: formatINR(overheadAmount),
       });
     }
+    /* ----------------------------------------------------
+       6. INDIRECT EXPENSE COST (SCALED)
+    ---------------------------------------------------- */
+    let indirectExpenseTotal = 0;
+
+    for (const o of indirectExpenseItems) {
+      const inexp = await IndirectExpRepository.findById(o.resource_id);
+      if (!inexp) throw new ApiError("Indirect Expense not found");
+
+      let indirectAmount = 0;
+      let description = inexp.name;
+
+      if (inexp.type === "fixed") {
+        indirectAmount = Number(o.applied_value ?? inexp.value);
+      }
+
+      if (inexp.type === "percentage") {
+        const rate = Number(o.percentage_value ?? 100);
+        indirectAmount =
+          Number(inexp.monthly_value) * (rate / 100) * Number(o.expected_duration); // directCost already scaled
+        description = `${inexp.name} (${o.expected_duration}M ${rate}%)`;
+      }
+
+      indirectExpenseTotal += indirectAmount;
+
+      invoiceItems.push({
+        category: "Indirect Expense",
+        description,
+        quantity_per_unit: null,
+        quantity_total: null,
+        rate: null,
+        amount: formatINR(indirectAmount),
+        // total: formatINR(overheadAmount),
+      });
+    }
 
     /* ----------------------------------------------------
        6. COST BEFORE PROFIT
     ---------------------------------------------------- */
-    const costBeforeProfit = directCost + overheadTotal;
+    const costBeforeProfit = directCost + overheadTotal + indirectExpenseTotal;
 
     /* ----------------------------------------------------
        7. PROFIT (SCALED)
@@ -248,6 +286,7 @@ export const CostCalculationService = {
           material_total: formatINR(rawMaterialTotal),
           labor_total: formatINR(laborTotal),
           overhead_total: formatINR(overheadTotal),
+          indirect_expense_total: formatINR(indirectExpenseTotal),
           cost_before_profit: formatINR(costBeforeProfit),
           profit: formatINR(profit),
           taxable_value: formatINR(taxableValue),

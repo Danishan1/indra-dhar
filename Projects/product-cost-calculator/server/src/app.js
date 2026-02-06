@@ -21,6 +21,7 @@ import path from "path";
 import { unitRoutes } from "./routes/unit.routes.js";
 import { bomMetaRoutes } from "./routes/bomMeta.routes.js";
 import { bomItemRoutes } from "./routes/bomItem.routes.js";
+import { indirectExpenseRoutes } from "./routes/indirectExpense.routes.js";
 
 const __dirname = path.resolve();
 
@@ -30,10 +31,13 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://trtcvpc8-3000.inc1.devtunnels.ms"], // allowed frontend URLs
+    origin: [
+      "http://localhost:3000",
+      "https://trtcvpc8-3000.inc1.devtunnels.ms",
+    ], // allowed frontend URLs
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true, // if you're using cookies or session auth
-  })
+  }),
 );
 
 app.use(express.json());
@@ -60,6 +64,7 @@ app.use("/calculate-project-cost", costCalculationRoutes);
 app.use("/project-cost", projectCostRoutes);
 app.use("/bom", bomMetaRoutes);
 app.use("/bom-item", bomItemRoutes);
+app.use("/indirect-expense", indirectExpenseRoutes);
 
 // GLOBAL ERROR HANDLER — MUST BE LAST
 app.use(errorHandler);

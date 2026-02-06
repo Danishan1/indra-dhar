@@ -58,6 +58,31 @@ export const getUploadInfo = (selectedType) => {
         },
       ],
     },
+    [`${BASE_PATH.indirectExpense}/bulk`]: {
+      key: "indirect_expenses",
+      fields: [
+        {
+          key: "name",
+          purpose: "Indirect Expense name",
+          acceptedValues: "Text (required)",
+        },
+        {
+          key: "type",
+          purpose: "Indirect Expense calculation type",
+          acceptedValues: ["fixed", "percentage"],
+        },
+        {
+          key: "value",
+          purpose: "Indirect Expense value (amount or percentage)",
+          acceptedValues: "Decimal number (> 0)",
+        },
+        {
+          key: "frequency",
+          purpose: "Allocation Bases",
+          acceptedValues: ["Monthly", "Yearly", "Per Hour"],
+        },
+      ],
+    },
 
     [`${BASE_PATH.bomItem}/bulk`]: {
       key: "bom_items",

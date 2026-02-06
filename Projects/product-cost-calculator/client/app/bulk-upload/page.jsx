@@ -13,6 +13,7 @@ export default function BulkUploadPage() {
     { value: `${BASE_PATH.rawMaterial}/bulk`, label: "Raw Materials" },
     // { value: `${BASE_PATH.utilities}/bulk`, label: "Utilities" },
     { value: `${BASE_PATH.overheads}/bulk`, label: "Overheads" },
+    { value: `${BASE_PATH.indirectExpense}/bulk`, label: "Indirect Expenses" },
     { value: `${BASE_PATH.bomItem}/bulk`, label: "BOM Items" },
     { value: `${BASE_PATH.unit}/bulk`, label: "Units" },
     isAdmin && { value: `${BASE_PATH.users}/bulk`, label: "Users" },

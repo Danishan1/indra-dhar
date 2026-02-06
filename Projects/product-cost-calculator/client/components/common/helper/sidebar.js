@@ -14,6 +14,7 @@ import {
   ClipboardList,
   RulerDimensionLine,
   Upload,
+  BanknoteArrowDown,
 } from "lucide-react";
 import { CONST } from "@/utils/CONST";
 import { BASE_PATH } from "@/utils/basePath";
@@ -68,6 +69,11 @@ const common = [
     name: "Labors",
     icon: <Hammer size={ICON_SIZE} />,
     path: BASE_PATH.labors,
+  },
+  {
+    name: "Indirect Expense",
+    icon: <BanknoteArrowDown size={ICON_SIZE} />,
+    path: BASE_PATH.indirectExpense,
   },
   // {
   //   name: "Machines",

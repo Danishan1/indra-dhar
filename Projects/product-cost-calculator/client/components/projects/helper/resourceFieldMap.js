@@ -120,6 +120,45 @@ export const RESOURCE_FIELD_MAP = {
       },
     },
   ],
+  [BASE_PATH.indirectExpense]: [
+    // UI will show either applied_value or percentage_value depending on DB indirect expense type;
+    // frontend still supports both to be flexible.
+    {
+      key: "applied_value",
+      label: "Applied Value (fixed)",
+      ui: FORM_TYPE.NUMBER,
+      required: false,
+      props: {
+        min: 0,
+        step: "0.01",
+        placeholder: "Applied fixed indirect expense (optional)",
+      },
+    },
+    {
+      key: "percentage_value",
+      label: "Percentage (%)",
+      ui: FORM_TYPE.NUMBER,
+      required: false,
+      props: {
+        min: 0,
+        max: 100,
+        step: "0.01",
+        placeholder: "Percentage for indirect expense",
+      },
+    },
+    {
+      key: "expected_duration",
+      label: "Expacted Duration (Months)",
+      ui: FORM_TYPE.NUMBER,
+      required: true,
+      props: {
+        min: 0,
+        max: 100,
+        step: "0.01",
+        placeholder: "Expacted Duration in Months (eg. 5, 0.003, ect)",
+      },
+    },
+  ],
 
   packaging_transport: [
     {
