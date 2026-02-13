@@ -13,7 +13,7 @@ export default function Layout({ children }) {
     BASE_PATH.bom + `/${idSelected}`
   );
 
-  console.log("BOM Data:", data, loading, error);
+  // console.log("BOM Data:", data, loading, error);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error loading BOM data.</p>;

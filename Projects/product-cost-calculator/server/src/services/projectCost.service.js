@@ -13,7 +13,13 @@ export const ProjectCostService = {
       throw new ApiError(400, "Resource items are required");
 
     // Calculate final cost
-    const total_cost = await CostCalculationService.calculate(payload);
+    const result = await CostCalculationService.calculate(payload);
+
+    if (!result.success) {
+      throw new ApiError(400, result.message);
+    }
+
+    const total_cost = result.data;
 
     // Insert project
     const project = await ProjectCostRepository.createProject({
@@ -23,7 +29,7 @@ export const ProjectCostService = {
       project_gst: meta.project_gst,
       product_type: meta.product_type,
       project_progress: meta.project_progress,
-      production_quantity : meta.production_quantity ,
+      production_quantity: meta.production_quantity,
       total_cost: total_cost,
     });
 

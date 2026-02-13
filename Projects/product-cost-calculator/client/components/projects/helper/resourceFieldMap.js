@@ -160,18 +160,18 @@ export const RESOURCE_FIELD_MAP = {
     //     placeholder: "Percentage for indirect expense",
     //   },
     // },
-    {
-      key: "expected_duration",
-      label: "Expacted Duration (Months)",
-      ui: FORM_TYPE.NUMBER,
-      required: true,
-      props: {
-        min: 0,
-        max: 100,
-        step: "0.01",
-        placeholder: "Expacted Duration in Months (eg. 5, 0.003, ect)",
-      },
-    },
+    // {
+    //   key: "expected_duration",
+    //   label: "Expacted Duration (Months)",
+    //   ui: FORM_TYPE.NUMBER,
+    //   required: true,
+    //   props: {
+    //     min: 0,
+    //     max: 100,
+    //     step: "0.01",
+    //     placeholder: "Expacted Duration in Months (eg. 5, 0.003, ect)",
+    //   },
+    // },
   ],
 
   packaging_transport: [

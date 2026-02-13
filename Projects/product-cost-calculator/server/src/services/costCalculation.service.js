@@ -11,282 +11,322 @@ const formatINR = (value) => `₹${Number(value).toFixed(2)}`;
 
 export const CostCalculationService = {
   async calculate(payload) {
-    const resources = payload.data || [];
-    const meta = payload.meta || {};
-    const productionQuantity = Number(meta.production_quantity || 1);
+    try {
+      const resources = payload.data || [];
+      const meta = payload.meta || {};
+      const productionQuantity = Number(meta.production_quantity || 1);
 
-    if (productionQuantity <= 0) {
-      throw new ApiError(400, "production_quantity must be greater than zero");
-    }
+      if (productionQuantity <= 0) {
+        return {
+          success: false,
+          message: "production_quantity must be greater than zero",
+        };
+      }
 
-    if (!Array.isArray(resources) || !resources.length) {
-      throw new ApiError(400, "No resources provided");
-    }
+      if (!Array.isArray(resources) || !resources.length) {
+        throw new ApiError(400, "No resources provided");
+      }
 
-    const invoiceItems = [];
+      const invoiceItems = [];
 
-    /* ----------------------------------------------------
+      /* ----------------------------------------------------
        1. EXTRACT RESOURCES
     ---------------------------------------------------- */
-    const bomIds = new Set();
-    const laborItems = [];
-    const overheadItems = [];
-    const indirectExpenseItems = [];
+      const bomIds = new Set();
+      const laborItems = [];
+      const overheadItems = [];
+      const indirectExpenseItems = [];
 
-    for (const r of resources) {
-      if (!r.resource_type || !r.data?.resource_id) {
-        throw new ApiError(400, "Invalid resource payload");
+      for (const r of resources) {
+        if (!r.resource_type || !r.data?.resource_id) {
+          throw new ApiError(400, "Invalid resource payload");
+        }
+
+        if (r.resource_type === BASE_PATH.bom) bomIds.add(r.data.resource_id);
+        if (r.resource_type === BASE_PATH.labors) laborItems.push(r.data);
+        if (r.resource_type === BASE_PATH.overheads) overheadItems.push(r.data);
+        if (r.resource_type === BASE_PATH.indirectExpense)
+          indirectExpenseItems.push(r.data);
       }
 
-      if (r.resource_type === BASE_PATH.bom) bomIds.add(r.data.resource_id);
-      if (r.resource_type === BASE_PATH.labors) laborItems.push(r.data);
-      if (r.resource_type === BASE_PATH.overheads) overheadItems.push(r.data);
-      if (r.resource_type === BASE_PATH.indirectExpense)
-        indirectExpenseItems.push(r.data);
-    }
-
-    if (!bomIds.size) throw new ApiError(400, "At least one BOM is required");
-
-    /* ----------------------------------------------------
+      if (!bomIds.size) {
+        return {
+          success: false,
+          message: "At least one BOM is required",
+        };
+      }
+      /* ----------------------------------------------------
        2. MATERIAL COST (SCALED BY PRODUCTION QUANTITY)
     ---------------------------------------------------- */
-    let materialBaseTotal = 0;
-    let materialGST_NonITC = 0;
+      let materialBaseTotal = 0;
+      let materialGST_NonITC = 0;
 
-    for (const bomId of bomIds) {
-      const bomItems = await BomItemRepository.findByBomId(bomId);
-      if (!bomItems.length)
-        throw new ApiError(404, `No BOM items for BOM ${bomId}`);
+      for (const bomId of bomIds) {
+        const bomItems = await BomItemRepository.findByBomId(bomId);
+        if (!bomItems.length)
+          throw new ApiError(404, `No BOM items for BOM ${bomId}`);
 
-      for (const item of bomItems) {
-        const qty = Number(item.quantity || 0);
-        const rate = Number(item.material_unit_price || 0);
-        const gstRate = Number(item.material_gst || 0);
-        const isITC = Boolean(item.material_is_gst_itc);
+        for (const item of bomItems) {
+          const qty = Number(item.quantity || 0);
+          const rate = Number(item.material_unit_price || 0);
+          const gstRate = Number(item.material_gst || 0);
+          const isITC = Boolean(item.material_is_gst_itc);
 
-        // Scale by production quantity
-        const base = qty * rate * productionQuantity;
-        const gstAmount = base * (gstRate / 100);
-        const total = base + (isITC ? 0 : gstAmount);
+          // Scale by production quantity
+          const base = qty * rate * productionQuantity;
+          const gstAmount = base * (gstRate / 100);
+          const total = base + (isITC ? 0 : gstAmount);
 
-        materialBaseTotal += base;
-        if (!isITC) materialGST_NonITC += gstAmount;
+          materialBaseTotal += base;
+          if (!isITC) materialGST_NonITC += gstAmount;
 
-        invoiceItems.push({
-          category: "Material",
-          description: item.material_name,
-          quantity_per_unit: qty,
-          quantity_total: qty * productionQuantity,
-          rate: formatINR(rate),
-          amount: formatINR(base),
-          gst_rate: `${gstRate}%`,
-          gst_amount: formatINR(isITC ? 0 : gstAmount),
-          // total: formatINR(total),
-          gst_type: isITC ? "ITC" : "Non-ITC",
-        });
+          invoiceItems.push({
+            category: "Material",
+            description: item.material_name,
+            quantity_per_unit: qty,
+            quantity_total: qty * productionQuantity,
+            rate: formatINR(rate),
+            amount: formatINR(base),
+            gst_rate: `${gstRate}%`,
+            gst_amount: formatINR(isITC ? 0 : gstAmount),
+            // total: formatINR(total),
+            gst_type: isITC ? "ITC" : "Non-ITC",
+          });
+        }
       }
-    }
 
-    /* ----------------------------------------------------
+      /* ----------------------------------------------------
        3. LABOR COST (SCALED)
     ---------------------------------------------------- */
-    let laborTotal = 0;
+      let laborTotal = 0;
 
-    for (const l of laborItems) {
-      const labor = await LaborRepository.findById(l.resource_id);
-      if (!labor) throw new ApiError("Labor not found");
+      for (const l of laborItems) {
+        const labor = await LaborRepository.findById(l.resource_id);
+        if (!labor) {
+          return {
+            success: false,
+            message: "Labor not found",
+          };
+        }
 
-      const hours = Number(l.hours || 0);
-      const overtime = Number(l.overtime_hours || 0);
+        const hours = Number(l.hours || 0);
+        const overtime = Number(l.overtime_hours || 0);
 
-      if (hours > 0) {
-        const cost = hours * Number(labor.rate_per_hour) * productionQuantity;
-        laborTotal += cost;
+        if (hours > 0) {
+          const cost = hours * Number(labor.rate_per_hour) * productionQuantity;
+          laborTotal += cost;
 
-        invoiceItems.push({
-          category: "Labor",
-          description: `${labor.name} (Regular)`,
-          quantity_per_unit: hours,
-          quantity_total: hours * productionQuantity,
-          rate: formatINR(labor.rate_per_hour),
-          amount: formatINR(cost),
-          // total: formatINR(cost),
-        });
+          invoiceItems.push({
+            category: "Labor",
+            description: `${labor.name} (Regular)`,
+            quantity_per_unit: hours,
+            quantity_total: hours * productionQuantity,
+            rate: formatINR(labor.rate_per_hour),
+            amount: formatINR(cost),
+            // total: formatINR(cost),
+          });
+        }
+
+        if (overtime > 0) {
+          const cost =
+            overtime * Number(labor.overtime_rate) * productionQuantity;
+          laborTotal += cost;
+
+          invoiceItems.push({
+            category: "Labor",
+            description: `${labor.name} (Overtime)`,
+            quantity_per_unit: overtime,
+            quantity_total: overtime * productionQuantity,
+            rate: formatINR(labor.overtime_rate),
+            amount: formatINR(cost),
+            // total: formatINR(cost),
+          });
+        }
       }
 
-      if (overtime > 0) {
-        const cost =
-          overtime * Number(labor.overtime_rate) * productionQuantity;
-        laborTotal += cost;
-
-        invoiceItems.push({
-          category: "Labor",
-          description: `${labor.name} (Overtime)`,
-          quantity_per_unit: overtime,
-          quantity_total: overtime * productionQuantity,
-          rate: formatINR(labor.overtime_rate),
-          amount: formatINR(cost),
-          // total: formatINR(cost),
-        });
-      }
-    }
-
-    /* ----------------------------------------------------
+      /* ----------------------------------------------------
        4. DIRECT COST
     ---------------------------------------------------- */
-    const rawMaterialTotal = materialBaseTotal + materialGST_NonITC;
-    const directCost = rawMaterialTotal + laborTotal;
+      const rawMaterialTotal = materialBaseTotal + materialGST_NonITC;
+      const directCost = rawMaterialTotal + laborTotal;
 
-    /* ----------------------------------------------------
+      /* ----------------------------------------------------
        5. OVERHEAD COST (SCALED)
     ---------------------------------------------------- */
-    let overheadTotal = 0;
+      let overheadTotal = 0;
 
-    for (const o of overheadItems) {
-      const oh = await OverheadRepository.findById(o.resource_id);
-      if (!oh) throw new ApiError("Overhead not found");
+      for (const o of overheadItems) {
+        const oh = await OverheadRepository.findById(o.resource_id);
+        if (!oh) {
+          return {
+            success: false,
+            message: "Overhead not found",
+          };
+        }
+        let overheadAmount = 0;
+        let description = oh.name;
 
-      let overheadAmount = 0;
-      let description = oh.name;
+        if (oh.type === "fixed") {
+          overheadAmount = Number(o.applied_value ?? oh.value);
+        }
 
-      if (oh.type === "fixed") {
-        overheadAmount = Number(o.applied_value ?? oh.value);
+        if (oh.type === "percentage") {
+          const rate = Number(o.percentage_value ?? 100);
+          overheadAmount =
+            Number(oh.monthly_value) *
+            (rate / 100) *
+            Number(o.expected_duration); // directCost already scaled
+          description = `${oh.name} (${o.expected_duration}M ${rate}%)`;
+        }
+
+        overheadTotal += overheadAmount;
+
+        invoiceItems.push({
+          category: "Overhead",
+          description,
+          quantity_per_unit: null,
+          quantity_total: null,
+          rate: null,
+          amount: formatINR(overheadAmount),
+          // total: formatINR(overheadAmount),
+        });
       }
-
-      if (oh.type === "percentage") {
-        const rate = Number(o.percentage_value ?? 100);
-        overheadAmount =
-          Number(oh.monthly_value) * (rate / 100) * Number(o.expected_duration); // directCost already scaled
-        description = `${oh.name} (${o.expected_duration}M ${rate}%)`;
-      }
-
-      overheadTotal += overheadAmount;
-
-      invoiceItems.push({
-        category: "Overhead",
-        description,
-        quantity_per_unit: null,
-        quantity_total: null,
-        rate: null,
-        amount: formatINR(overheadAmount),
-        // total: formatINR(overheadAmount),
-      });
-    }
-    /* ----------------------------------------------------
+      /* ----------------------------------------------------
        6. INDIRECT EXPENSE COST (SCALED)
     ---------------------------------------------------- */
-    let indirectExpenseTotal = 0;
-    for (const o of indirectExpenseItems) {
-      const totalIndirectExpAmount = await getTotalIndirectCost();
+      let indirectExpenseTotal = 0;
+      for (const o of indirectExpenseItems) {
+        const totalIndirectExpAmount = await getTotalIndirectCost();
 
-      let indirectAmount = 0;
+        let indirectAmount = 0;
 
-      indirectAmount =
-        totalIndirectExpAmount * o.expected_duration * o.applied_value;
-      indirectExpenseTotal += indirectAmount;
-      let description = "Indirect Expense";
+        if (o.applied_value) {
+          const appliedValue = Number(o.applied_value);
 
-      invoiceItems.push({
-        category: "Indirect Expense",
-        description,
-        quantity_per_unit: null,
-        quantity_total: null,
-        rate: null,
-        amount: formatINR(indirectAmount),
-        // total: formatINR(overheadAmount),
-      });
-    }
+          if (appliedValue < 0 || appliedValue > totalIndirectExpAmount) {
+            return {
+              success: false,
+              message: `Applied Value of Indirect Expense must be between 0 and ${totalIndirectExpAmount}`,
+            };
+          }
+          indirectAmount = appliedValue;
+        } else indirectAmount = totalIndirectExpAmount;
 
-    /* ----------------------------------------------------
+        indirectExpenseTotal += indirectAmount;
+        let description = "Indirect Expense";
+
+        invoiceItems.push({
+          category: "Indirect Expense",
+          description,
+          quantity_per_unit: null,
+          quantity_total: null,
+          rate: null,
+          amount: formatINR(indirectAmount),
+          // total: formatINR(overheadAmount),
+        });
+      }
+
+      /* ----------------------------------------------------
        6. COST BEFORE PROFIT
     ---------------------------------------------------- */
-    const costBeforeProfit = directCost + overheadTotal + indirectExpenseTotal;
+      const costBeforeProfit =
+        directCost + overheadTotal + indirectExpenseTotal;
 
-    /* ----------------------------------------------------
+      /* ----------------------------------------------------
        7. PROFIT (SCALED)
     ---------------------------------------------------- */
-    const profitValue = Number(meta.profit_value || 0);
-    const profitType = meta.profit_type || "Percentage";
+      const profitValue = Number(meta.profit_value || 0);
+      const profitType = meta.profit_type || "Percentage";
 
-    let profit = 0;
-    let profitLabel = "Profit";
+      let profit = 0;
+      let profitLabel = "Profit";
 
-    if (profitType === "Percentage") {
-      profit = costBeforeProfit * (profitValue / 100);
-      profitLabel = `Profit (${profitValue}%)`;
-    } else {
-      profit = profitValue * productionQuantity;
-    }
+      if (profitType === "Percentage") {
+        profit = costBeforeProfit * (profitValue / 100);
+        profitLabel = `Profit (${profitValue}%)`;
+      } else {
+        profit = profitValue * productionQuantity;
+      }
 
-    /* ----------------------------------------------------
+      /* ----------------------------------------------------
        8. ADD SUMMARY LINES TO INVOICE ITEMS
     ---------------------------------------------------- */
-    invoiceItems.push({
-      category: "Summary",
-      description: "Total Cost",
-      quantity: null,
-      rate: null,
-      amount: formatINR(costBeforeProfit),
-      // total: formatINR(costBeforeProfit),
-    });
+      invoiceItems.push({
+        category: "Summary",
+        description: "Total Cost",
+        quantity: null,
+        rate: null,
+        amount: formatINR(costBeforeProfit),
+        // total: formatINR(costBeforeProfit),
+      });
 
-    invoiceItems.push({
-      category: "Summary",
-      description: "Total Profit",
-      quantity: null,
-      rate: null,
-      amount: formatINR(profit),
-      // total: formatINR(profit),
-    });
+      invoiceItems.push({
+        category: "Summary",
+        description: "Total Profit",
+        quantity: null,
+        rate: null,
+        amount: formatINR(profit),
+        // total: formatINR(profit),
+      });
 
-    /* ----------------------------------------------------
+      /* ----------------------------------------------------
        9. GST (SCALED)
     ---------------------------------------------------- */
-    const taxableValue = costBeforeProfit + profit;
-    const gstRate = Number(meta.project_gst || 0);
-    const gstAmount = taxableValue * (gstRate / 100);
+      const taxableValue = costBeforeProfit + profit;
+      const gstRate = Number(meta.project_gst || 0);
+      const gstAmount = taxableValue * (gstRate / 100);
 
-    invoiceItems.push({
-      category: "Tax",
-      description: `GST @ ${gstRate}%`,
-      quantity: null,
-      rate: null,
-      amount: formatINR(gstAmount),
-      // total: formatINR(gstAmount),
-    });
+      invoiceItems.push({
+        category: "Tax",
+        description: `GST @ ${gstRate}%`,
+        quantity: null,
+        rate: null,
+        amount: formatINR(gstAmount),
+        // total: formatINR(gstAmount),
+      });
 
-    const finalCost = taxableValue + gstAmount;
+      const finalCost = taxableValue + gstAmount;
 
-    invoiceItems.push({
-      category: "Summary",
-      description: `Grand Total`,
-      quantity: null,
-      rate: null,
-      amount: formatINR(finalCost),
-      // total: formatINR(gstAmount),
-    });
+      invoiceItems.push({
+        category: "Summary",
+        description: `Grand Total`,
+        quantity: null,
+        rate: null,
+        amount: formatINR(finalCost),
+        // total: formatINR(gstAmount),
+      });
 
-    /* ----------------------------------------------------
+      /* ----------------------------------------------------
        9. FINAL RESPONSE
     ---------------------------------------------------- */
-    return {
-      invoice: {
-        currency: "INR",
-        items: invoiceItems,
-        totals: {
-          material_total: formatINR(rawMaterialTotal),
-          labor_total: formatINR(laborTotal),
-          overhead_total: formatINR(overheadTotal),
-          indirect_expense_total: formatINR(indirectExpenseTotal),
-          cost_before_profit: formatINR(costBeforeProfit),
-          profit: formatINR(profit),
-          taxable_value: formatINR(taxableValue),
-          gst: formatINR(gstAmount),
-          grand_total: formatINR(finalCost),
-          production_quantity: productionQuantity,
+      return {
+        success: true,
+        message: "Cost calculated successfully",
+        data: {
+          invoice: {
+            currency: "INR",
+            items: invoiceItems,
+            totals: {
+              material_total: formatINR(rawMaterialTotal),
+              labor_total: formatINR(laborTotal),
+              overhead_total: formatINR(overheadTotal),
+              indirect_expense_total: formatINR(indirectExpenseTotal),
+              cost_before_profit: formatINR(costBeforeProfit),
+              profit: formatINR(profit),
+              taxable_value: formatINR(taxableValue),
+              gst: formatINR(gstAmount),
+              grand_total: formatINR(finalCost),
+              production_quantity: productionQuantity,
+            },
+          },
         },
-      },
-    };
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.message || "Something went wrong",
+      };
+    }
   },
 };
 

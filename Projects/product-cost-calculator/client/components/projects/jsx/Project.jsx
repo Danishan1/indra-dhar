@@ -42,10 +42,11 @@ export function Projects() {
         meta: projectMeta,
       });
 
-      console.log("Calculation response:", res);
+      // console.log("Calculation response:", res);
 
       if (res.success === true) setInvoice(res.data.invoice);
     } catch (error) {
+      addToast("error", error?.response.data?.message || error.message || "Error in calculating project cost");
       console.error("Error calculating project cost:", error);
     }
   };
@@ -71,7 +72,7 @@ export function Projects() {
         formData.append("project_id", projectId);
         formData.append("image", file);
 
-        console.log("Uploading: ", formData);
+        // console.log("Uploading: ", formData);
 
         await apiUtil.post("/project-cost/image", formData, {
           headers: { "Content-Type": "multipart/form-data" },

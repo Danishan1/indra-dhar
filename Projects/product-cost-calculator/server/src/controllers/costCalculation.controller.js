@@ -5,9 +5,15 @@ export const CostCalculationController = {
   async calculate(req, res, next) {
     try {
       const result = await CostCalculationService.calculate(req.body);
-      return ApiResponse.success(res, result, "Cost calculated successfully");
+      if (result.success) {
+        return ApiResponse.success(
+          res,
+          result.data,
+          "Cost calculated successfully",
+        );
+      } else return ApiResponse.error(res, result.message);
     } catch (err) {
-      next(err);
+      next();
     }
   },
 };
