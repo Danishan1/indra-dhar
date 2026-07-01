@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Steel Rod",
+    "unit_type": "kg",
+    "unit_price": 75.5
+  },
+  {
+    "name": "Cement",
+    "unit_type": "bag",
+    "unit_price": 350
+  },
+  {
+    "name": "Sand",
+    "unit_type": "cubic_meter",
+    "unit_price": 500
+  },
+  {
+    "name": "Paint",
+    "unit_type": "liter",
+    "unit_price": 180
+  }
+]

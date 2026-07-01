@@ -1,0 +1,53 @@
+.projectContainer {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.metadata {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.metadata .metadata_input {
+  flex: 1;
+}
+.metadata .metadata_input:nth-child(2) {
+  max-width: 150px;
+}
+
+.calculatedButtons,
+.inputTake {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.resouceTables {
+  padding-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.calculatedButtons {
+  flex-direction: row;
+}
+.calculatedButtons button {
+  flex: 1;
+}
+
+.btnDelete {
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+}
+
+.btnDelete:hover {
+  border: 1px solid var(--color-danger);
+  color: var(--color-surface);
+  background-color: var(--color-danger);
+}

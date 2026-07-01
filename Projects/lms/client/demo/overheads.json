@@ -1,0 +1,25 @@
+[
+  {
+    "name": "Electricity Charges",
+    "type": "fixed",
+    "value": 5000,
+    "frequency": "monthly"
+  },
+  {
+    "name": "Factory Rent",
+    "type": "fixed",
+    "value": 20000,
+    "frequency": "monthly"
+  },
+  {
+    "name": "Raw Material Waste",
+    "type": "percentage",
+    "value": 2.5,
+    "frequency": "per_batch"
+  },
+  {
+    "name": "Packaging Cost",
+    "type": "fixed",
+    "value": 1500
+  }
+]
