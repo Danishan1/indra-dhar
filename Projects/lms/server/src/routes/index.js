@@ -6,6 +6,12 @@ import teamRoutes from "./team.routes.js";
 import userRoutes from "./user.routes.js";
 import authRoutes from "./auth.routes.js";
 import sessionRoutes from "./session.routes.js";
+import activityRoutes from "./activity.routes.js";
+import auditRoutes from "./audit.routes.js";
+import leadRoutes from "./lead.routes.js";
+import notificationRoutes from "./notification.routes.js";
+import taskRoutes from "./task.routes.js";
+import workflowRoutes from "./workflow.routes.js";
 
 const router = Router();
 
@@ -16,5 +22,11 @@ router.use("/tenants", tenantRoutes);
 router.use("/roles", roleRoutes);
 router.use("/teams", teamRoutes);
 router.use("/users", userRoutes);
+router.use("/activity", activityRoutes);
+router.use("/audit", auditRoutes);
+router.use("/lead", leadRoutes);
+router.use("/notification", notificationRoutes);
+router.use("/task", taskRoutes);
+router.use("/workflow", workflowRoutes);
 
 export default router;
