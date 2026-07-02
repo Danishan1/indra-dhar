@@ -3,9 +3,17 @@ import cors from "cors";
 import morgan from "morgan";
 import dotenv from "dotenv";
 
-import { verifyToken } from "./middlewares/auth.middleware.js";
-import { errorHandler } from "./middlewares/errorHandler.js";
+import routes from "./routes/index.js";
+
+// import { verifyToken } from "./middlewares/auth.middleware.js";
 import path from "path";
+import { errorHandler } from "./middlewares/error.middleware.js";
+import { notFound } from "./middlewares/notFound.middleware.js";
+import { loggerMiddleware } from "./middlewares/logger.middleware.js";
+import { authMiddleware } from "./middlewares/auth.middleware.js";
+import { tenantMiddleware } from "./middlewares/tenant.middleware.js";
+import { getRoutes } from "./utils/routeExplorer.js";
+import { renderRoutesHTML } from "./utils/renderRoutesHTML.js";
 
 const __dirname = path.resolve();
 
@@ -26,9 +34,23 @@ app.use(
 
 app.use(express.json());
 app.use(morgan("dev"));
+app.use(loggerMiddleware);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-app.use(verifyToken);
+app.get("/__routes", (req, res) => {
+  const routes = getRoutes(app);
+  res.send(renderRoutesHTML(routes));
+});
+
+// protected routes
+app.use(authMiddleware);
+app.use(tenantMiddleware);
+
+// Routes
+app.use("/v1", routes);
+
+// 404
+app.use(notFound);
 
 // GLOBAL ERROR HANDLER — MUST BE LAST
 app.use(errorHandler);
