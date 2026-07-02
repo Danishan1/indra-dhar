@@ -3,9 +3,6 @@ import cors from "cors";
 import morgan from "morgan";
 import dotenv from "dotenv";
 
-import authRoutes from "./routes/auth.routes.js";
-import { userRoutes } from "./routes/user.routes.js";
-
 import { verifyToken } from "./middlewares/auth.middleware.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import path from "path";
@@ -31,12 +28,7 @@ app.use(express.json());
 app.use(morgan("dev"));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Routes
-app.use("/auth", authRoutes);
-
 app.use(verifyToken);
-
-app.use("/users", userRoutes);
 
 // GLOBAL ERROR HANDLER — MUST BE LAST
 app.use(errorHandler);
