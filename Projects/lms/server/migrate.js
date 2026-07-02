@@ -1,51 +1,52 @@
 import fs from "fs";
 import path from "path";
-// import mysql from "mysql2/promise";
 import dotenv from "dotenv";
 import { pool } from "./src/config/db.js";
+
 dotenv.config();
 
-const { DB_NAME } = process.env;
-
 async function runMigrations() {
-  const connection = await pool.getConnection();
+  const client = await pool.connect();
 
-  console.log("Connected to MySQL server");
+  console.log("Connected to PostgreSQL database");
 
-  // 1 Drop existing database
-  console.log(`Dropping database '${DB_NAME}' if exists...`);
-  await connection.query(`DROP DATABASE IF EXISTS \`${DB_NAME}\`;`);
+  try {
+    // 1. (Optional) Reset schema instead of dropping database
+    console.log("Dropping public schema and recreating it...");
 
-  // 2 Create new database
-  console.log(`Creating new database '${DB_NAME}'...`);
-  await connection.query(`CREATE DATABASE \`${DB_NAME}\`;`);
-  await connection.query(`USE \`${DB_NAME}\`;`);
+    await client.query(`DROP SCHEMA IF EXISTS public CASCADE;`);
+    await client.query(`CREATE SCHEMA public;`);
 
-  // 3 Read and execute all SQL files in models/
-  const modelsDir = path.resolve("src/models");
-  const sqlFiles = fs
-    .readdirSync(modelsDir)
-    .filter((file) => file.endsWith(".sql"))
-    .sort(); // Ensures consistent order
+    // 2. Read SQL files
+    const modelsDir = path.resolve("src/models");
+    const sqlFiles = fs
+      .readdirSync(modelsDir)
+      .filter((file) => file.endsWith(".sql"))
+      .sort();
 
-  console.log(`Found ${sqlFiles.length} SQL files to execute:`);
+    console.log(`Found ${sqlFiles.length} SQL files to execute:`);
 
-  for (const file of sqlFiles) {
-    const filePath = path.join(modelsDir, file);
-    const sql = fs.readFileSync(filePath, "utf8");
-    console.log(`Executing: ${file}`);
+    // 3. Execute each SQL file
+    for (const file of sqlFiles) {
+      const filePath = path.join(modelsDir, file);
+      const sql = fs.readFileSync(filePath, "utf8");
 
-    try {
-      await connection.query(sql);
-      console.log(`Executed: ${file}`);
-    } catch (err) {
-      console.error(`Error in ${file}:`, err.message);
-      process.exit(1);
+      console.log(`Executing: ${file}`);
+
+      try {
+        await client.query(sql);
+        console.log(`Executed: ${file}`);
+      } catch (err) {
+        console.error(`Error in ${file}:`, err.message);
+        process.exit(1);
+      }
     }
+
+    console.log("Migration completed successfully!");
+  } finally {
+    client.release();
   }
 
-  console.log("Migration completed successfully!");
-  connection.release();
   process.exit(0);
 }
 
