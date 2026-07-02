@@ -4,37 +4,65 @@ import { UserController } from "../controllers/user.controller.js";
 const router = Router();
 
 /**
- * List users in tenant
+ * @openapi
+ * /users:
+ *   get:
+ *     tags: [User]
+ *     summary: List users in tenant
  */
 router.get("/", UserController.list);
 
 /**
- * Create user (admin only)
+ * @openapi
+ * /users:
+ *   post:
+ *     tags: [User]
+ *     summary: Create user
  */
 router.post("/", UserController.create);
 
 /**
- * Get user profile
+ * @openapi
+ * /users/{id}:
+ *   get:
+ *     tags: [User]
+ *     summary: Get user by id
  */
 router.get("/:id", UserController.getById);
 
 /**
- * Update user
+ * @openapi
+ * /users/{id}:
+ *   patch:
+ *     tags: [User]
+ *     summary: Update user
  */
 router.patch("/:id", UserController.update);
 
 /**
- * Activate / deactivate user
+ * @openapi
+ * /users/{id}/status:
+ *   patch:
+ *     tags: [User]
+ *     summary: Activate or deactivate user
  */
 router.patch("/:id/status", UserController.toggleStatus);
 
 /**
- * Assign role
+ * @openapi
+ * /users/{id}/role:
+ *   patch:
+ *     tags: [User]
+ *     summary: Assign role to user
  */
 router.patch("/:id/role", UserController.assignRole);
 
 /**
- * Assign team
+ * @openapi
+ * /users/{id}/team:
+ *   patch:
+ *     tags: [User]
+ *     summary: Assign user to team
  */
 router.patch("/:id/team", UserController.assignTeam);
 

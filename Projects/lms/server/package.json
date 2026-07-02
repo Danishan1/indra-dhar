@@ -26,6 +26,8 @@
     "multer": "^2.0.2",
     "mysql2": "^3.15.3",
     "pg": "^8.22.0",
+    "swagger-jsdoc": "^6.3.0",
+    "swagger-ui-express": "^5.0.1",
     "xss": "^1.0.15"
   },
   "devDependencies": {

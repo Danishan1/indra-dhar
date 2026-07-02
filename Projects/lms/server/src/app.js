@@ -12,8 +12,9 @@ import { notFound } from "./middlewares/notFound.middleware.js";
 import { loggerMiddleware } from "./middlewares/logger.middleware.js";
 import { authMiddleware } from "./middlewares/auth.middleware.js";
 import { tenantMiddleware } from "./middlewares/tenant.middleware.js";
-import { getRoutes } from "./utils/routeExplorer.js";
-import { renderRoutesHTML } from "./utils/renderRoutesHTML.js";
+
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./docs/swagger.js";
 
 const __dirname = path.resolve();
 
@@ -37,10 +38,7 @@ app.use(morgan("dev"));
 app.use(loggerMiddleware);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-app.get("/__routes", (req, res) => {
-  const routes = getRoutes(app);
-  res.send(renderRoutesHTML(routes));
-});
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // protected routes
 app.use(authMiddleware);

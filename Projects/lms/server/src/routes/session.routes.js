@@ -4,17 +4,29 @@ import { SessionController } from "../controllers/session.controller.js";
 const router = Router();
 
 /**
- * Get active sessions
+ * @openapi
+ * /sessions:
+ *   get:
+ *     tags: [Session]
+ *     summary: Get active sessions
  */
 router.get("/", SessionController.list);
 
 /**
- * Revoke session
+ * @openapi
+ * /sessions/{id}:
+ *   delete:
+ *     tags: [Session]
+ *     summary: Revoke session
  */
 router.delete("/:id", SessionController.revoke);
 
 /**
- * Revoke all sessions
+ * @openapi
+ * /sessions:
+ *   delete:
+ *     tags: [Session]
+ *     summary: Revoke all sessions
  */
 router.delete("/", SessionController.revokeAll);
 

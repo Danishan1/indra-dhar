@@ -4,27 +4,47 @@ import { TenantController } from "../controllers/tenant.controller.js";
 const router = Router();
 
 /**
- * Create Tenant
+ * @openapi
+ * /tenants:
+ *   post:
+ *     tags: [Tenant]
+ *     summary: Create tenant
  */
 router.post("/", TenantController.create);
 
 /**
- * Get all tenants (super admin only)
+ * @openapi
+ * /tenants:
+ *   get:
+ *     tags: [Tenant]
+ *     summary: List tenants
  */
 router.get("/", TenantController.list);
 
 /**
- * Get tenant by id
+ * @openapi
+ * /tenants/{id}:
+ *   get:
+ *     tags: [Tenant]
+ *     summary: Get tenant by id
  */
 router.get("/:id", TenantController.getById);
 
 /**
- * Update tenant
+ * @openapi
+ * /tenants/{id}:
+ *   patch:
+ *     tags: [Tenant]
+ *     summary: Update tenant
  */
 router.patch("/:id", TenantController.update);
 
 /**
- * Soft delete / suspend tenant
+ * @openapi
+ * /tenants/{id}:
+ *   delete:
+ *     tags: [Tenant]
+ *     summary: Suspend or delete tenant
  */
 router.delete("/:id", TenantController.remove);
 

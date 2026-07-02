@@ -4,27 +4,47 @@ import { NotificationController } from "../controllers/notification.controller.j
 const router = Router();
 
 /**
- * Get user notifications
+ * @openapi
+ * /notifications:
+ *   get:
+ *     tags: [Notification]
+ *     summary: Get user notifications
  */
 router.get("/", NotificationController.list);
 
 /**
- * Mark as read
+ * @openapi
+ * /notifications/{id}/read:
+ *   patch:
+ *     tags: [Notification]
+ *     summary: Mark notification as read
  */
 router.patch("/:id/read", NotificationController.markAsRead);
 
 /**
- * Archive notification
+ * @openapi
+ * /notifications/{id}/archive:
+ *   patch:
+ *     tags: [Notification]
+ *     summary: Archive notification
  */
 router.patch("/:id/archive", NotificationController.archive);
 
 /**
- * Create notification (system/admin only)
+ * @openapi
+ * /notifications:
+ *   post:
+ *     tags: [Notification]
+ *     summary: Create notification
  */
 router.post("/", NotificationController.create);
 
 /**
- * Bulk mark as read
+ * @openapi
+ * /notifications/mark-read:
+ *   post:
+ *     tags: [Notification]
+ *     summary: Bulk mark notifications as read
  */
 router.post("/mark-read", NotificationController.bulkMarkRead);
 

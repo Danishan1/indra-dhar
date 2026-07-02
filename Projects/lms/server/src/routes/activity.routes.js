@@ -4,22 +4,38 @@ import { ActivityController } from "../controllers/activity.controller.js";
 const router = Router();
 
 /**
- * Get all activities (global feed)
+ * @openapi
+ * /activities:
+ *   get:
+ *     tags: [Activity]
+ *     summary: Get all activities
  */
 router.get("/", ActivityController.list);
 
 /**
- * Get lead-specific timeline
+ * @openapi
+ * /activities/lead/{leadId}:
+ *   get:
+ *     tags: [Activity]
+ *     summary: Get lead timeline
  */
 router.get("/lead/:leadId", ActivityController.getByLead);
 
 /**
- * Get entity timeline (lead/task/user/etc.)
+ * @openapi
+ * /activities/entity/{type}/{id}:
+ *   get:
+ *     tags: [Activity]
+ *     summary: Get entity timeline
  */
 router.get("/entity/:type/:id", ActivityController.getByEntity);
 
 /**
- * Create manual activity (rare, admin/system use)
+ * @openapi
+ * /activities:
+ *   post:
+ *     tags: [Activity]
+ *     summary: Create activity
  */
 router.post("/", ActivityController.create);
 

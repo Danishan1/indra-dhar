@@ -4,47 +4,83 @@ import { WorkflowController } from "../controllers/workflow.controller.js";
 const router = Router();
 
 /**
- * Create workflow rule
+ * @openapi
+ * /workflows:
+ *   post:
+ *     tags: [Workflow]
+ *     summary: Create workflow rule
  */
 router.post("/", WorkflowController.createRule);
 
 /**
- * List rules
+ * @openapi
+ * /workflows:
+ *   get:
+ *     tags: [Workflow]
+ *     summary: List workflow rules
  */
 router.get("/", WorkflowController.listRules);
 
 /**
- * Get rule detail
+ * @openapi
+ * /workflows/{id}:
+ *   get:
+ *     tags: [Workflow]
+ *     summary: Get workflow rule by id
  */
 router.get("/:id", WorkflowController.getRule);
 
 /**
- * Update rule
+ * @openapi
+ * /workflows/{id}:
+ *   patch:
+ *     tags: [Workflow]
+ *     summary: Update workflow rule
  */
 router.patch("/:id", WorkflowController.updateRule);
 
 /**
- * Delete rule
+ * @openapi
+ * /workflows/{id}:
+ *   delete:
+ *     tags: [Workflow]
+ *     summary: Delete workflow rule
  */
 router.delete("/:id", WorkflowController.deleteRule);
 
 /**
- * Add condition
+ * @openapi
+ * /workflows/{id}/conditions:
+ *   post:
+ *     tags: [Workflow]
+ *     summary: Add condition to workflow rule
  */
 router.post("/:id/conditions", WorkflowController.addCondition);
 
 /**
- * Add action
+ * @openapi
+ * /workflows/{id}/actions:
+ *   post:
+ *     tags: [Workflow]
+ *     summary: Add action to workflow rule
  */
 router.post("/:id/actions", WorkflowController.addAction);
 
 /**
- * Manually trigger workflow (debug/admin)
+ * @openapi
+ * /workflows/{id}/execute:
+ *   post:
+ *     tags: [Workflow]
+ *     summary: Manually execute workflow rule
  */
 router.post("/:id/execute", WorkflowController.executeRule);
 
 /**
- * Get execution logs
+ * @openapi
+ * /workflows/executions:
+ *   get:
+ *     tags: [Workflow]
+ *     summary: Get workflow execution logs
  */
 router.get("/executions", WorkflowController.executions);
 

@@ -4,27 +4,47 @@ import { RoleController } from "../controllers/role.controller.js";
 const router = Router();
 
 /**
- * Get roles of current tenant
+ * @openapi
+ * /roles:
+ *   get:
+ *     tags: [Role]
+ *     summary: Get roles for current tenant
  */
 router.get("/", RoleController.list);
 
 /**
- * Create role
+ * @openapi
+ * /roles:
+ *   post:
+ *     tags: [Role]
+ *     summary: Create role
  */
 router.post("/", RoleController.create);
 
 /**
- * Get role by id
+ * @openapi
+ * /roles/{id}:
+ *   get:
+ *     tags: [Role]
+ *     summary: Get role by id
  */
 router.get("/:id", RoleController.getById);
 
 /**
- * Update role
+ * @openapi
+ * /roles/{id}:
+ *   patch:
+ *     tags: [Role]
+ *     summary: Update role
  */
 router.patch("/:id", RoleController.update);
 
 /**
- * Delete role
+ * @openapi
+ * /roles/{id}:
+ *   delete:
+ *     tags: [Role]
+ *     summary: Delete role
  */
 router.delete("/:id", RoleController.remove);
 
