@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 
 import routes from "./routes/index.js";
 
@@ -33,6 +34,7 @@ app.use(
   }),
 );
 
+app.use(cookieParser());
 app.use(express.json());
 app.use(morgan("dev"));
 app.use(loggerMiddleware);

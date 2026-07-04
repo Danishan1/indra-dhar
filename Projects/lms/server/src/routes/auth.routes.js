@@ -28,7 +28,7 @@ router.post("/logout", AuthController.logout);
  *     tags: [Auth]
  *     summary: Refresh access token
  */
-router.post("/refresh", AuthController.refresh);
+router.get("/refresh", AuthController.refresh);
 
 /**
  * @openapi

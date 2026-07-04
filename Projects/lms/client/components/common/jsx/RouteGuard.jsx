@@ -8,8 +8,8 @@ import { useEffect, useState } from "react";
 export default function RouteGuard({ children }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [allow, setAllow] = useState(false);
   const { user } = useAuth();
+  const [allow, setAllow] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -23,32 +23,22 @@ export default function RouteGuard({ children }) {
     }
 
     const normalized = normalizePath(pathname);
-    const allowedRoles = getAllowedRoles(normalized);
+    const allowedRoles = routePermissions[normalized];
 
-    if (allowedRoles && !allowedRoles.includes(user.role)) {
+    const roleName = user.role?.name;
+
+    if (allowedRoles && !allowedRoles.includes(roleName)) {
       router.push("/unauthorized");
       return;
     }
 
     setAllow(true);
-  }, [pathname]);
+  }, [pathname, user]);
 
   function normalizePath(path) {
     const parts = path.split("/").filter(Boolean);
-
-    // CASE 1: /raw-material/get-list → already static
     if (parts.length <= 2) return "/" + parts.join("/");
-
-    // CASE 2: /raw-material/12/update → remove numeric or dynamic segment
-    // Keep: [resource, action]
-    const resource = parts[0];
-    const action = parts[parts.length - 1];
-
-    return `/${resource}/${action}`;
-  }
-
-  function getAllowedRoles(normalizedPath) {
-    return routePermissions[normalizedPath] || null;
+    return `/${parts[0]}/${parts[parts.length - 1]}`;
   }
 
   if (!allow) return null;

@@ -76,18 +76,14 @@ export const TaskController = {
   },
 
   async getComments(req, res) {
-    try {
-      const taskId = req.params.id;
+    const taskId = req.params.id;
 
-      const comments = await TaskService.getComments({
-        taskId,
-        tenant_id: req.user.tenant_id,
-        query: req.query,
-      });
+    const comments = await TaskService.getComments({
+      taskId,
+      tenant_id: req.user.tenant_id,
+      query: req.query,
+    });
 
-      res.json(comments);
-    } catch (err) {
-      res.status(400).json({ error: err.message });
-    }
+    res.json(comments);
   },
 };

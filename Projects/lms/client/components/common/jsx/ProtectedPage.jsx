@@ -1,4 +1,5 @@
 "use client";
+
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -11,9 +12,9 @@ export function ProtectedPage({ children, redirectTo = "/login" }) {
     if (!loading && !user) {
       router.replace(redirectTo);
     }
-  }, [loading, user, router, redirectTo]);
+  }, [loading, user]);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return null;
   if (!user) return null;
 
   return <>{children}</>;

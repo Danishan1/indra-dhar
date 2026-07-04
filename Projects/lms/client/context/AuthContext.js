@@ -1,55 +1,70 @@
 "use client";
 import { createContext, useContext, useState, useEffect } from "react";
-import { api } from "@/utils/api";
+import { api, apiUtil, setAccessToken } from "@/utils/api";
 import { saveAuth, getAuth, clearAuth } from "@/utils/storage";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
+  const [token, setToken_] = useState(null); // access token only (memory)
   const [loading, setLoading] = useState(true);
 
-  // On mount: check if token exists and validate it with backend
+  const setToken = (token) => {
+    setToken_(token);
+    setAccessToken(token);
+  };
+
+  // 🔁 SESSION RESTORE ON PAGE LOAD
   useEffect(() => {
     const initAuth = async () => {
-      const { user, token } = getAuth();
-      if (token && user) {
-        try {
-          // Validate token
-          const res = await api.get("/auth/check-jwt", {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+      try {
+        const res = await apiUtil.get("/auth/refresh");
 
-          if (res.data.success) {
-            setUser(res.data.user);
-            setToken(token);
-          } else {
-            clearAuth();
-            setUser(null);
-            setToken(null);
-          }
-        } catch (err) {
-          clearAuth();
+        if (res.success) {
+          setUser(res.user);
+          setToken(res.accessToken);
+        } else {
           setUser(null);
           setToken(null);
         }
+      } catch (err) {
+        setUser(null);
+        setToken(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     initAuth();
   }, []);
 
-  // Login
-  const login = async (email, password) => {
-    const res = await api.post("/auth/login", { email, password });
-    if (res.data.success) {
-      saveAuth(res.data.user, res.data.token);
-      setUser(res.data.user);
-      setToken(res.data.token);
+  // LOGIN
+  const login = async (email, password, code) => {
+    const res = await apiUtil.post("/auth/login", {
+      email,
+      password,
+      tenantCode: code,
+    });
+
+    console.log("DDDD : ", res);
+
+    if (res.success) {
+      setUser(res.user);
+      setToken(res.accessToken);
     }
-    return res.data;
+
+    return res;
+  };
+
+  // LOGOUT
+  const logout = async () => {
+    try {
+      await apiUtil.post("/auth/logout");
+    } finally {
+      setUser(null);
+      setToken(null);
+    }
   };
 
   // Register
@@ -67,13 +82,6 @@ export const AuthProvider = ({ children }) => {
       setToken(res.data.token);
     }
     return res.data;
-  };
-
-  // Logout
-  const logout = () => {
-    clearAuth();
-    setUser(null);
-    setToken(null);
   };
 
   return (

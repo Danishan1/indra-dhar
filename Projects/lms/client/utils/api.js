@@ -1,5 +1,10 @@
 import axios from "axios";
-import { getAuth } from "./storage";
+
+let accessToken = null;
+
+export const setAccessToken = (token) => {
+  accessToken = token;
+};
 
 // Create a pre-configured axios instance
 const api = axios.create({
@@ -7,45 +12,52 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true, // optional if using cookies/session auth
+  withCredentials: true,
 });
 
-api.interceptors.request.use(
-  (config) => {
-    const { token } = getAuth();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+api.interceptors.request.use((config) => {
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
+  }
+  return config;
+});
+
+// api.interceptors.response.use(
+//   (response) => response,
+//   async (error) => {
+//     const original = error.config;
+
+//     if (error.response?.status === 401 && !original._retry) {
+//       original._retry = true;
+
+//       try {
+//         const res = await api.get("/auth/refresh");
+
+//         if (res.success) {
+//           setAccessToken(res.accessToken);
+//           original.headers.Authorization = `Bearer ${res.accessToken}`;
+//           return api(original);
+//         }
+//       } catch (err) {
+//         window.location.href = "/login";
+//       }
+//     }
+
+//     return Promise.reject(error);
+//   },
+// );
 
 // Generic helper methods
 export const apiUtil = {
-  // GET list or single item
-  get: async (endpoint, params = {}) => {
-    const response = await api.get(endpoint, { params });
-    return response.data;
-  },
+  get: (endpoint, params = {}) =>
+    api.get(endpoint, { params }).then((r) => r.data),
 
-  // POST new record
-  post: async (endpoint, data = {}, config = {}) => {
-    const response = await api.post(endpoint, data, config);
-    return response.data;
-  },
+  post: (endpoint, data = {}, config = {}) =>
+    api.post(endpoint, data, config).then((r) => r.data),
 
-  // PUT (update existing record)
-  put: async (endpoint, data = {}) => {
-    const response = await api.put(endpoint, data);
-    return response.data;
-  },
+  put: (endpoint, data = {}) => api.put(endpoint, data).then((r) => r.data),
 
-  // DELETE record
-  delete: async (endpoint) => {
-    const response = await api.delete(endpoint);
-    return response.data;
-  },
+  delete: (endpoint) => api.delete(endpoint).then((r) => r.data),
 };
 
 export { api };

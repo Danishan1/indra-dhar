@@ -74,4 +74,67 @@ export const AuthRepository = {
       userId,
     ]);
   },
+
+  async getUserDetailed(userId) {
+    return db.query(
+      `
+    SELECT
+      u.id,
+      u.first_name,
+      u.last_name,
+      CONCAT(u.first_name, ' ', COALESCE(u.last_name, '')) AS full_name,
+      u.email,
+      u.mobile,
+      u.avatar_url,
+      u.is_active,
+      u.email_verified,
+      u.mobile_verified,
+      u.last_login,
+      u.created_at,
+
+      json_build_object(
+        'name', t.name,
+        'code', t.code,
+        'logo_url', t.logo_url
+      ) AS tenant,
+
+      json_build_object(
+        'name', r.name,
+        'description', r.description
+      ) AS role,
+
+      CASE
+        WHEN tm.id IS NULL THEN NULL
+        ELSE json_build_object(
+          'name', tm.name
+        )
+      END AS team,
+
+      CASE
+        WHEN m.id IS NULL THEN NULL
+        ELSE json_build_object(
+          'name', CONCAT(m.first_name, ' ', COALESCE(m.last_name, '')),
+          'email', m.email
+        )
+      END AS manager
+
+    FROM users u
+
+    INNER JOIN tenants t
+      ON t.id = u.tenant_id
+
+    INNER JOIN roles r
+      ON r.id = u.role_id
+
+    LEFT JOIN teams tm
+      ON tm.id = u.team_id
+
+    LEFT JOIN users m
+      ON m.id = u.manager_id
+
+    WHERE u.id = $1
+    `,
+      [userId],
+    );
+  },
 };

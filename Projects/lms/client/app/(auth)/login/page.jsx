@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PasswordInput, TextInput } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
@@ -7,29 +7,39 @@ import { FormComponent } from "@/components/forms";
 import { useToast } from "@/components/common";
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const router = useRouter();
   const { addToast } = useToast();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace("/dashboard");
+    }
+  }, [user, loading, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
-      const res = await login(email, password);
-      if (res.success) router.push("/projects/get-list");
-      else setError(res.message);
+      const res = await login(email, password, code);
+
+      if (res.success) router.push("/dashboard");
+      // else setError(res.message);
     } catch (err) {
       console.error(err);
       setError("Invalid credentials");
     }
     setLoading(false);
   };
+
+  if (!loading && user) return <>Loading</>;
 
   return (
     <div
@@ -56,6 +66,12 @@ export default function LoginPage() {
         // cancelLabel="Register"
       >
         {/* {error && addToast("error", error)} */}
+        <TextInput
+          label="Organization Code"
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          required
+        />
         <TextInput
           label="Email"
           value={email}
