@@ -14,7 +14,7 @@ export function Sidebar() {
   const { open, toggleSidebar } = useSidebar();
 
   // const items = menuItems[user?.role || "user"];
-  const items = menuItems["admin"]; // TODO
+  const items = menuItems[user?.role.name || "user"] || [];
 
   return (
     <aside className={`${styles.sidebar} ${open ? styles.open : ""}`}>
