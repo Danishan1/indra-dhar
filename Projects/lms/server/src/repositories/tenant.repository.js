@@ -12,6 +12,13 @@ export const TenantRepository = {
   list: () => db.query(`SELECT * FROM tenants ORDER BY created_at DESC`),
 
   findById: (id) => db.query(`SELECT * FROM tenants WHERE id = $1`, [id]),
+  findIdByCode: async (code) => {
+    const result = await db.query(`SELECT id FROM tenants WHERE code = $1`, [
+      code,
+    ]);
+
+    return result.rows[0].id;
+  },
 
   update: (id, data) =>
     db.query(

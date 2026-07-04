@@ -41,11 +41,11 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // protected routes
-app.use(authMiddleware);
-app.use(tenantMiddleware);
+// app.use(authMiddleware);
+// app.use(tenantMiddleware);
 
 // Routes
-app.use("/v1", routes);
+app.use("/", routes);
 
 // 404
 app.use(notFound);

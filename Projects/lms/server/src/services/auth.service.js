@@ -2,9 +2,11 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { AuthRepository } from "../repositories/auth.repository.js";
+import { TenantRepository } from "../repositories/tenant.repository.js";
 
 export const AuthService = {
-  async login(email, password, tenantId, meta) {
+  async login(email, password, tenant, meta) {
+    const tenantId = await TenantRepository.findIdByCode(tenant);
     const userRes = await AuthRepository.findUserByEmail(email, tenantId);
 
     const user = userRes.rows[0];
@@ -31,7 +33,7 @@ export const AuthService = {
 
     delete user.password_hash;
 
-    return { token, user };
+    return { token, user, success: true };
   },
 
   async refresh(refreshToken) {
