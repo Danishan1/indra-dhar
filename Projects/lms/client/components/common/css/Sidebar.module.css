@@ -1,70 +1,12 @@
 .sidebar {
   width: 240px;
   height: 100vh;
-  background-color: var(--color-surface);
+  background: var(--color-surface);
   border-right: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 1rem 0;
-}
-
-.logo {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-primary);
-  text-align: center;
-}
-
-.menu {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 0 1rem;
-}
-
-.menuItem {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius-md);
-  color: var(--color-primary);
-  background: transparent;
-  border: none;
-  text-align: left;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.menuItem:hover {
-  background-color: var(--color-primary);
-  color: var(--color-surface);
-}
-
-.active {
-  background-color: var(--color-primary);
-  color: var(--color-surface);
-  font-weight: 500;
-}
-
-.footer {
-  border-top: 1px solid var(--color-border);
-  padding: 1rem;
-  text-align: center;
-}
-
-.logoutBtn {
-  color: var(--color-danger);
-  background: none;
-  border: none;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-}
-
-.logoutBtn:hover {
-  opacity: 0.8;
 }
 
 .titleHeader {
@@ -74,33 +16,130 @@
   padding: 10px;
 }
 
-.closeBtn {
-  display: none;
-  background: none;
-  border: none;
-  cursor: pointer;
+.logo {
+  font-size: 1.5rem;
+  font-weight: 700;
   color: var(--color-primary);
-  justify-content: center;
 }
 
-/* Hide sidebar on mobile */
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 1rem;
+}
+
+.menuItem,
+.subMenuItem {
+  width: 100%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  color: var(--color-primary);
+  transition: 0.2s;
+}
+
+.menuItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 1rem;
+}
+
+.menuLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.subMenu {
+  margin-left: 16px;
+  border-left: 2px solid var(--color-border);
+  padding-left: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.subMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0.7rem 1rem;
+}
+
+.menuItem:hover,
+.subMenuItem:hover {
+  background: var(--color-primary);
+  color: white;
+}
+
+.active {
+  background: var(--color-primary);
+  color: white;
+}
+
+.footer {
+  border-top: 1px solid var(--color-border);
+  padding: 1rem;
+}
+
+.logoutBtn {
+  width: 100%;
+  border: none;
+  background: none;
+  color: var(--color-danger);
+  cursor: pointer;
+}
+
+.closeBtn {
+  display: none;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--color-primary);
+}
+
+.menuBtn {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
-    left: -240px;
     top: 0;
-    height: 100vh;
+    left: -240px;
     width: 240px;
-    background: var(--color-surface);
     transition: left 0.3s ease;
     z-index: 1000;
   }
 
-  .sidebar.open {
+  .open {
     left: 0;
   }
 
   .closeBtn {
     display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .menuBtn {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-primary);
+    cursor: pointer;
+    z-index: 1100;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   }
 }

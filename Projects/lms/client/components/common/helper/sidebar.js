@@ -1,7 +1,4 @@
-import {
-  Users,
-  Upload,
-} from "lucide-react";
+import { Upload, Users, Magnet } from "lucide-react";
 import { CONST } from "@/utils/CONST";
 import { BASE_PATH } from "@/utils/basePath";
 
@@ -9,30 +6,26 @@ const ICON_SIZE = CONST.ICON_SIZE;
 
 const user = {
   name: "Users",
-  icon: <Users size={ICON_SIZE} />,
   path: BASE_PATH.users,
+  icon: <Users size={ICON_SIZE} />,
 };
 
-const buklUpload = {
+const bulkUpload = {
   name: "Bulk Upload",
-  icon: <Upload size={ICON_SIZE} />,
   path: BASE_PATH.bulkUpload,
+  icon: <Upload size={ICON_SIZE} />,
 };
 
-const common = [
-
-  // {
-  //   name: "Unit of Measure",
-  //   icon: <RulerDimensionLine size={ICON_SIZE} />,
-  //   path: BASE_PATH.unit,
-  // },
-
-];
+const management = {
+  name: "Management",
+  icon: <Magnet size={ICON_SIZE} />,
+  children: [user, bulkUpload],
+};
 
 export const menuItems = {
-  admin: [user, ...common, buklUpload],
-  manager: [user, ...common, buklUpload],
-  user: common,
+  admin: [management, user],
+  manager: [management],
+  user: [],
 };
 
 export default menuItems;
