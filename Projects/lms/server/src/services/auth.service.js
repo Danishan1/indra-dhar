@@ -74,7 +74,7 @@ export const AuthService = {
     if (!user || !user.is_active) throw new Error("Unauthorized");
 
     const accessToken = jwt.sign(
-      { user_id: user.id, tenant_id: user.tenant.code }, // FIXED
+      { user_id: user.id, tenant_id: user.tenant.id }, // FIXED
       process.env.JWT_SECRET,
       { expiresIn: ACCESS_TOKEN_EXPIRY },
     );

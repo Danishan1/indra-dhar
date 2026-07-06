@@ -30,7 +30,7 @@ app.use(
       "http://localhost:3000",
       "https://trtcvpc8-3000.inc1.devtunnels.ms",
     ], // allowed frontend URLs
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true, // if you're using cookies or session auth
   }),
 );

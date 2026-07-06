@@ -14,6 +14,17 @@
             "name": "cost_calculator",
             "password": "root",
             "username": "root"
+        },
+        {
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "lms",
+            "database": "lms_db",
+            "username": "danishan",
+            "password": "Danishan@123"
         }
     ]
 }

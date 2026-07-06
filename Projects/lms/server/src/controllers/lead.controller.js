@@ -1,120 +1,228 @@
 import { LeadService } from "../services/lead.service.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { validate } from "../utils/validate.js";
+
+import {
+  createLeadSchema,
+  updateLeadSchema,
+  leadIdSchema,
+  assignLeadSchema,
+  stageSchema,
+  statusSchema,
+  noteSchema,
+  listLeadSchema,
+} from "../validators/lead.validator.js";
 
 export const LeadController = {
-  async create(req, res) {
-    const tenantId = req.user.tenant_id;
-
-    const lead = await LeadService.create({
-      ...req.body,
-      tenant_id: tenantId,
-      created_by: req.user.id,
-    });
-
-    res.json(lead);
-  },
-
-  async list(req, res) {
-    const tenantId = req.user.tenant_id;
-
-    const leads = await LeadService.list({
-      tenant_id: tenantId,
-      filters: req.query,
-    });
-
-    res.json(leads);
-  },
-
-  async getById(req, res) {
-    const lead = await LeadService.getById(req.params.id);
-    res.json(lead);
-  },
-
-  async update(req, res) {
-    const lead = await LeadService.update(req.params.id, req.body);
-    res.json(lead);
-  },
-
-  async remove(req, res) {
-    const result = await LeadService.delete(req.params.id);
-    res.json(result);
-  },
-
-  async assign(req, res) {
-    const result = await LeadService.assign(
-      req.params.id,
-      req.body.to_user,
-      req.user.id,
-    );
-    res.json(result);
-  },
-
-  async changeStage(req, res) {
-    const result = await LeadService.changeStage(
-      req.params.id,
-      req.body.stage_id,
-      req.user.id,
-    );
-    res.json(result);
-  },
-
-  async updateStatus(req, res) {
-    const result = await LeadService.updateStatus(
-      req.params.id,
-      req.body.status,
-    );
-    res.json(result);
-  },
-
-  async addNote(req, res) {
-    const note = await LeadService.addNote(
-      req.params.id,
-      req.body.note,
-      req.user.id,
-    );
-    res.json(note);
-  },
-
-  async timeline(req, res) {
-    const data = await LeadService.timeline(req.params.id);
-    res.json(data);
-  },
-
-  async uploadAttachment(req, res) {
+  async create(req, res, next) {
     try {
-      const tenant_id = req.user.tenant_id;
-      const lead_id = req.params.id;
+      const body = validate(createLeadSchema, req.body);
 
-      const file = req.file; // from multer
-
-      const result = await LeadService.uploadAttachment({
-        tenant_id,
-        lead_id,
-        file,
-        uploaded_by: req.user?.id,
+      const lead = await LeadService.create({
+        ...body,
+        tenant_id: req.user.tenant_id,
+        created_by: req.user.user_id,
       });
 
-      res.status(201).json(result);
+      return ApiResponse.created({
+        res,
+        data: lead,
+        message: "Lead created successfully",
+      });
     } catch (err) {
-      res.status(400).json({ error: err.message });
+      next(err);
     }
   },
 
-  /**
-   * Duplicate check
-   */
-  async checkDuplicates(req, res) {
+  async list(req, res, next) {
     try {
-      const tenant_id = req.user.tenant_id;
-      const lead_id = req.params.id;
+      const filters = validate(listLeadSchema, req.query);
 
-      const result = await LeadService.checkDuplicates({
-        tenant_id,
-        lead_id,
+      const leads = await LeadService.list({
+        tenant_id: req.user.tenant_id,
+        filters,
       });
 
-      res.json(result);
+      return ApiResponse.success({
+        res,
+        data: leads,
+      });
     } catch (err) {
-      res.status(400).json({ error: err.message });
+      next(err);
+    }
+  },
+
+  async getById(req, res, next) {
+    try {
+      const { id } = validate(leadIdSchema, req.params);
+
+      const lead = await LeadService.getById(id);
+
+      if (!lead) {
+        return ApiResponse.error({
+          res,
+          statusCode: 404,
+          message: "Lead not found",
+        });
+      }
+
+      return ApiResponse.success({
+        res,
+        data: lead,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async update(req, res, next) {
+    try {
+      const { id } = validate(leadIdSchema, req.params);
+      const body = validate(updateLeadSchema, req.body);
+
+      const lead = await LeadService.update(id, body);
+
+      return ApiResponse.success({
+        res,
+        data: lead,
+        message: "Lead updated successfully",
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async remove(req, res, next) {
+    try {
+      const { id } = validate(leadIdSchema, req.params);
+
+      await LeadService.delete(id);
+
+      return ApiResponse.noContent({ res });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async assign(req, res, next) {
+    try {
+      const { id } = validate(leadIdSchema, req.params);
+      const { to_user } = validate(assignLeadSchema, req.body);
+
+      const result = await LeadService.assign(id, to_user, req.user.id);
+
+      return ApiResponse.success({
+        res,
+        data: result,
+        message: "Lead assigned successfully",
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async changeStage(req, res, next) {
+    try {
+      const { id } = validate(leadIdSchema, req.params);
+      const { stage_id } = validate(stageSchema, req.body);
+
+      const result = await LeadService.changeStage(id, stage_id, req.user.id);
+
+      return ApiResponse.success({
+        res,
+        data: result,
+        message: "Stage updated successfully",
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async updateStatus(req, res, next) {
+    try {
+      const { id } = validate(leadIdSchema, req.params);
+      const { status } = validate(statusSchema, req.body);
+
+      const result = await LeadService.updateStatus(id, status);
+
+      return ApiResponse.success({
+        res,
+        data: result,
+        message: "Status updated successfully",
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async addNote(req, res, next) {
+    try {
+      const { id } = validate(leadIdSchema, req.params);
+      const { note } = validate(noteSchema, req.body);
+
+      const result = await LeadService.addNote(id, note, req.user.id);
+
+      return ApiResponse.created({
+        res,
+        data: result,
+        message: "Note added successfully",
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async timeline(req, res, next) {
+    try {
+      const { id } = validate(leadIdSchema, req.params);
+
+      const result = await LeadService.timeline(id);
+
+      return ApiResponse.success({
+        res,
+        data: result,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async uploadAttachment(req, res, next) {
+    try {
+      const { id } = validate(leadIdSchema, req.params);
+
+      const result = await LeadService.uploadAttachment({
+        tenant_id: req.user.tenant_id,
+        lead_id: id,
+        file: req.file,
+        uploaded_by: req.user.id,
+      });
+
+      return ApiResponse.created({
+        res,
+        data: result,
+        message: "Attachment uploaded successfully",
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async checkDuplicates(req, res, next) {
+    try {
+      const { id } = validate(leadIdSchema, req.params);
+
+      const result = await LeadService.checkDuplicates({
+        tenant_id: req.user.tenant_id,
+        lead_id: id,
+      });
+
+      return ApiResponse.success({
+        res,
+        data: result,
+      });
+    } catch (err) {
+      next(err);
     }
   },
 };

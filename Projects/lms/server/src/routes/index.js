@@ -24,7 +24,7 @@ router.use("/teams", teamRoutes);
 router.use("/users", userRoutes);
 router.use("/activity", activityRoutes);
 router.use("/audit", auditRoutes);
-router.use("/lead", leadRoutes);
+router.use("/leads", leadRoutes);
 router.use("/notification", notificationRoutes);
 router.use("/task", taskRoutes);
 router.use("/workflow", workflowRoutes);

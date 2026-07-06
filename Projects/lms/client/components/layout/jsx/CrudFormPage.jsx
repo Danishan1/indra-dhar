@@ -137,7 +137,7 @@ export function CrudFormPage({
       const res =
         mode === "create"
           ? await apiUtil.post(endpoint, payload)
-          : await apiUtil.put(`${endpoint}/${idSelected}`, payload);
+          : await apiUtil.patch(`${endpoint}/${idSelected}`, payload);
 
       if (res.success) {
         addToast("success", res.message || `${title} saved successfully`);

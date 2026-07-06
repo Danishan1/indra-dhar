@@ -22,7 +22,6 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-
 // Generic helper methods
 export const apiUtil = {
   get: (endpoint, params = {}) =>
@@ -32,6 +31,8 @@ export const apiUtil = {
     api.post(endpoint, data, config).then((r) => r.data),
 
   put: (endpoint, data = {}) => api.put(endpoint, data).then((r) => r.data),
+
+  patch: (endpoint, data = {}) => api.patch(endpoint, data).then((r) => r.data),
 
   delete: (endpoint) => api.delete(endpoint).then((r) => r.data),
 };

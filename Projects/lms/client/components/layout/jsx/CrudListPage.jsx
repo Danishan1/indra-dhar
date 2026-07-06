@@ -52,7 +52,7 @@ export function CrudListPage({
         path: `${basePath}/${row.id}/get`,
       },
       {
-        label: isBom ? "Add BOM Items": "Edit",
+        label: isBom ? "Add BOM Items" : "Edit",
         allowed: editButton && isAllowed, // your existing condition
         path: `${basePath}/${row.id}/update`,
       },

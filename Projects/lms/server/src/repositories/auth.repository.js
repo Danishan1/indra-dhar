@@ -93,6 +93,7 @@ export const AuthRepository = {
       u.created_at,
 
       json_build_object(
+        'id', t.id,
         'name', t.name,
         'code', t.code,
         'logo_url', t.logo_url

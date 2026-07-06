@@ -35,12 +35,12 @@ export function CrudLayout({ basePath, title, config, children }) {
 
   const tabs = config
     .map((tab) => {
-      const isRestricted = restrictedPaths.has(tab.path);
-      if (isRestricted && !isPrivileged) return null;
+      // const isRestricted = restrictedPaths.has(tab.path);
+      // if (isRestricted && !isPrivileged) return null;
 
-      // Restricting user management for managers
-      if (basePath === BASE_PATH.users && isRestricted && isManager)
-        return null;
+      // // Restricting user management for managers
+      // if (basePath === BASE_PATH.users && isRestricted && isManager)
+      //   return null;
 
       // tabs with dynamic id only show when selectedId exists
       const hasDynamicId = tab.path.includes("[id]");

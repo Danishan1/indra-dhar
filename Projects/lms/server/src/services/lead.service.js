@@ -2,6 +2,9 @@ import { LeadRepository } from "../repositories/lead.repository.js";
 
 export const LeadService = {
   async create(data) {
+
+    console.log("DDDD: ", data)
+
     return LeadRepository.create(data);
   },
 
@@ -18,7 +21,7 @@ export const LeadService = {
   },
 
   async delete(id) {
-    return LeadRepository.softDelete(id);
+    return LeadRepository.delete(id);
   },
 
   async assign(leadId, toUserId, assignedBy) {
