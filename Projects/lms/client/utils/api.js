@@ -22,30 +22,6 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// api.interceptors.response.use(
-//   (response) => response,
-//   async (error) => {
-//     const original = error.config;
-
-//     if (error.response?.status === 401 && !original._retry) {
-//       original._retry = true;
-
-//       try {
-//         const res = await api.get("/auth/refresh");
-
-//         if (res.success) {
-//           setAccessToken(res.accessToken);
-//           original.headers.Authorization = `Bearer ${res.accessToken}`;
-//           return api(original);
-//         }
-//       } catch (err) {
-//         window.location.href = "/login";
-//       }
-//     }
-
-//     return Promise.reject(error);
-//   },
-// );
 
 // Generic helper methods
 export const apiUtil = {
