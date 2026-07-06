@@ -3,4 +3,5 @@ export const BASE_PATH = {
   users: "/users",
   bulkUpload: "/bulk-upload",
   leads: "/leads",
+  integrations: "/settings/integrations",
 };

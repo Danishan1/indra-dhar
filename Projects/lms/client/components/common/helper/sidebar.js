@@ -1,4 +1,4 @@
-import { Upload, Users, Magnet, UserSearch } from "lucide-react";
+import { Upload, Users, Magnet, UserSearch, Settings,  Blocks} from "lucide-react";
 import { CONST } from "@/utils/CONST";
 import { BASE_PATH } from "@/utils/basePath";
 
@@ -16,6 +16,12 @@ const leads = {
   icon: <UserSearch size={ICON_SIZE} />,
 };
 
+const integrations = {
+  name: "Integrations",
+  path: BASE_PATH.integrations,
+  icon: <Blocks size={ICON_SIZE} />,
+};
+
 const bulkUpload = {
   name: "Bulk Upload",
   path: BASE_PATH.bulkUpload,
@@ -28,8 +34,14 @@ const management = {
   children: [user, bulkUpload],
 };
 
+const settings = {
+  name: "Settings",
+  icon: <Settings size={ICON_SIZE} />,
+  children: [integrations],
+};
+
 export const menuItems = {
-  admin: [management, leads],
+  admin: [management, leads, settings],
   manager: [management],
   user: [],
 };

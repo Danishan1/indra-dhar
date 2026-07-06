@@ -12,6 +12,7 @@ import leadRoutes from "./lead.routes.js";
 import notificationRoutes from "./notification.routes.js";
 import taskRoutes from "./task.routes.js";
 import workflowRoutes from "./workflow.routes.js";
+import integrationRoutes from "./integration.routes.js";
 
 const router = Router();
 
@@ -28,5 +29,6 @@ router.use("/leads", leadRoutes);
 router.use("/notification", notificationRoutes);
 router.use("/task", taskRoutes);
 router.use("/workflow", workflowRoutes);
+router.use("/integrations", integrationRoutes);
 
 export default router;
