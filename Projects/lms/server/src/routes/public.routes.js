@@ -10,6 +10,22 @@ const router = Router();
 router.use("/facebook", FacebookRoutes);
 router.use("/indiamart", IndiamartRoutes);
 
+/**
+ * @swagger
+ * /webhooks/form:
+ *   post:
+ *     summary: Receive custom form lead
+ *     tags: [Integrations]
+ *     parameters:
+ *       - in: query
+ *         name: token
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Lead received
+ */
 router.post("/webhooks/form", receiveFormLead);
 
 export default router;
