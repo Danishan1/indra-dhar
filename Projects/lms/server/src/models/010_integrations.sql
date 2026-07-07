@@ -19,6 +19,13 @@ CREATE TABLE integrations (
 --
 -- =====================================================
 --
+CREATE INDEX idx_integrations_facebook_verify_token
+ON integrations ((config->>'verify_token'));
+CREATE INDEX idx_integrations_webhook_token ON integrations ((config->>'webhook_token'));
+CREATE INDEX idx_integrations_api_token ON integrations ((config->>'api_token'));
+--
+-- =====================================================
+--
 
 CREATE TABLE integration_logs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

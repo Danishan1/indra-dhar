@@ -5,7 +5,8 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 
 import routes from "./routes/index.js";
-import publicRoutes from "./routes/auth.public.routes.js";
+import publicAuthRoutes from "./routes/auth.public.routes.js";
+import publicRoutes from "./routes/public.routes.js";
 
 // import { verifyToken } from "./middlewares/auth.middleware.js";
 import path from "path";
@@ -43,7 +44,8 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-app.use("/auth", publicRoutes);
+app.use("/auth", publicAuthRoutes);
+app.use("/", publicRoutes);
 
 // protected routes
 app.use(authMiddleware);

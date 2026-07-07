@@ -10,6 +10,7 @@ export const INTEGRATION_TYPE = {
   WHATSAPP: "WHATSAPP",
   SMS: "SMS",
   API: "API",
+  FORM: "FORM",
 };
 
 /**
@@ -25,7 +26,15 @@ export const INTEGRATION_CATEGORY = {
  */
 export const createIntegrationSchema = z.object({
   name: z.string().min(2).max(100),
-  type: z.enum(["FACEBOOK", "INDIAMART", "EMAIL", "WHATSAPP", "SMS", "API"]),
+  type: z.enum([
+    "FACEBOOK",
+    "INDIAMART",
+    "EMAIL",
+    "WHATSAPP",
+    "SMS",
+    "API",
+    "FORM",
+  ]),
   category: z.enum(["INBOUND", "OUTBOUND"]),
   provider: z.string().optional(),
   config: z.record(z.any()).default({}),
