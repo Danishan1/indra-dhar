@@ -9,6 +9,7 @@ import {
   Upload,
   UserSearch,
   Users,
+  Sprout,
 } from "lucide-react";
 
 import { CONST } from "@/utils/CONST";
@@ -27,6 +28,7 @@ const icons = {
   LayoutDashboard,
   ClipboardList,
   ClipboardPen,
+  Sprout,
 };
 
 /**
@@ -56,7 +58,7 @@ const items = {
 
   // Task Management
   taskDashboard: {
-    name: "Dashboard",
+    name: "Tasks",
     path: BASE_PATH.taskDashboard,
     icon: "LayoutDashboard",
   },
@@ -78,6 +80,13 @@ const items = {
     path: BASE_PATH.taskCreate,
     icon: "ClipboardPen",
   },
+
+  // Task Management
+  leadDashboard: {
+    name: "Leads",
+    path: BASE_PATH.leads,
+    icon: "LayoutDashboard",
+  },
 };
 
 /**
@@ -94,16 +103,17 @@ const groups = {
     icon: "Settings",
     children: ["integrations"],
   },
-  tasks: {
-    name: "Tasks",
-    icon: "ListTodo",
-    children: [],
-  },
 
   tasks: {
     name: "Task Management",
     icon: "ListTodo",
-    children: ["taskDashboard", "taskList", "taskDetails", "taskCreate"],
+    children: ["taskDashboard"],
+  },
+
+  leads: {
+    name: "Lead Management",
+    icon: "Sprout",
+    children: ["leadDashboard"],
   },
 };
 
@@ -112,7 +122,7 @@ const groups = {
  */
 const roleConfig = {
   admin: {
-    groups: ["management", "settings", "tasks"],
+    groups: ["management", "settings", "leads", "tasks"],
   },
 
   manager: {

@@ -4,7 +4,7 @@ export const BASE_PATH = {
   bulkUpload: "/bulk-upload",
   leads: "/leads",
   integrations: "/settings/integrations",
-  taskDashboard: "/tasks/",
+  taskDashboard: "/tasks",
   taskList: "/tasks/list",
   taskDetails: "/tasks/details",
   taskCreate: "/tasks/create",

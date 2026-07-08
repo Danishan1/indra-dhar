@@ -1,21 +1,7 @@
 "use client";
-import { CrudLayout } from "@/components/common/jsx/CrudLayout";
-import { BASE_PATH } from "@/utils/basePath";
+
+import { DashboardLayout } from "@/components/common";
 
 export default function Layout({ children }) {
-  const basePath = BASE_PATH.leads;
-
-  const config = [
-    { label: "Create New Lead", path: "create" },
-    { label: "Leads", path: "get-list" },
-    { label: "View", path: "[id]/get" },
-    { label: "Update", path: "[id]/update" },
-    { label: "Delete", path: "[id]/delete" },
-  ];
-
-  return (
-    <CrudLayout basePath={basePath} title="Lead Management" config={config}>
-      {children}
-    </CrudLayout>
-  );
+  return <DashboardLayout>{children}</DashboardLayout>;
 }

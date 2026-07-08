@@ -1,15 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { BASE_PATH } from "@/utils/basePath";
+import LeadManagement from "@/components/leads/LeadManagement";
 
-export default function RedirectPage() {
-  const router = useRouter();
-
-  useEffect(() => {
-    router.replace(`${BASE_PATH.leads}/get-list`);
-  }, [router]);
-
-  return <p style={{ padding: "2rem" }}>Redirecting to users list...</p>;
+export default function DashboardPage() {
+  return <LeadManagement />;
+  // return <AssignTaskModal open={true}/>;
 }

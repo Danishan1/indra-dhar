@@ -66,19 +66,12 @@ export default function TaskManagement() {
    */
 
   const [createOpen, setCreateOpen] = useState(false);
-
   const [editTask, setEditTask] = useState(null);
-
   const [viewTask, setViewTask] = useState(null);
-
   const [actionTask, setActionTask] = useState(null);
-
   const [tasks, setTasks] = useState([]);
-
   const [loading, setLoading] = useState(false);
-
   const [error, setError] = useState("");
-
   const [details, setDetails] = useState({
     comments: [],
     history: [],
@@ -260,6 +253,8 @@ export default function TaskManagement() {
       history: history.data || history,
     });
   };
+
+  if (loading) return <>Loading...</>;
 
   return (
     <div className={styles.wrapper}>
