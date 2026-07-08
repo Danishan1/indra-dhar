@@ -8,6 +8,7 @@ import TaskFormModal from "./TaskFormModal";
 import TaskDetailsViewModal from "./TaskDetailsViewModal";
 import TaskDetailsModal from "./TaskDetailsModal";
 import { TaskAPI } from "@/service";
+import { formatDateTime, timeAgo } from "@/utils/formatDateTime";
 
 const STATUS_OPTIONS = [
   {
@@ -87,8 +88,6 @@ export default function TaskManagement() {
       setLoading(true);
 
       const response = await TaskAPI.list(filters);
-
-      console.log("DDDD : ", response);
 
       setTasks(response.data || response);
     } catch (err) {
@@ -331,7 +330,8 @@ export default function TaskManagement() {
               <th>Assigned</th>
               <th>Priority</th>
               <th>Status</th>
-              <th>Due</th>
+              <th>Due Time</th>
+              <th>Time Left</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -340,9 +340,9 @@ export default function TaskManagement() {
             {filteredTasks.length > 0 ? (
               filteredTasks.map((task) => (
                 <tr key={task.id}>
-                  <td>{task.title}</td>
+                  <td>{task.task}</td>
 
-                  <td>{task.assigned_to}</td>
+                  <td>{task.assigned}</td>
 
                   <td>
                     <span
@@ -360,7 +360,8 @@ export default function TaskManagement() {
                     </span>
                   </td>
 
-                  <td>{task.due_date}</td>
+                  <td>{formatDateTime(task.due)}</td>
+                  <td>{timeAgo(task.due)}</td>
 
                   <td>
                     <div className={styles.actions}>

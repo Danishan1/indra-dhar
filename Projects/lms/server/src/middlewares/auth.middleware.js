@@ -12,7 +12,9 @@ export const authMiddleware = (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    req.user = decoded; // { user_id, tenant_id }
+    req.user = { ...decoded, id: decoded.user_id }; // { user_id, tenant_id }
+
+    console.log("DDDD: ", req.user)
 
     next();
   } catch (err) {

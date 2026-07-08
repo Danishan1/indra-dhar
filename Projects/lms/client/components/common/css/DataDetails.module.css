@@ -50,3 +50,15 @@
   font-style: italic;
   padding: var(--space-lg);
 }
+
+.nested {
+  margin-top: 8px;
+  margin-left: 16px;
+  border-left: 2px solid #e5e7eb;
+  padding-left: 12px;
+}
+
+.null {
+  color: #9ca3af;
+  font-style: italic;
+}

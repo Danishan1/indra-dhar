@@ -21,35 +21,21 @@ import { Button, Modal } from "../ui";
 
 export default function TaskDetailsModal({
   open,
-
   task,
-
   users = [],
-
   comments = [],
-
   history = [],
-
   loading = false,
-
   onAssign,
-
   onStatusChange,
-
   onOutcome,
-
   onAddComment,
-
   onDelete,
-
   onClose,
 }) {
   const [assignOpen, setAssignOpen] = useState(false);
-
   const [statusOpen, setStatusOpen] = useState(false);
-
   const [outcomeOpen, setOutcomeOpen] = useState(false);
-
   const [commentOpen, setCommentOpen] = useState(false);
 
   if (!open || !task) {
@@ -89,25 +75,21 @@ export default function TaskDetailsModal({
           <div className={styles.infoGrid}>
             <div>
               <label>Assigned To</label>
-
               <p>{task.assigned_name || "-"}</p>
             </div>
 
             <div>
               <label>Due Date</label>
-
               <p>{task.due_date}</p>
             </div>
 
             <div>
               <label>Lead</label>
-
               <p>{task.lead_name || "-"}</p>
             </div>
 
             <div>
               <label>Outcome</label>
-
               <p>{task.outcome || "No outcome"}</p>
             </div>
           </div>

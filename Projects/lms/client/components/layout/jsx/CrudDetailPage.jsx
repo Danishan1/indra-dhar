@@ -13,6 +13,7 @@ export function CrudDetailPage({ endpoint }) {
   useEffect(() => {
     async function fetchData() {
       const res = await apiUtil.get(`${endpoint}/${idSelected}`);
+
       if (res.success) setData(res.data);
       setLoading(false);
     }

@@ -40,7 +40,7 @@ export const TaskAPI = {
   },
 
   async setOutcome(id, payload) {
-    return await apiUtil.patch(
+    return await apiUtil.post(
       `/tasks/${id}/outcome`,
 
       payload,

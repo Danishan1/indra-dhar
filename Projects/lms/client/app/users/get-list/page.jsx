@@ -8,10 +8,10 @@ export default function ListPage() {
       endpoint={BASE_PATH.users}
       basePath={BASE_PATH.users}
       columns={[
-        { key: "name", title: "User Name" },
+        { key: "full_name", title: "Name" },
         { key: "email", title: "Email" },
         { key: "role", title: "role" },
-        { key: "status", title: "Status" },
+        { key: "last_login", title: "Last login" },
       ]}
     />
   );

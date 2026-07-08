@@ -3,20 +3,68 @@ import styles from "../css/DataDetails.module.css";
 
 /**
  * Converts snake_case, kebab-case, or camelCase to "Title Case"
- * e.g. "vendor_uuid" → "Vendor Uuid"
  */
 const formatKey = (key) => {
   return key
-    .replace(/[_-]/g, " ") // replace _ or - with space
-    .replace(/([a-z])([A-Z])/g, "$1 $2") // camelCase → camel Case
-    .replace(/\s+/g, " ") // collapse multiple spaces
+    .replace(/[_-]/g, " ")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/\s+/g, " ")
     .trim()
-    .replace(
-      /\w\S*/g,
-      (
-        txt // Title Case each word
-      ) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+    .replace(/\w\S*/g, (txt) => {
+      return txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase();
+    });
+};
+
+const renderValue = (value) => {
+  if (value === null || value === undefined) {
+    return <span className={styles.null}>—</span>;
+  }
+
+  // Nested object
+  if (typeof value === "object" && !Array.isArray(value)) {
+    return (
+      <div className={styles.nested}>
+        {Object.entries(value).map(([key, val]) => (
+          <div key={key} className={styles.row}>
+            <div className={styles.key}>{formatKey(key)}</div>
+            <div className={styles.value}>{renderValue(val)}</div>
+          </div>
+        ))}
+      </div>
     );
+  }
+
+  // Array
+  if (Array.isArray(value)) {
+    if (value.length === 0) return "[]";
+
+    return (
+      <div className={styles.nested}>
+        {value.map((item, index) => (
+          <div key={index} className={styles.row}>
+            <div className={styles.key}>#{index + 1}</div>
+            <div className={styles.value}>{renderValue(item)}</div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // URL
+  if (typeof value === "string" && /^https?:\/\//.test(value)) {
+    return (
+      <a href={value} target="_blank" rel="noopener noreferrer">
+        {value}
+      </a>
+    );
+  }
+
+  // Boolean
+  if (typeof value === "boolean") {
+    return value ? "Yes" : "No";
+  }
+
+  return String(value);
 };
 
 export function DataDetails({ data = {} }) {
@@ -29,15 +77,7 @@ export function DataDetails({ data = {} }) {
       {Object.entries(data).map(([key, value]) => (
         <div key={key} className={styles.row}>
           <div className={styles.key}>{formatKey(key)}</div>
-          <div className={styles.value}>
-            {typeof value === "string" && value.startsWith("http") ? (
-              <a href={value} target="_blank" rel="noopener noreferrer">
-                {value}
-              </a>
-            ) : (
-              String(value)
-            )}
-          </div>
+          <div className={styles.value}>{renderValue(value)}</div>
         </div>
       ))}
     </div>

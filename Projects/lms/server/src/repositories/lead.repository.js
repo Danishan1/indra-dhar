@@ -30,9 +30,34 @@ export const LeadRepository = {
 
   async findAll(tenantId) {
     const result = await db.query(
-      `SELECT * FROM leads
-       WHERE tenant_id = $1
-       ORDER BY created_at DESC`,
+      `
+    SELECT
+      l.id,
+      CONCAT_WS(' ', l.first_name, l.last_name) AS name,
+      l.company,
+      l.mobile AS phone,
+
+      CONCAT_WS(' ', u.first_name, u.last_name) AS assigned,
+
+      ps.name AS stage,
+
+      CASE
+        WHEN l.closed_at IS NOT NULL THEN 'CLOSED'
+        ELSE 'OPEN'
+      END AS status
+
+    FROM leads l
+
+    LEFT JOIN users u
+      ON u.id = l.assigned_to
+
+    LEFT JOIN pipeline_stages ps
+      ON ps.id = l.stage_id
+
+    WHERE l.tenant_id = $1
+
+    ORDER BY l.created_at DESC
+    `,
       [tenantId],
     );
 
@@ -40,7 +65,112 @@ export const LeadRepository = {
   },
 
   async findById(id) {
-    const result = await db.query(`SELECT * FROM leads WHERE id = $1`, [id]);
+    const result = await db.query(
+      `
+    SELECT
+      l.id,
+      l.lead_number,
+      l.first_name,
+      l.last_name,
+      CONCAT_WS(' ', l.first_name, l.last_name) AS full_name,
+      l.company,
+      l.mobile,
+      l.email,
+      l.address,
+      l.city,
+      l.state,
+      l.country,
+      l.postal_code,
+      l.product_interest,
+      l.budget,
+      l.remarks,
+      l.is_duplicate,
+      l.closed_at,
+      l.created_at,
+      l.updated_at,
+
+      json_build_object(
+        'id', ls.id,
+        'name', ls.name
+      ) AS source,
+
+      json_build_object(
+        'id', lp.id,
+        'name', lp.name,
+        'color', lp.color
+      ) AS priority,
+
+      json_build_object(
+        'id', p.id,
+        'name', p.name
+      ) AS pipeline,
+
+      json_build_object(
+        'id', ps.id,
+        'name', ps.name,
+        'type', ps.stage_type
+      ) AS stage,
+
+      CASE
+        WHEN assignee.id IS NULL THEN NULL
+        ELSE json_build_object(
+          'id', assignee.id,
+          'name', CONCAT_WS(' ', assignee.first_name, assignee.last_name),
+          'email', assignee.email
+        )
+      END AS assigned_to,
+
+      CASE
+        WHEN manager.id IS NULL THEN NULL
+        ELSE json_build_object(
+          'id', manager.id,
+          'name', CONCAT_WS(' ', manager.first_name, manager.last_name)
+        )
+      END AS manager,
+
+      CASE
+        WHEN team.id IS NULL THEN NULL
+        ELSE json_build_object(
+          'id', team.id,
+          'name', team.name
+        )
+      END AS team,
+
+      json_build_object(
+        'id', creator.id,
+        'name', CONCAT_WS(' ', creator.first_name, creator.last_name)
+      ) AS created_by
+
+    FROM leads l
+
+    LEFT JOIN lead_sources ls
+      ON ls.id = l.source_id
+
+    LEFT JOIN lead_priorities lp
+      ON lp.id = l.priority_id
+
+    LEFT JOIN pipelines p
+      ON p.id = l.pipeline_id
+
+    LEFT JOIN pipeline_stages ps
+      ON ps.id = l.stage_id
+
+    LEFT JOIN users assignee
+      ON assignee.id = l.assigned_to
+
+    LEFT JOIN users manager
+      ON manager.id = l.manager_id
+
+    LEFT JOIN users creator
+      ON creator.id = l.created_by
+
+    LEFT JOIN teams team
+      ON team.id = l.team_id
+
+    WHERE l.id = $1
+    `,
+      [id],
+    );
 
     return dbResponse.single(result);
   },
@@ -139,9 +269,29 @@ export const LeadRepository = {
 
   async getTimeline(leadId) {
     const result = await db.query(
-      `SELECT * FROM activities
-       WHERE lead_id = $1
-       ORDER BY created_at DESC`,
+      `
+    SELECT
+      a.id,
+      a.activity_type,
+      a.title,
+      a.description,
+      a.created_at,
+
+      json_build_object(
+        'id', u.id,
+        'name', CONCAT_WS(' ', u.first_name, u.last_name),
+        'avatar_url', u.avatar_url
+      ) AS created_by
+
+    FROM activities a
+
+    LEFT JOIN users u
+      ON u.id = a.created_by
+
+    WHERE a.lead_id = $1
+
+    ORDER BY a.created_at DESC
+    `,
       [leadId],
     );
 

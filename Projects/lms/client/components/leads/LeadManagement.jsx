@@ -129,6 +129,8 @@ export default function LeadManagement() {
 
       const response = await LeadAPI.list(filters);
 
+      console.log("DDDD: ", response.data);
+
       setLeads(response.data || response);
     } catch (err) {
       setError(err.message || "Unable to load leads");
@@ -371,15 +373,17 @@ export default function LeadManagement() {
           <tbody>
             {filteredLeads.map((lead) => (
               <tr key={lead.id}>
-                <td>{lead.first_name} {lead.last_name || ""}</td>
+                <td>
+                  {lead.name}
+                </td>
                 <td>{lead.company}</td>
-                <td>{lead.mobile || "-"}</td>
-                <td>{lead.assigned_to || "-"}</td>
+                <td>{lead.phone || "-"}</td>
+                <td>{lead.assigned || "-"}</td>
                 <td>
                   <span
                     className={`${styles.badge} ${styles[lead.stage?.toLowerCase()]}`}
                   >
-                    {lead.stage_id || "-"}
+                    {lead.stage || "-"}
                   </span>
                 </td>
                 <td>
