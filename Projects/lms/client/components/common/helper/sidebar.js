@@ -1,49 +1,39 @@
-import { Upload, Users, Magnet, UserSearch, Settings,  Blocks} from "lucide-react";
-import { CONST } from "@/utils/CONST";
-import { BASE_PATH } from "@/utils/basePath";
+import { SIDEBAR_CONFIG } from "./sidebar.config";
+const { ICON_SIZE, icons, items, groups, roleConfig } = SIDEBAR_CONFIG;
 
-const ICON_SIZE = CONST.ICON_SIZE;
+function buildItem(key) {
+  const item = items[key];
+  const Icon = icons[item.icon];
 
-const user = {
-  name: "Users",
-  path: BASE_PATH.users,
-  icon: <Users size={ICON_SIZE} />,
-};
+  return {
+    name: item.name,
+    path: item.path,
+    icon: <Icon size={ICON_SIZE} />,
+  };
+}
 
-const leads = {
-  name: "Leads",
-  path: BASE_PATH.leads,
-  icon: <UserSearch size={ICON_SIZE} />,
-};
+function buildGroup(groupKey, role) {
+  const group = groups[groupKey];
+  const Icon = icons[group.icon];
+  const overrides = roleConfig[role][groupKey] || {};
 
-const integrations = {
-  name: "Integrations",
-  path: BASE_PATH.integrations,
-  icon: <Blocks size={ICON_SIZE} />,
-};
+  const children = [
+    ...group.children.filter((key) => !overrides.remove?.includes(key)),
+    ...(overrides.add || []),
+  ].map(buildItem);
 
-const bulkUpload = {
-  name: "Bulk Upload",
-  path: BASE_PATH.bulkUpload,
-  icon: <Upload size={ICON_SIZE} />,
-};
+  return {
+    name: group.name,
+    icon: <Icon size={ICON_SIZE} />,
+    children,
+  };
+}
 
-const management = {
-  name: "Management",
-  icon: <Magnet size={ICON_SIZE} />,
-  children: [user, bulkUpload],
-};
-
-const settings = {
-  name: "Settings",
-  icon: <Settings size={ICON_SIZE} />,
-  children: [integrations],
-};
-
-export const menuItems = {
-  admin: [management, leads, settings],
-  manager: [management],
-  user: [],
-};
+export const menuItems = Object.fromEntries(
+  Object.entries(roleConfig).map(([role, config]) => [
+    role,
+    config.groups.map((group) => buildGroup(group, role)),
+  ]),
+);
 
 export default menuItems;
