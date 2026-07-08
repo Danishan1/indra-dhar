@@ -42,4 +42,26 @@ export const UserRepository = {
 
   assignTeam: (id, teamId) =>
     db.query(`UPDATE users SET team_id=$1 WHERE id=$2`, [teamId, id]),
+
+  async getRandomAssignableUser({ tenant_id, team_id = null }) {
+    const result = await db.query(
+      `
+      SELECT
+        id,
+        first_name,
+        last_name,
+        email,
+        team_id
+      FROM users
+      WHERE tenant_id = $1
+        AND is_active = TRUE
+        AND ($2::uuid IS NULL OR team_id = $2)
+      ORDER BY RANDOM()
+      LIMIT 1
+      `,
+      [tenant_id, team_id],
+    );
+
+    return result.rows[0] || null;
+  },
 };

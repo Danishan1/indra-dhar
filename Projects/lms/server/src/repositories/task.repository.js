@@ -3,7 +3,7 @@ import { dbResponse } from "../utils/dbResponse.js";
 
 export const TaskRepository = {
   async create(data) {
-    const result = db.query(
+    const result = await db.query(
       `INSERT INTO tasks
       (tenant_id, lead_id, assigned_to, task_type_id, title, description, priority, due_date, created_by)
       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
@@ -25,7 +25,7 @@ export const TaskRepository = {
   },
 
   async findAll(tenantId, filters) {
-    const result = db.query(
+    const result = await db.query(
       `SELECT * FROM tasks
        WHERE tenant_id = $1
        ORDER BY due_date ASC`,
@@ -36,12 +36,12 @@ export const TaskRepository = {
   },
 
   async findById(id) {
-    const result = db.query(`SELECT * FROM tasks WHERE id = $1`, [id]);
+    const result = await db.query(`SELECT * FROM tasks WHERE id = $1`, [id]);
     return dbResponse.single(result);
   },
 
   async update(id, data) {
-    const result = db.query(
+    const result = await db.query(
       `UPDATE tasks SET
         title = COALESCE($2, title),
         description = COALESCE($3, description),
@@ -56,12 +56,12 @@ export const TaskRepository = {
   },
 
   async delete(id) {
-    const result = db.query(`DELETE FROM tasks WHERE id = $1`, [id]);
+    const result = await db.query(`DELETE FROM tasks WHERE id = $1`, [id]);
     return dbResponse.count(result);
   },
 
   async assign(taskId, userId) {
-    const result = db.query(
+    const result = await db.query(
       `UPDATE tasks
        SET assigned_to = $2, updated_at = NOW()
        WHERE id = $1`,
@@ -89,7 +89,7 @@ export const TaskRepository = {
   },
 
   async updateStatus(taskId, status) {
-    const result = db.query(
+    const result = await db.query(
       `UPDATE tasks
        SET status = $2,
            completed_at = CASE WHEN $2 = 'COMPLETED' THEN NOW() ELSE completed_at END,
@@ -102,7 +102,7 @@ export const TaskRepository = {
   },
 
   async setOutcome(taskId, outcome) {
-    const result = db.query(
+    const result = await db.query(
       `UPDATE tasks SET outcome = $2, updated_at = NOW()
        WHERE id = $1`,
       [taskId, outcome],
@@ -112,7 +112,7 @@ export const TaskRepository = {
   },
 
   async addComment(taskId, comment, userId) {
-    const result = db.query(
+    const result = await db.query(
       `INSERT INTO task_comments (task_id, comment, user_id)
        VALUES ($1,$2,$3)
        RETURNING *`,
@@ -123,7 +123,7 @@ export const TaskRepository = {
   },
 
   async logHistory(taskId, data) {
-    const result = db.query(
+    const result = await db.query(
       `INSERT INTO task_history
        (task_id, old_status, new_status, old_assigned_to, new_assigned_to, changed_by)
        VALUES ($1,$2,$3,$4,$5,$6)`,
@@ -141,7 +141,7 @@ export const TaskRepository = {
   },
 
   async getHistory(taskId) {
-    const result = db.query(
+    const result = await db.query(
       `SELECT * FROM task_history
        WHERE task_id = $1
        ORDER BY changed_at DESC`,

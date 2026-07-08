@@ -27,7 +27,7 @@ router.use("/activity", activityRoutes);
 router.use("/audit", auditRoutes);
 router.use("/leads", leadRoutes);
 router.use("/notification", notificationRoutes);
-router.use("/task", taskRoutes);
+router.use("/tasks", taskRoutes);
 router.use("/workflow", workflowRoutes);
 router.use("/integrations", integrationRoutes);
 

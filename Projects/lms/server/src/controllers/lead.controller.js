@@ -19,9 +19,8 @@ export const LeadController = {
       const body = validate(createLeadSchema, req.body);
 
       const lead = await LeadService.create({
-        ...body,
         tenant_id: req.user.tenant_id,
-        created_by: req.user.user_id,
+        data: { ...body, created_by: req.user.user_id },
       });
 
       return ApiResponse.created({

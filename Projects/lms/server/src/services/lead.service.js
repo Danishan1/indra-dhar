@@ -1,11 +1,13 @@
 import { LeadRepository } from "../repositories/lead.repository.js";
+import { LeadWorkflowService } from "./lead/leadWorkflow.service.js";
 
 export const LeadService = {
-  async create(data) {
-
-    console.log("DDDD: ", data)
-
-    return LeadRepository.create(data);
+  async create({ tenant_id, data }) {
+    return LeadWorkflowService.process({
+      tenant_id,
+      source: "PLATFORM",
+      data: data,
+    });
   },
 
   async list({ tenant_id, filters }) {

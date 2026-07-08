@@ -208,4 +208,44 @@ export const LeadRepository = {
 
     return dbResponse.single(result);
   },
+  async findDuplicateLead({
+    tenant_id,
+    email,
+    mobile,
+    first_name,
+    last_name,
+    company,
+  }) {
+    const result = await db.query(
+      `
+    SELECT *
+    FROM leads
+    WHERE tenant_id = $1
+      AND (
+        ($2::text IS NOT NULL AND LOWER(email) = LOWER($2::text))
+        OR
+        ($3::text IS NOT NULL AND mobile = $3::text)
+        OR
+        (
+          $4::text IS NOT NULL
+          AND LOWER(first_name) = LOWER($4::text)
+          AND LOWER(COALESCE(last_name, '')) = LOWER(COALESCE($5::text, ''))
+          AND LOWER(COALESCE(company, '')) = LOWER(COALESCE($6::text, ''))
+        )
+      )
+    ORDER BY created_at DESC
+    LIMIT 1
+    `,
+      [
+        tenant_id,
+        email || null,
+        mobile || null,
+        first_name || null,
+        last_name || null,
+        company || null,
+      ],
+    );
+
+    return dbResponse.single(result);
+  },
 };
