@@ -1,8 +1,9 @@
 import { db } from "../config/db.js";
+import { dbResponse } from "../utils/dbResponse.js";
 
 export const TaskRepository = {
   async create(data) {
-    return db.query(
+    const result = db.query(
       `INSERT INTO tasks
       (tenant_id, lead_id, assigned_to, task_type_id, title, description, priority, due_date, created_by)
       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
@@ -19,23 +20,28 @@ export const TaskRepository = {
         data.created_by,
       ],
     );
+
+    return dbResponse.single(result);
   },
 
   async findAll(tenantId, filters) {
-    return db.query(
+    const result = db.query(
       `SELECT * FROM tasks
        WHERE tenant_id = $1
        ORDER BY due_date ASC`,
       [tenantId],
     );
+
+    return dbResponse.many(result);
   },
 
   async findById(id) {
-    return db.query(`SELECT * FROM tasks WHERE id = $1`, [id]);
+    const result = db.query(`SELECT * FROM tasks WHERE id = $1`, [id]);
+    return dbResponse.single(result);
   },
 
   async update(id, data) {
-    return db.query(
+    const result = db.query(
       `UPDATE tasks SET
         title = COALESCE($2, title),
         description = COALESCE($3, description),
@@ -46,37 +52,44 @@ export const TaskRepository = {
        RETURNING *`,
       [id, data.title, data.description, data.priority, data.due_date],
     );
+    return dbResponse.single(result);
   },
 
   async delete(id) {
-    return db.query(`DELETE FROM tasks WHERE id = $1`, [id]);
+    const result = db.query(`DELETE FROM tasks WHERE id = $1`, [id]);
+    return dbResponse.count(result);
   },
 
   async assign(taskId, userId) {
-    return db.query(
+    const result = db.query(
       `UPDATE tasks
        SET assigned_to = $2, updated_at = NOW()
        WHERE id = $1`,
       [taskId, userId],
     );
+
+    return dbResponse.single(result);
   },
 
   async getAssigned(taskId) {
     const res = await db.query(`SELECT assigned_to FROM tasks WHERE id = $1`, [
       taskId,
     ]);
-    return res.rows[0]?.assigned_to;
+    const result = res.rows[0]?.assigned_to;
+
+    return result;
   },
 
   async getStatus(taskId) {
     const res = await db.query(`SELECT status FROM tasks WHERE id = $1`, [
       taskId,
     ]);
-    return res.rows[0]?.status;
+    const result = res.rows[0]?.status;
+    return result;
   },
 
   async updateStatus(taskId, status) {
-    return db.query(
+    const result = db.query(
       `UPDATE tasks
        SET status = $2,
            completed_at = CASE WHEN $2 = 'COMPLETED' THEN NOW() ELSE completed_at END,
@@ -84,27 +97,33 @@ export const TaskRepository = {
        WHERE id = $1`,
       [taskId, status],
     );
+
+    return dbResponse.single(result);
   },
 
   async setOutcome(taskId, outcome) {
-    return db.query(
+    const result = db.query(
       `UPDATE tasks SET outcome = $2, updated_at = NOW()
        WHERE id = $1`,
       [taskId, outcome],
     );
+
+    return dbResponse.single(result);
   },
 
   async addComment(taskId, comment, userId) {
-    return db.query(
+    const result = db.query(
       `INSERT INTO task_comments (task_id, comment, user_id)
        VALUES ($1,$2,$3)
        RETURNING *`,
       [taskId, comment, userId],
     );
+
+    return dbResponse.single(result);
   },
 
   async logHistory(taskId, data) {
-    return db.query(
+    const result = db.query(
       `INSERT INTO task_history
        (task_id, old_status, new_status, old_assigned_to, new_assigned_to, changed_by)
        VALUES ($1,$2,$3,$4,$5,$6)`,
@@ -117,15 +136,19 @@ export const TaskRepository = {
         data.changed_by,
       ],
     );
+
+    return dbResponse.single(result);
   },
 
   async getHistory(taskId) {
-    return db.query(
+    const result = db.query(
       `SELECT * FROM task_history
        WHERE task_id = $1
        ORDER BY changed_at DESC`,
       [taskId],
     );
+
+    return dbResponse.single(result);
   },
 
   async getComments({ taskId, tenant_id, limit = 50, offset = 0 }) {
@@ -150,6 +173,7 @@ export const TaskRepository = {
     const values = [taskId, tenant_id, limit, offset];
 
     const result = await db.query(query, values);
-    return result.rows;
+
+    return dbResponse.many(result);
   },
 };
