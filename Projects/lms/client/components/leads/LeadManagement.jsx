@@ -104,15 +104,10 @@ export default function LeadManagement() {
    */
 
   const [createOpen, setCreateOpen] = useState(false);
-
   const [editLead, setEditLead] = useState(null);
-
   const [viewLead, setViewLead] = useState(null);
-
   const [actionLead, setActionLead] = useState(null);
-
   const [timeline, setTimeline] = useState([]);
-
   const [duplicates, setDuplicates] = useState([]);
 
   /**
@@ -128,8 +123,6 @@ export default function LeadManagement() {
       setLoading(true);
 
       const response = await LeadAPI.list(filters);
-
-      console.log("DDDD: ", response.data);
 
       setLeads(response.data || response);
     } catch (err) {
@@ -154,8 +147,7 @@ export default function LeadManagement() {
         lead.company?.toLowerCase().includes(filters.search.toLowerCase()) ||
         lead.email?.toLowerCase().includes(filters.search.toLowerCase());
 
-      const stageMatch =
-        !filters.stage_id || lead.stage_id === filters.stage_id;
+      const stageMatch = !filters.stage || lead.stage === filters.stage;
 
       const statusMatch = !filters.status || lead.status === filters.status;
 
@@ -201,6 +193,12 @@ export default function LeadManagement() {
   };
 
   const deleteLead = async (id) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this lead? This action cannot be undone.",
+    );
+
+    if (!confirmed) return;
+
     try {
       await LeadAPI.remove(id);
 
@@ -330,16 +328,16 @@ export default function LeadManagement() {
           label=""
           placeholder="Stage"
           options={STAGE_OPTIONS}
-          value={filters.stage_id}
+          value={filters.stage}
           onChange={(e) =>
             setFilters({
               ...filters,
-              stage_id: e.target.value,
+              stage: e.target.value,
             })
           }
         />
 
-        <SelectInput
+        {/* <SelectInput
           label=""
           placeholder="Status"
           options={STATUS_OPTIONS}
@@ -351,7 +349,7 @@ export default function LeadManagement() {
               status: e.target.value,
             })
           }
-        />
+        /> */}
       </div>
 
       {/* TABLE */}
@@ -365,7 +363,7 @@ export default function LeadManagement() {
               <th>Phone</th>
               <th>Assigned</th>
               <th>Stage</th>
-              <th>Status</th>
+              {/* <th>Status</th> */}
               <th>Actions</th>
             </tr>
           </thead>
@@ -373,9 +371,7 @@ export default function LeadManagement() {
           <tbody>
             {filteredLeads.map((lead) => (
               <tr key={lead.id}>
-                <td>
-                  {lead.name}
-                </td>
+                <td>{lead.name}</td>
                 <td>{lead.company}</td>
                 <td>{lead.phone || "-"}</td>
                 <td>{lead.assigned || "-"}</td>
@@ -386,13 +382,13 @@ export default function LeadManagement() {
                     {lead.stage || "-"}
                   </span>
                 </td>
-                <td>
+                {/* <td>
                   <span
                     className={`${styles.badge} ${styles[lead.status?.toLowerCase()]}`}
                   >
                     {lead.status}
                   </span>
-                </td>
+                </td> */}
                 <td>
                   <div className={styles.actions}>
                     <Button variant="outline" onClick={() => setViewLead(lead)}>
@@ -427,6 +423,7 @@ export default function LeadManagement() {
         open={createOpen}
         onSubmit={createLead}
         onClose={() => setCreateOpen(false)}
+        stages={STAGE_OPTIONS}
       />
 
       {/* EDIT */}

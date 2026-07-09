@@ -45,13 +45,9 @@ const STAGE_OPTIONS = [
 
 export default function ChangeLeadStageModal({
   open,
-
   currentStage = "NEW",
-
   loading = false,
-
   onSubmit,
-
   onClose,
 }) {
   const [stage, setStage] = useState(currentStage);

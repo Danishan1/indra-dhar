@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   Calendar,
@@ -12,28 +12,59 @@ import {
   FileText,
   CheckCircle,
   Clock,
+  MapPin,
+  Briefcase,
 } from "lucide-react";
 
 import styles from "./LeadDetailsViewModal.module.css";
 
 import { Modal } from "../ui";
+import { LeadAPI } from "@/service";
 
-export default function LeadDetailsViewModal({
-  open,
+export default function LeadDetailsViewModal({ open, lead, onClose }) {
+  const [leadData, setLeadData] = useState(null);
 
-  lead,
+  useEffect(() => {
+    if (!open || !lead?.id) return;
 
-  notes = [],
+    const fetchLeadDetails = async () => {
+      try {
+        const response = await LeadAPI.getById(lead.id);
 
-  timeline = [],
+        setLeadData(response.data);
+      } catch (error) {
+        console.error("Failed to load lead details:", error);
+      }
+    };
 
-  attachments = [],
+    fetchLeadDetails();
+  }, [open, lead?.id]);
 
-  onClose,
-}) {
-  if (!open || !lead) {
+  if (!open || !leadData) {
     return null;
   }
+
+  const {
+    full_name,
+    company,
+    stage,
+    priority,
+    assigned_to,
+    email,
+    mobile,
+    budget,
+    created_at,
+    product_interest,
+    address,
+    city,
+    state,
+    country,
+    postal_code,
+    remarks,
+    notes = [],
+    attachments = [],
+    timeline = [],
+  } = leadData;
 
   return (
     <Modal title="Lead Details" onClose={onClose}>
@@ -42,103 +73,71 @@ export default function LeadDetailsViewModal({
 
         <div className={styles.header}>
           <div>
-            <h2 className={styles.title}>{lead.name}</h2>
+            <h2 className={styles.title}>{full_name}</h2>
 
-            {lead.company && <p className={styles.company}>{lead.company}</p>}
+            <p className={styles.company}>{company}</p>
           </div>
 
           <div className={styles.statusGroup}>
-            <span
-              className={`${styles.badge} ${styles[lead.stage?.toLowerCase()]}`}
-            >
-              {lead.stage}
+            <span className={`${styles.badge} ${styles[stage?.toLowerCase()]}`}>
+              {stage}
             </span>
 
-            <span
-              className={`${styles.badge} ${
-                styles[lead.status?.toLowerCase()]
-              }`}
-            >
-              {lead.status}
-            </span>
+            <span className={`${styles.badge} ${styles.high}`}>{priority}</span>
           </div>
         </div>
 
-        {/* Lead Information */}
+        {/* Information */}
 
         <div className={styles.infoCard}>
-          <div className={styles.infoItem}>
-            <User size={18} />
+          <Info
+            icon={<User size={18} />}
+            title="Assigned To"
+            value={assigned_to?.name}
+          />
 
-            <div>
-              <span>Assigned To</span>
+          <Info
+            icon={<Building2 size={18} />}
+            title="Company"
+            value={company}
+          />
 
-              <strong>{lead.assigned_name || "-"}</strong>
-            </div>
-          </div>
+          <Info icon={<Mail size={18} />} title="Email" value={email} />
 
-          <div className={styles.infoItem}>
-            <Building2 size={18} />
+          <Info icon={<Phone size={18} />} title="Mobile" value={mobile} />
 
-            <div>
-              <span>Company</span>
+          <Info
+            icon={<DollarSign size={18} />}
+            title="Budget"
+            value={`₹ ${budget || "-"}`}
+          />
 
-              <strong>{lead.company || "-"}</strong>
-            </div>
-          </div>
+          <Info
+            icon={<Briefcase size={18} />}
+            title="Product Interest"
+            value={product_interest}
+          />
 
-          <div className={styles.infoItem}>
-            <Mail size={18} />
+          <Info
+            icon={<MapPin size={18} />}
+            title="Location"
+            value={[address, city, state].filter(Boolean).join(", ") || "-"}
+          />
 
-            <div>
-              <span>Email</span>
-
-              <strong>{lead.email || "-"}</strong>
-            </div>
-          </div>
-
-          <div className={styles.infoItem}>
-            <Phone size={18} />
-
-            <div>
-              <span>Phone</span>
-
-              <strong>{lead.phone || "-"}</strong>
-            </div>
-          </div>
-
-          <div className={styles.infoItem}>
-            <DollarSign size={18} />
-
-            <div>
-              <span>Estimated Value</span>
-
-              <strong>{lead.value || "-"}</strong>
-            </div>
-          </div>
-
-          <div className={styles.infoItem}>
-            <Calendar size={18} />
-
-            <div>
-              <span>Created At</span>
-
-              <strong>
-                {lead.created_at
-                  ? new Date(lead.created_at).toLocaleString()
-                  : "-"}
-              </strong>
-            </div>
-          </div>
+          <Info
+            icon={<Calendar size={18} />}
+            title="Created At"
+            value={created_at ? new Date(created_at).toLocaleString() : "-"}
+          />
         </div>
 
-        {/* Description */}
+        {/* Remarks */}
 
         <section className={styles.section}>
-          <h3>Description</h3>
+          <h3>Remarks</h3>
 
           <div className={styles.description}>
-            {lead.description ? lead.description : "No description available"}
+            {remarks || "No remarks available"}
           </div>
         </section>
 
@@ -153,13 +152,9 @@ export default function LeadDetailsViewModal({
             notes.map((note) => (
               <div key={note.id} className={styles.note}>
                 <div className={styles.noteHeader}>
-                  <strong>{note.user_name || "User"}</strong>
+                  <strong>{note.created_by?.name || "User"}</strong>
 
-                  <small>
-                    {note.created_at
-                      ? new Date(note.created_at).toLocaleString()
-                      : ""}
-                  </small>
+                  <small>{new Date(note.created_at).toLocaleString()}</small>
                 </div>
 
                 <p>{note.note}</p>
@@ -180,7 +175,7 @@ export default function LeadDetailsViewModal({
               <div key={file.id} className={styles.attachment}>
                 <FileText size={16} />
 
-                <span>{file.filename}</span>
+                <span>{file.file_name}</span>
               </div>
             ))
           )}
@@ -199,15 +194,15 @@ export default function LeadDetailsViewModal({
                 <CheckCircle size={16} />
 
                 <div>
-                  <p>{item.action}</p>
+                  <p>{item.type}</p>
 
                   <small>
                     <Clock size={12} />
 
-                    {item.created_at
-                      ? new Date(item.created_at).toLocaleString()
-                      : ""}
+                    {new Date(item.created_at).toLocaleString()}
                   </small>
+
+                  {item.data?.remarks && <small>{item.data.remarks}</small>}
                 </div>
               </div>
             ))
@@ -215,5 +210,19 @@ export default function LeadDetailsViewModal({
         </section>
       </div>
     </Modal>
+  );
+}
+
+function Info({ icon, title, value }) {
+  return (
+    <div className={styles.infoItem}>
+      {icon}
+
+      <div>
+        <span>{title}</span>
+
+        <strong>{value || "-"}</strong>
+      </div>
+    </div>
   );
 }

@@ -31,8 +31,6 @@ export default function TaskDetailsViewModal({ open, task, onClose }) {
 
         const response = await TaskAPI.getById(task.id);
 
-        console.log("TASK DETAILS:", response.data);
-
         const data = response.data;
 
         setTaskData(data.tasks || null);

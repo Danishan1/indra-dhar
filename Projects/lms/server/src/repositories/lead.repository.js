@@ -1,14 +1,28 @@
 import { db } from "../config/db.js";
 import { dbResponse } from "../utils/dbResponse.js";
+import { QuerygetLeadById } from "./query/getLeadById.js";
 
 export const LeadRepository = {
   async create(data) {
     const result = await db.query(
-      `INSERT INTO leads
-      (tenant_id, lead_number, first_name, last_name, company, mobile, email, source_id, priority_id, pipeline_id, stage_id, created_by)
-      VALUES
-      ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
-      RETURNING *`,
+      `INSERT INTO leads (
+      tenant_id,
+      lead_number,
+      first_name,
+      last_name,
+      company,
+      mobile,
+      email,
+      source,
+      priority,
+      pipeline,
+      stage,
+      created_by
+    )
+    VALUES (
+      $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12
+    )
+    RETURNING *`,
       [
         data.tenant_id,
         data.lead_number,
@@ -17,10 +31,10 @@ export const LeadRepository = {
         data.company,
         data.mobile,
         data.email,
-        data.source_id,
-        data.priority_id,
-        data.pipeline_id,
-        data.stage_id,
+        data.source || "PLATFORM",
+        data.priority || "MEDIUM",
+        data.pipeline || "DEFAULT",
+        data.stage || "NEW",
         data.created_by,
       ],
     );
@@ -39,7 +53,7 @@ export const LeadRepository = {
 
       CONCAT_WS(' ', u.first_name, u.last_name) AS assigned,
 
-      ps.name AS stage,
+      l.stage,
 
       CASE
         WHEN l.closed_at IS NOT NULL THEN 'CLOSED'
@@ -50,9 +64,6 @@ export const LeadRepository = {
 
     LEFT JOIN users u
       ON u.id = l.assigned_to
-
-    LEFT JOIN pipeline_stages ps
-      ON ps.id = l.stage_id
 
     WHERE l.tenant_id = $1
 
@@ -65,114 +76,13 @@ export const LeadRepository = {
   },
 
   async findById(id) {
-    const result = await db.query(
-      `
-    SELECT
-      l.id,
-      l.lead_number,
-      l.first_name,
-      l.last_name,
-      CONCAT_WS(' ', l.first_name, l.last_name) AS full_name,
-      l.company,
-      l.mobile,
-      l.email,
-      l.address,
-      l.city,
-      l.state,
-      l.country,
-      l.postal_code,
-      l.product_interest,
-      l.budget,
-      l.remarks,
-      l.is_duplicate,
-      l.closed_at,
-      l.created_at,
-      l.updated_at,
-
-      json_build_object(
-        'id', ls.id,
-        'name', ls.name
-      ) AS source,
-
-      json_build_object(
-        'id', lp.id,
-        'name', lp.name,
-        'color', lp.color
-      ) AS priority,
-
-      json_build_object(
-        'id', p.id,
-        'name', p.name
-      ) AS pipeline,
-
-      json_build_object(
-        'id', ps.id,
-        'name', ps.name,
-        'type', ps.stage_type
-      ) AS stage,
-
-      CASE
-        WHEN assignee.id IS NULL THEN NULL
-        ELSE json_build_object(
-          'id', assignee.id,
-          'name', CONCAT_WS(' ', assignee.first_name, assignee.last_name),
-          'email', assignee.email
-        )
-      END AS assigned_to,
-
-      CASE
-        WHEN manager.id IS NULL THEN NULL
-        ELSE json_build_object(
-          'id', manager.id,
-          'name', CONCAT_WS(' ', manager.first_name, manager.last_name)
-        )
-      END AS manager,
-
-      CASE
-        WHEN team.id IS NULL THEN NULL
-        ELSE json_build_object(
-          'id', team.id,
-          'name', team.name
-        )
-      END AS team,
-
-      json_build_object(
-        'id', creator.id,
-        'name', CONCAT_WS(' ', creator.first_name, creator.last_name)
-      ) AS created_by
-
-    FROM leads l
-
-    LEFT JOIN lead_sources ls
-      ON ls.id = l.source_id
-
-    LEFT JOIN lead_priorities lp
-      ON lp.id = l.priority_id
-
-    LEFT JOIN pipelines p
-      ON p.id = l.pipeline_id
-
-    LEFT JOIN pipeline_stages ps
-      ON ps.id = l.stage_id
-
-    LEFT JOIN users assignee
-      ON assignee.id = l.assigned_to
-
-    LEFT JOIN users manager
-      ON manager.id = l.manager_id
-
-    LEFT JOIN users creator
-      ON creator.id = l.created_by
-
-    LEFT JOIN teams team
-      ON team.id = l.team_id
-
-    WHERE l.id = $1
-    `,
-      [id],
-    );
+    const result = await db.query(QuerygetLeadById, [id]);
 
     return dbResponse.single(result);
+  },
+
+  async getLeadById(id) {
+    return this.findById(id);
   },
 
   async update(id, data) {
@@ -183,9 +93,13 @@ export const LeadRepository = {
         company = COALESCE($4, company),
         mobile = COALESCE($5, mobile),
         email = COALESCE($6, email),
+        source = COALESCE($7, source),
+        priority = COALESCE($8, priority),
+        pipeline = COALESCE($9, pipeline),
+        stage = COALESCE($10, stage),
         updated_at = NOW()
-       WHERE id = $1
-       RETURNING *`,
+      WHERE id = $1
+      RETURNING *`,
       [
         id,
         data.first_name,
@@ -193,6 +107,10 @@ export const LeadRepository = {
         data.company,
         data.mobile,
         data.email,
+        data.source,
+        data.priority,
+        data.pipeline,
+        data.stage,
       ],
     );
 
@@ -212,7 +130,7 @@ export const LeadRepository = {
 
   async updateStage(leadId, stageId) {
     const result = await db.query(
-      `UPDATE leads SET stage_id = $2, updated_at = NOW()
+      `UPDATE leads SET stage = $2, updated_at = NOW()
        WHERE id = $1
        RETURNING *`,
       [leadId, stageId],
@@ -255,12 +173,27 @@ export const LeadRepository = {
     return dbResponse.single(result);
   },
 
+  async getStage(leadId) {
+    const result = await db.query(
+      `SELECT stage
+     FROM leads
+     WHERE id = $1`,
+      [leadId],
+    );
+
+    return dbResponse.single(result);
+  },
+
   async logStageChange(leadId, oldStage, newStage, userId) {
     const result = await db.query(
-      `INSERT INTO lead_stage_history
-       (lead_id, old_stage_id, new_stage_id, changed_by)
-       VALUES ($1,$2,$3,$4)
-       RETURNING *`,
+      `INSERT INTO lead_stage_history (
+      lead_id,
+      old_stage,
+      new_stage,
+      changed_by
+    )
+    VALUES ($1,$2,$3,$4)
+    RETURNING *`,
       [leadId, oldStage, newStage, userId],
     );
 
@@ -286,7 +219,7 @@ export const LeadRepository = {
     FROM activities a
 
     LEFT JOIN users u
-      ON u.id = a.created_by
+      ON u.id = a.user_id
 
     WHERE a.lead_id = $1
 

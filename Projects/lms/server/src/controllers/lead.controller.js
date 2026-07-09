@@ -123,9 +123,9 @@ export const LeadController = {
   async changeStage(req, res, next) {
     try {
       const { id } = validate(leadIdSchema, req.params);
-      const { stage_id } = validate(stageSchema, req.body);
+      const { stage } = validate(stageSchema, req.body);
 
-      const result = await LeadService.changeStage(id, stage_id, req.user.id);
+      const result = await LeadService.changeStage(id, stage, req.user.id);
 
       return ApiResponse.success({
         res,

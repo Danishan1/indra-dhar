@@ -36,12 +36,12 @@ export const LeadService = {
     return { success: true };
   },
 
-  async changeStage(leadId, stageId, userId) {
+  async changeStage(leadId, stage, userId) {
     const oldStage = await LeadRepository.getStage(leadId);
 
-    await LeadRepository.updateStage(leadId, stageId);
+    await LeadRepository.updateStage(leadId, stage);
 
-    await LeadRepository.logStageChange(leadId, oldStage, stageId, userId);
+    await LeadRepository.logStageChange(leadId, oldStage, stage, userId);
 
     return { success: true };
   },
@@ -81,7 +81,7 @@ export const LeadService = {
    * Duplicate detection
    */
   async checkDuplicates({ tenant_id, lead_id }) {
-    const lead = await LeadRepository.getLeadById(lead_id, tenant_id);
+    const lead = await LeadRepository.findById(lead_id, tenant_id);
     if (!lead) throw new Error("Lead not found");
 
     const duplicates = await LeadRepository.findDuplicates({

@@ -27,8 +27,6 @@ export default function IntegrationsPage() {
   const load = async () => {
     const res = await apiUtil.get("/integrations");
 
-    console.log("DDDD: ", res)
-
     setList(mergeIntegrations(res.data || []));
   };
 

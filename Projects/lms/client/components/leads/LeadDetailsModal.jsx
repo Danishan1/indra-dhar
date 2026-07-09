@@ -1,18 +1,27 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   UserPlus,
   RefreshCcw,
   MessageSquare,
-  FileText,
   Upload,
   Trash2,
   CheckCircle,
+  User,
+  Building2,
+  Mail,
+  Phone,
+  DollarSign,
+  FileText,
+  Calendar,
+  MapPin,
+  Briefcase,
 } from "lucide-react";
 
 import { Button, Modal } from "../ui";
+import { LeadAPI } from "@/service";
 
 import AssignLeadModal from "./AssignLeadModal";
 import ChangeLeadStageModal from "./ChangeLeadStageModal";
@@ -21,49 +30,87 @@ import NoteModal from "./NoteModal";
 import AttachmentModal from "./AttachmentModal.jsx";
 
 import styles from "./LeadDetailsModal.module.css";
+import { getBackEndRoute } from "@/utils/api";
 
 export default function LeadDetailsModal({
   open,
-
   lead,
-
   users = [],
-
-  timeline = [],
-
-  notes = [],
-
-  attachments = [],
-
-  loading = false,
-
   onAssign,
-
   onStageChange,
-
   onStatusChange,
-
   onAddNote,
-
-  onUploadAttachment,
-
   onDelete,
-
   onClose,
 }) {
+  const [leadData, setLeadData] = useState(null);
+
   const [assignOpen, setAssignOpen] = useState(false);
-
   const [stageOpen, setStageOpen] = useState(false);
-
   const [statusOpen, setStatusOpen] = useState(false);
-
   const [noteOpen, setNoteOpen] = useState(false);
-
   const [attachmentOpen, setAttachmentOpen] = useState(false);
 
-  if (!open || !lead) {
+  useEffect(() => {
+    if (!open || !lead?.id) return;
+
+    const fetchLead = async () => {
+      try {
+        const response = await LeadAPI.getById(lead.id);
+        setLeadData(response.data);
+      } catch (error) {
+        console.error("Failed loading lead details:", error);
+      }
+    };
+
+    fetchLead();
+  }, [open, lead?.id]);
+
+  const handleUploadAttachment = async (leadId, file) => {
+    try {
+      const formData = new FormData();
+
+      formData.append("file", file);
+
+      const response = await LeadAPI.uploadAttachment(leadId, formData);
+
+      // refresh lead details if needed
+      const updatedLead = await LeadAPI.getById(leadId);
+      // setSelectedLead(updatedLead.data);
+
+      // optional toast
+      // toast.success("Attachment uploaded successfully");
+    } catch (error) {
+      console.error("Failed uploading attachment:", error);
+
+      // optional toast
+      // toast.error("Failed to upload attachment");
+    }
+  };
+
+  if (!open || !leadData) {
     return null;
   }
+
+  const {
+    full_name,
+    company,
+    stage,
+    priority,
+    assigned_to,
+    email,
+    mobile,
+    budget,
+    created_at,
+    product_interest,
+    address,
+    city,
+    state,
+    remarks,
+    notes = [],
+    attachments = [],
+    timeline = [],
+  } = leadData;
 
   return (
     <>
@@ -73,22 +120,21 @@ export default function LeadDetailsModal({
 
           <div className={styles.header}>
             <div>
-              <h2>{lead.name}</h2>
-
-              <p className={styles.muted}>{lead.company || "No company"}</p>
+              <h2>{full_name}</h2>
+              <p className={styles.muted}>{company || "No company"}</p>
             </div>
 
             <div className={styles.badges}>
               <span
-                className={`${styles.badge} ${styles[lead.stage?.toLowerCase()]}`}
+                className={`${styles.badge} ${styles[stage?.toLowerCase()]}`}
               >
-                {lead.stage}
+                {stage}
               </span>
 
               <span
-                className={`${styles.badge} ${styles[lead.status?.toLowerCase()]}`}
+                className={`${styles.badge} ${styles[priority?.toLowerCase()]}`}
               >
-                {lead.status}
+                {priority}
               </span>
             </div>
           </div>
@@ -96,56 +142,56 @@ export default function LeadDetailsModal({
           {/* Information */}
 
           <div className={styles.infoGrid}>
-            <div>
-              <label>Email</label>
+            <Info
+              icon={<User size={16} />}
+              label="Assigned To"
+              value={assigned_to?.name}
+            />
 
-              <p>{lead.email || "-"}</p>
-            </div>
+            <Info
+              icon={<Building2 size={16} />}
+              label="Company"
+              value={company}
+            />
 
-            <div>
-              <label>Phone</label>
+            <Info icon={<Mail size={16} />} label="Email" value={email} />
 
-              <p>{lead.phone || "-"}</p>
-            </div>
+            <Info icon={<Phone size={16} />} label="Mobile" value={mobile} />
 
-            <div>
-              <label>Assigned To</label>
+            <Info
+              icon={<DollarSign size={16} />}
+              label="Budget"
+              value={`₹ ${budget || "-"}`}
+            />
 
-              <p>{lead.assigned_name || "-"}</p>
-            </div>
+            <Info
+              icon={<Briefcase size={16} />}
+              label="Product Interest"
+              value={product_interest}
+            />
 
-            <div>
-              <label>Source</label>
+            <Info
+              icon={<MapPin size={16} />}
+              label="Location"
+              value={[address, city, state].filter(Boolean).join(", ")}
+            />
 
-              <p>{lead.source || "-"}</p>
-            </div>
-
-            <div>
-              <label>Value</label>
-
-              <p>{lead.value || "-"}</p>
-            </div>
-
-            <div>
-              <label>Created</label>
-
-              <p>
-                {lead.created_at
-                  ? new Date(lead.created_at).toLocaleString()
-                  : "-"}
-              </p>
-            </div>
+            <Info
+              icon={<Calendar size={16} />}
+              label="Created"
+              value={created_at ? new Date(created_at).toLocaleString() : "-"}
+            />
           </div>
 
-          {/* Description */}
+          {/* Remarks */}
 
-          {lead.description && (
-            <section className={styles.section}>
-              <h3>Description</h3>
+          <section className={styles.section}>
+            <h3>Remarks</h3>
 
-              <p className={styles.description}>{lead.description}</p>
-            </section>
-          )}
+            <p className={styles.description}>
+              {remarks || "No remarks available"}
+            </p>
+          </section>
 
           {/* Actions */}
 
@@ -160,10 +206,10 @@ export default function LeadDetailsModal({
               Stage
             </Button>
 
-            <Button variant="outline" onClick={() => setStatusOpen(true)}>
+            {/* <Button variant="outline" onClick={() => setStatusOpen(true)}>
               <CheckCircle size={16} />
               Status
-            </Button>
+            </Button> */}
 
             <Button variant="outline" onClick={() => setNoteOpen(true)}>
               <MessageSquare size={16} />
@@ -175,7 +221,7 @@ export default function LeadDetailsModal({
               Upload
             </Button>
 
-            <Button variant="danger" onClick={() => onDelete(lead.id)}>
+            <Button variant="danger" onClick={() => onDelete(leadData.id)}>
               <Trash2 size={16} />
               Delete
             </Button>
@@ -191,11 +237,11 @@ export default function LeadDetailsModal({
             ) : (
               notes.map((note) => (
                 <div key={note.id} className={styles.note}>
-                  <strong>{note.user_name || "User"}</strong>
+                  <strong>{note.created_by?.name || "User"}</strong>
 
                   <p>{note.note}</p>
 
-                  <small>{note.created_at}</small>
+                  <small>{new Date(note.created_at).toLocaleString()}</small>
                 </div>
               ))
             )}
@@ -207,12 +253,20 @@ export default function LeadDetailsModal({
             <h3>Attachments</h3>
 
             {attachments.length === 0 ? (
-              <p className={styles.empty}>No attachments</p>
+              <p className={styles.empty}>No attachments uploaded</p>
             ) : (
               attachments.map((file) => (
-                <div key={file.id} className={styles.file}>
-                  📎 {file.filename}
-                </div>
+                <a
+                  key={file.id}
+                  href={getBackEndRoute(file.file_url)}
+                  download={file.file_name}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.file}
+                >
+                  <FileText size={16} />
+                  <span>{file.file_name}</span>
+                </a>
               ))
             )}
           </section>
@@ -220,19 +274,25 @@ export default function LeadDetailsModal({
           {/* Timeline */}
 
           <section className={styles.section}>
-            <h3>Timeline</h3>
+            <h3>Activity Timeline</h3>
 
-            {timeline.map((item) => (
-              <div key={item.id} className={styles.timeline}>
-                <CheckCircle size={15} />
+            {timeline.length === 0 ? (
+              <p className={styles.empty}>No activity found</p>
+            ) : (
+              timeline.map((item) => (
+                <div key={item.id} className={styles.timeline}>
+                  <CheckCircle size={15} />
 
-                <div>
-                  <p>{item.action}</p>
+                  <div>
+                    <p>{item.type}</p>
 
-                  <small>{item.created_at}</small>
+                    <small>{new Date(item.created_at).toLocaleString()}</small>
+
+                    {item.data?.remarks && <small>{item.data.remarks}</small>}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </section>
         </div>
       </Modal>
@@ -240,10 +300,9 @@ export default function LeadDetailsModal({
       <AssignLeadModal
         open={assignOpen}
         users={users}
-        currentUser={lead.assigned_to}
+        currentUser={assigned_to}
         onSubmit={(data) => {
-          onAssign(lead.id, data);
-
+          onAssign(leadData.id, data);
           setAssignOpen(false);
         }}
         onClose={() => setAssignOpen(false)}
@@ -251,10 +310,9 @@ export default function LeadDetailsModal({
 
       <ChangeLeadStageModal
         open={stageOpen}
-        currentStage={lead.stage}
+        currentStage={stage}
         onSubmit={(data) => {
-          onStageChange(lead.id, data);
-
+          onStageChange(leadData.id, data);
           setStageOpen(false);
         }}
         onClose={() => setStageOpen(false)}
@@ -262,10 +320,9 @@ export default function LeadDetailsModal({
 
       <ChangeLeadStatusModal
         open={statusOpen}
-        currentStatus={lead.status}
+        currentStatus={priority}
         onSubmit={(data) => {
-          onStatusChange(lead.id, data);
-
+          onStatusChange(leadData.id, data);
           setStatusOpen(false);
         }}
         onClose={() => setStatusOpen(false)}
@@ -273,10 +330,9 @@ export default function LeadDetailsModal({
 
       <NoteModal
         open={noteOpen}
-        leadId={lead.id}
+        leadId={leadData.id}
         onSubmit={(data) => {
-          onAddNote(lead.id, data);
-
+          onAddNote(leadData.id, data);
           setNoteOpen(false);
         }}
         onClose={() => setNoteOpen(false)}
@@ -284,14 +340,26 @@ export default function LeadDetailsModal({
 
       <AttachmentModal
         open={attachmentOpen}
-        leadId={lead.id}
+        leadId={leadData.id}
         onSubmit={(file) => {
-          onUploadAttachment(lead.id, file);
-
+          handleUploadAttachment(leadData.id, file);
           setAttachmentOpen(false);
         }}
         onClose={() => setAttachmentOpen(false)}
       />
     </>
+  );
+}
+
+function Info({ icon, label, value }) {
+  return (
+    <div className={styles.infoItem}>
+      {icon}
+
+      <div>
+        <label>{label}</label>
+        <p>{value || "-"}</p>
+      </div>
+    </div>
   );
 }

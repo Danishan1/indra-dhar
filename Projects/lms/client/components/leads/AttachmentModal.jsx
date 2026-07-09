@@ -48,13 +48,7 @@ export default function AttachmentModal({
       return;
     }
 
-    const formData = new FormData();
-
-    formData.append("file", file);
-
-    formData.append("lead_id", leadId);
-
-    onSubmit(formData);
+    onSubmit(file);
   };
 
   return (

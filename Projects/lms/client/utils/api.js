@@ -6,9 +6,14 @@ export const setAccessToken = (token) => {
   accessToken = token;
 };
 
+const baseURL =
+  process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://localhost:5000/";
+
+export const getBackEndRoute = (path = "") => `${baseURL}${path}`;
+
 // Create a pre-configured axios instance
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://localhost:5000/",
+  baseURL: baseURL,
   headers: {
     "Content-Type": "application/json",
   },

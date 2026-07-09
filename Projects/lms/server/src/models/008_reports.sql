@@ -4,8 +4,8 @@
 
 CREATE MATERIALIZED VIEW mv_lead_funnel AS
 SELECT tenant_id,
-  pipeline_id,
-  stage_id,
+  pipeline,
+  stage,
   COUNT(*) AS total_leads,
   COUNT(*) FILTER (
     WHERE closed_at IS NOT NULL
@@ -17,29 +17,28 @@ SELECT tenant_id,
   MAX(created_at) AS last_lead_at
 FROM leads
 GROUP BY tenant_id,
-  pipeline_id,
-  stage_id;
+  pipeline,
+  stage;
 --
 -- =====================================================
 --
 
 CREATE MATERIALIZED VIEW mv_lead_source_report AS
-SELECT l.tenant_id,
-  ls.name AS source_name,
-  COUNT(l.id) AS total_leads,
-  COUNT(l.id) FILTER (
-    WHERE l.closed_at IS NOT NULL
+SELECT tenant_id,
+  source AS source_name,
+  COUNT(id) AS total_leads,
+  COUNT(id) FILTER (
+    WHERE closed_at IS NOT NULL
   ) AS won_leads,
   ROUND(
-    COUNT(l.id) FILTER (
-      WHERE l.closed_at IS NOT NULL
-    )::NUMERIC / NULLIF(COUNT(l.id), 0) * 100,
+    COUNT(id) FILTER (
+      WHERE closed_at IS NOT NULL
+    )::NUMERIC / NULLIF(COUNT(id), 0) * 100,
     2
   ) AS conversion_rate
-FROM leads l
-  LEFT JOIN lead_sources ls ON ls.id = l.source_id
-GROUP BY l.tenant_id,
-  ls.name;
+FROM leads
+GROUP BY tenant_id,
+  source;
 --
 -- =====================================================
 --
@@ -53,7 +52,7 @@ SELECT l.tenant_id,
   ) AS won_leads,
   COUNT(l.id) FILTER (
     WHERE l.closed_at IS NULL
-      AND l.stage_id IS NOT NULL
+      AND l.stage IS NOT NULL
   ) AS active_leads,
   ROUND(
     COUNT(l.id) FILTER (
@@ -135,7 +134,7 @@ CREATE MATERIALIZED VIEW mv_lead_aging AS
 SELECT tenant_id,
   id AS lead_id,
   assigned_to,
-  stage_id,
+  stage,
   created_at,
   NOW() - created_at AS age,
   CASE

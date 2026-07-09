@@ -7,6 +7,7 @@ import styles from "./LeadFormModal.module.css";
 import { Button, Modal, SelectInput, Textarea, TextInput } from "../ui";
 
 import { FormComponent } from "../forms";
+import { SelectRemote } from "../ui/jsx/SelectRemote";
 
 export default function LeadFormModal({
   open,
@@ -94,8 +95,6 @@ export default function LeadFormModal({
       mobile: form.mobile || null,
     };
 
-    console.log("DDDD : ", payload);
-
     onSubmit(payload);
   };
 
@@ -155,31 +154,21 @@ export default function LeadFormModal({
           />
 
           <SelectInput
-            label="Source"
-            options={sources}
-            value={form.source_id}
-            onChange={(e) => updateField("source_id", e.target.value)}
-          />
-
-          <SelectInput
             label="Pipeline"
-            options={pipelines}
-            value={form.pipeline_id}
-            onChange={(e) => updateField("pipeline_id", e.target.value)}
-          />
-
-          <SelectInput
-            label="Stage"
             options={stages}
             value={form.stage_id}
             onChange={(e) => updateField("stage_id", e.target.value)}
           />
 
-          <SelectInput
-            label="Assigned To"
-            options={users}
+          <SelectRemote
+            label="Assign To"
+            endpoint={"/users"}
+            labelField="full_name"
+            valueField="id"
+            required
             value={form.assigned_to}
             onChange={(e) => updateField("assigned_to", e.target.value)}
+            placeholder="Select User"
           />
 
           <TextInput

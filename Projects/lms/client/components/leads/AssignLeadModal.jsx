@@ -5,18 +5,13 @@ import React, { useEffect, useState } from "react";
 import styles from "./AssignLeadModal.module.css";
 
 import { Button, Modal, SelectInput } from "../ui";
+import { SelectRemote } from "../ui/jsx/SelectRemote";
 
 export default function AssignLeadModal({
   open,
-
-  users = [],
-
   currentUser = "",
-
   loading = false,
-
   onSubmit,
-
   onClose,
 }) {
   const [assignedTo, setAssignedTo] = useState(currentUser || "");
@@ -40,20 +35,22 @@ export default function AssignLeadModal({
     }
 
     onSubmit({
-      assigned_to: assignedTo,
+      to_user: assignedTo,
     });
   };
 
   return (
     <Modal title="Assign Lead" onClose={onClose}>
       <div className={styles.wrapper}>
-        <SelectInput
+        <SelectRemote
           label="Assign To"
-          placeholder="Select user"
+          endpoint={"/users"}
+          labelField="full_name"
+          valueField="id"
           required
-          options={users}
           value={assignedTo}
           onChange={(e) => setAssignedTo(e.target.value)}
+          placeholder="Select User"
         />
 
         <div className={styles.actions}>

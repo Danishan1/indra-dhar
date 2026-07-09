@@ -8,28 +8,24 @@ import { Button, Modal, SelectInput } from "../ui";
 
 const STATUS_OPTIONS = [
   {
-    label: "Active",
-    value: "ACTIVE",
+    label: "Open",
+    value: "OPEN",
   },
-
   {
-    label: "Inactive",
-    value: "INACTIVE",
+    label: "Contacted",
+    value: "CONTACTED",
   },
-
   {
-    label: "Converted",
-    value: "CONVERTED",
+    label: "Qualified",
+    value: "QUALIFIED",
   },
-
   {
-    label: "Closed",
-    value: "CLOSED",
+    label: "Lost",
+    value: "LOST",
   },
-
   {
-    label: "Junk",
-    value: "JUNK",
+    label: "Won",
+    value: "WON",
   },
 ];
 

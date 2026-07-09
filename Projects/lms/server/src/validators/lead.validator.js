@@ -40,7 +40,15 @@ export const assignLeadSchema = z.object({
 });
 
 export const stageSchema = z.object({
-  stage_id: uuid,
+  stage: z.enum([
+    "NEW",
+    "CONTACTED",
+    "QUALIFIED",
+    "PROPOSAL",
+    "NEGOTIATION",
+    "LOST",
+    "WON",
+  ]),
 });
 
 export const statusSchema = z.object({

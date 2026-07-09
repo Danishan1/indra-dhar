@@ -6,8 +6,6 @@ import { ProfileAPI } from "@/service";
 export default function DashboardPage() {
   const res = ProfileAPI.useMe();
 
-  console.log("DDDD: ", res)
-
   return (
     <DashboardLayout>
       <h1>Dashboard</h1>

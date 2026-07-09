@@ -1,11 +1,10 @@
-/* LeadDetailsModal.module.css */
-
 .container {
   display: flex;
   flex-direction: column;
   gap: 22px;
+  max-height: 80vh;
 }
-
+/* Header */
 .header {
   display: flex;
   justify-content: space-between;
@@ -17,159 +16,224 @@
   margin: 0;
   font-size: 22px;
   font-weight: 700;
+  color: #0f172a;
 }
 
 .muted {
   color: #64748b;
-  margin-top: 5px;
+  margin-top: 6px;
+  font-size: 14px;
 }
 
+/* Badges */
 .badges {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .badge {
   padding: 5px 12px;
-  border-radius: 20px;
+  border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
+  text-transform: capitalize;
 }
 
+/* Stage */
 .new {
   background: #dbeafe;
   color: #1d4ed8;
 }
-
 .contacted {
   background: #fef3c7;
   color: #92400e;
 }
-
 .qualified {
   background: #dcfce7;
   color: #166534;
 }
-
 .won {
   background: #bbf7d0;
   color: #14532d;
 }
-
 .lost {
   background: #fee2e2;
   color: #991b1b;
 }
 
-.active {
+/* Priority */
+.high {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+.medium {
+  background: #fef3c7;
+  color: #92400e;
+}
+.low {
   background: #dcfce7;
   color: #166534;
 }
 
-.inactive {
-  background: #e5e7eb;
-  color: #374151;
-}
-
+/* Information */
 .infoGrid {
   display: grid;
-
-  grid-template-columns: repeat(2, 1fr);
-
-  gap: 16px;
-
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
   background: #f8fafc;
-
   padding: 18px;
-
-  border-radius: 12px;
+  border-radius: 14px;
 }
-
-.infoGrid label {
+.infoItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+.infoItem svg {
+  color: #475569;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+.infoItem label {
+  display: block;
   font-size: 12px;
-
   color: #64748b;
+  margin-bottom: 4px;
 }
-
-.infoGrid p {
-  margin-top: 4px;
-
+.infoItem p {
+  margin: 0;
+  font-size: 14px;
   font-weight: 600;
+  color: #0f172a;
+  word-break: break-word;
 }
 
+/* Sections */
 .section {
   border-top: 1px solid #e5e7eb;
-
   padding-top: 18px;
 }
-
 .section h3 {
+  margin: 0 0 12px;
   font-size: 15px;
-
-  margin-bottom: 12px;
+  font-weight: 700;
+  color: #0f172a;
 }
-
 .description {
   color: #475569;
-
-  line-height: 1.6;
+  line-height: 1.7;
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 8px;
 }
 
+/* Actions */
 .actions {
   display: flex;
-
   flex-wrap: wrap;
-
   gap: 10px;
-}
-
+} /* Notes */
 .note {
-  padding: 12px;
-
+  padding: 14px;
   background: #f8fafc;
-
-  border-radius: 8px;
-
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
   margin-bottom: 10px;
 }
-
+.note strong {
+  font-size: 14px;
+  color: #0f172a;
+}
 .note p {
-  margin: 6px 0;
+  margin: 8px 0;
+  color: #475569;
+  line-height: 1.5;
+}
+.note small {
+  color: #94a3b8;
+  font-size: 12px;
 }
 
+/* Files */
 .file {
-  padding: 10px;
-
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
   background: #f1f5f9;
-
   border-radius: 8px;
+  color: #334155;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+.file svg {
+  color: #475569;
 }
 
+.file:hover {
+  background: #e1ecf7;
+
+}
+
+/* Timeline */
 .timeline {
   display: flex;
-
-  gap: 10px;
-
+  gap: 12px;
   align-items: flex-start;
-
-  margin-bottom: 12px;
+  margin-bottom: 14px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 10px;
+}
+.timeline svg {
+  color: #16a34a;
+  margin-top: 3px;
+}
+.timeline p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+.timeline small {
+  display: block;
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 12px;
 }
 
+/* Empty */
 .empty {
   color: #94a3b8;
-
   font-size: 14px;
+  padding: 10px 0;
 }
 
+/* Scrollbar */
+.container::-webkit-scrollbar {
+  width: 6px;
+}
+.container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
   .header {
     flex-direction: column;
   }
-
+  .badges {
+    width: 100%;
+  }
   .infoGrid {
     grid-template-columns: 1fr;
   }
-
   .actions button {
     width: 100%;
   }

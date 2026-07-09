@@ -224,6 +224,15 @@
   font-size: 14px;
 }
 
+.high {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.infoItem strong {
+  max-width: 250px;
+  word-break: break-word;
+}
 @media (max-width: 768px) {
   .header {
     flex-direction: column;

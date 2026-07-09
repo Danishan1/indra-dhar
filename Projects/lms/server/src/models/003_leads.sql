@@ -69,10 +69,10 @@ CREATE TABLE leads (
   postal_code VARCHAR(20),
   product_interest VARCHAR(255),
   budget NUMERIC(18, 2),
-  source_id UUID REFERENCES lead_sources(id),
-  priority_id UUID REFERENCES lead_priorities(id),
-  pipeline_id UUID REFERENCES pipelines(id),
-  stage_id UUID REFERENCES pipeline_stages(id),
+  source VARCHAR(100) DEFAULT 'PLATFORM',
+  priority VARCHAR(50) DEFAULT 'MEDIUM',
+  pipeline VARCHAR(100) DEFAULT 'DEFAULT',
+  stage VARCHAR(100) DEFAULT 'NEW',
   assigned_to UUID REFERENCES users(id),
   manager_id UUID REFERENCES users(id),
   team_id UUID REFERENCES teams(id),
@@ -82,7 +82,7 @@ CREATE TABLE leads (
   remarks TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  UNIQUE(tenant_id, lead_number)
+  UNIQUE (tenant_id, lead_number)
 );
 --
 -- =====================================================
@@ -107,8 +107,8 @@ CREATE TABLE lead_assignments (
 CREATE TABLE lead_stage_history (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   lead_id UUID NOT NULL REFERENCES leads(id) ON DELETE CASCADE,
-  old_stage_id UUID REFERENCES pipeline_stages(id),
-  new_stage_id UUID REFERENCES pipeline_stages(id),
+  old_stage VARCHAR(100),
+  new_stage VARCHAR(100),
   changed_by UUID REFERENCES users(id),
   remarks TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -155,10 +155,10 @@ CREATE TABLE lead_duplicates (
 
 CREATE INDEX idx_leads_tenant ON leads(tenant_id);
 CREATE INDEX idx_leads_assigned ON leads(assigned_to);
-CREATE INDEX idx_leads_stage ON leads(stage_id);
-CREATE INDEX idx_leads_pipeline ON leads(pipeline_id);
-CREATE INDEX idx_leads_source ON leads(source_id);
-CREATE INDEX idx_leads_priority ON leads(priority_id);
+CREATE INDEX idx_leads_source ON leads(source);
+CREATE INDEX idx_leads_priority ON leads(priority);
+CREATE INDEX idx_leads_pipeline ON leads(pipeline);
+CREATE INDEX idx_leads_stage ON leads(stage);
 CREATE INDEX idx_leads_created ON leads(created_at DESC);
 CREATE INDEX idx_leads_mobile ON leads(mobile);
 CREATE INDEX idx_leads_email ON leads(email);

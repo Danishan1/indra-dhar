@@ -47,8 +47,6 @@ export const AuthProvider = ({ children }) => {
       tenantCode: code,
     });
 
-    console.log("DDDD : ", res);
-
     if (res.success) {
       setUser(res.user);
       setToken(res.accessToken);
