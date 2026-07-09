@@ -174,6 +174,12 @@ export default function TaskManagement() {
   };
 
   const deleteTask = async (id) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this task? This action cannot be undone.",
+    );
+
+    if (!confirmed) return;
+
     try {
       await TaskAPI.remove(id);
 

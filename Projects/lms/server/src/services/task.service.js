@@ -27,7 +27,7 @@ export const TaskService = {
     await TaskRepository.assign(taskId, assignedTo);
 
     await TaskRepository.logHistory(taskId, {
-      old_assigned_to: old,
+      old_assigned_to: old.assigned_to.id,
       new_assigned_to: assignedTo,
       changed_by: changedBy,
     });

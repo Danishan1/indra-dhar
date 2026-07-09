@@ -5,9 +5,6 @@ import { DuplicateService } from "./leadDuplicate.service.js";
 
 export const LeadWorkflowService = {
   async process({ tenant_id, source, data }) {
-
-    console.log("DDDD: ", {tenant_id, source, data})
-
     // 1. Duplicate Check
     const duplicate = await DuplicateService.check({
       tenant_id,

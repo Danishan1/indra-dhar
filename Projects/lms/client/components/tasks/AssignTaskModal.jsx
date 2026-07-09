@@ -4,6 +4,7 @@ import React, { useState } from "react";
 
 import styles from "./AssignTaskModal.module.css";
 import { Button, Modal, SelectInput } from "../ui";
+import { SelectRemote } from "../ui/jsx/SelectRemote";
 
 export default function AssignTaskModal({
   open,
@@ -26,10 +27,13 @@ export default function AssignTaskModal({
   return (
     <Modal title="Assign Task" onClose={onClose}>
       <div className={styles.wrapper}>
-        <SelectInput
+        <SelectRemote
           label="Assign To"
+          endpoint={"/users"}
+          labelField="full_name"
+          valueField="id"
           required
-          options={users}
+          // options={users}
           value={assignedTo}
           onChange={(e) => setAssignedTo(e.target.value)}
           placeholder="Select User"

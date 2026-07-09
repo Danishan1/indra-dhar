@@ -220,28 +220,43 @@
 
 .historyItem {
   display: flex;
-
   align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
 
-  gap: 10px;
-
-  padding: 10px 0;
+.historyItem:last-child {
+  border-bottom: none;
 }
 
 .historyItem svg {
   margin-top: 3px;
-
   color: #16a34a;
-
   flex-shrink: 0;
 }
 
-.historyItem p {
-  margin: 0 0 4px;
+.historyContent {
+  flex: 1;
+}
 
+.historyContent p {
+  margin: 0;
   font-size: 14px;
-
   font-weight: 500;
+  color: #1f2937;
+}
+
+.historyUser,
+.historyDate {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.historyUser strong {
+  color: #374151;
 }
 
 /* Empty */

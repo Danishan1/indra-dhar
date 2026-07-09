@@ -149,30 +149,38 @@ export const TaskRepository = {
     const historyResult = await db.query(
       `
     SELECT
-      th.id,
-      th.old_status,
-      th.new_status,
-      th.old_assigned_to,
-      th.new_assigned_to,
-      th.remarks,
-      th.changed_at,
+  th.id,
+  th.old_status,
+  th.new_status,
 
-      CASE
-        WHEN changer.id IS NULL THEN NULL
-        ELSE json_build_object(
-          'id', changer.id,
-          'name', CONCAT_WS(' ', changer.first_name, changer.last_name)
-        )
-      END AS changed_by
+  CONCAT_WS(' ', old_user.first_name, old_user.last_name) AS old_assigned_to,
+  CONCAT_WS(' ', new_user.first_name, new_user.last_name) AS new_assigned_to,
 
-    FROM task_history th
+  th.remarks,
+  th.changed_at,
 
-    LEFT JOIN users changer
-      ON changer.id = th.changed_by
+  CASE
+    WHEN changer.id IS NULL THEN NULL
+    ELSE json_build_object(
+      'id', changer.id,
+      'name', CONCAT_WS(' ', changer.first_name, changer.last_name)
+    )
+  END AS changed_by
 
-    WHERE th.task_id = $1
+FROM task_history th
 
-    ORDER BY th.changed_at DESC
+LEFT JOIN users changer
+  ON changer.id = th.changed_by
+
+LEFT JOIN users old_user
+  ON old_user.id = th.old_assigned_to
+
+LEFT JOIN users new_user
+  ON new_user.id = th.new_assigned_to
+
+WHERE th.task_id = $1
+
+ORDER BY th.changed_at DESC;
     `,
       [id],
     );
@@ -250,7 +258,7 @@ export const TaskRepository = {
   async updateStatus(taskId, status) {
     const result = await db.query(
       `UPDATE tasks
-       SET status = $2,
+       SET status = $2::varchar,
            completed_at = CASE WHEN $2 = 'COMPLETED' THEN NOW() ELSE completed_at END,
            updated_at = NOW()
        WHERE id = $1`,

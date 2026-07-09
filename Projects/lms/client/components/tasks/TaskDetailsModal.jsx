@@ -199,22 +199,48 @@ export default function TaskDetailsModal({
               {/* History */}
 
               <section className={styles.section}>
-                <h3>History</h3>
+                <h3>Activity History</h3>
 
                 {history.length === 0 ? (
                   <p className={styles.empty}>No history available</p>
                 ) : (
-                  history.map((item) => (
-                    <div key={item.id} className={styles.history}>
-                      <CheckCircle size={16} />
+                  history.map((item) => {
+                    let message = "";
 
-                      <span>
-                        {item.old_status && `${item.old_status} → `}
+                    if (item.old_status || item.new_status) {
+                      message = `Status changed from ${item.old_status} to ${item.new_status}`;
+                    } else if (item.old_assigned_to || item.new_assigned_to) {
+                      if (!item.old_assigned_to) {
+                        message = `Assigned to ${item.new_assigned_to}`;
+                      } else {
+                        message = `Reassigned from ${item.old_assigned_to} to ${item.new_assigned_to}`;
+                      }
+                    } else {
+                      message = "Task updated";
+                    }
 
-                        {item.new_status}
-                      </span>
-                    </div>
-                  ))
+                    return (
+                      <div key={item.id} className={styles.historyItem}>
+                        <CheckCircle size={15} />
+
+                        <div className={styles.historyContent}>
+                          <p>{message}</p>
+
+                          {item.changed_by && (
+                            <small className={styles.historyUser}>
+                              By <strong>{item.changed_by.name}</strong>
+                            </small>
+                          )}
+
+                          <small className={styles.historyDate}>
+                            {item.changed_at
+                              ? new Date(item.changed_at).toLocaleString()
+                              : "-"}
+                          </small>
+                        </div>
+                      </div>
+                    );
+                  })
                 )}
               </section>
             </>

@@ -24,7 +24,7 @@ export const TaskAPI = {
   },
 
   async assign(id, payload) {
-    return await apiUtil.patch(
+    return await apiUtil.post(
       `/tasks/${id}/assign`,
 
       payload,
@@ -32,7 +32,7 @@ export const TaskAPI = {
   },
 
   async changeStatus(id, payload) {
-    return await apiUtil.patch(
+    return await apiUtil.post(
       `/tasks/${id}/status`,
 
       payload,

@@ -21,6 +21,7 @@
   overflow-y: auto;
   box-shadow: var(--shadow-lg);
   position: relative;
+  min-height: 400px;
 }
 
 .modalCloseBtn {
