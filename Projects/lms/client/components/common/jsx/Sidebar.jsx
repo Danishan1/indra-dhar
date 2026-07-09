@@ -35,7 +35,7 @@ export function Sidebar() {
       <aside className={`${styles.sidebar} ${open ? styles.open : ""}`}>
         <div>
           <div className={styles.titleHeader}>
-            <div className={styles.logo}>CostCalc</div>
+            <div className={styles.logo}>LMS</div>
 
             <button className={styles.closeBtn} onClick={toggleSidebar}>
               <X size={22} />

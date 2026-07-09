@@ -96,7 +96,7 @@ const groups = {
   management: {
     name: "Management",
     icon: "Magnet",
-    children: ["users", "bulkUpload"],
+    children: ["users"],
   },
   settings: {
     name: "Settings",
