@@ -8,15 +8,12 @@ import { Button, Modal, SelectInput, Textarea, TextInput } from "../ui";
 
 import { FormComponent } from "../forms";
 import { SelectRemote } from "../ui/jsx/SelectRemote";
+import { LeadAPI } from "@/service";
 
 export default function LeadFormModal({
   open,
   lead = null,
-  users = [],
   stages = [],
-  sources = [],
-  pipelines = [],
-  priorities = [],
   loading = false,
   error = "",
   onSubmit,
@@ -39,7 +36,7 @@ export default function LeadFormModal({
     source_id: null,
     priority_id: null,
     pipeline_id: null,
-    stage_id: null,
+    stage: null,
     assigned_to: null,
     manager_id: null,
     team_id: null,
@@ -48,33 +45,48 @@ export default function LeadFormModal({
   const [form, setForm] = useState(initialState);
 
   useEffect(() => {
-    if (lead) {
-      setForm({
-        lead_number: lead.lead_number || "",
-        first_name: lead.first_name || "",
-        last_name: lead.last_name || "",
-        company: lead.company || "",
-        email: lead.email || "",
-        mobile: lead.mobile || "",
-        address: lead.address || "",
-        city: lead.city || "",
-        state: lead.state || "",
-        country: lead.country || "",
-        postal_code: lead.postal_code || "",
-        product_interest: lead.product_interest || "",
-        budget: lead.budget || "",
-        source_id: lead.source_id || null,
-        priority_id: lead.priority_id || null,
-        pipeline_id: lead.pipeline_id || null,
-        stage_id: lead.stage_id || null,
-        assigned_to: lead.assigned_to || null,
-        manager_id: lead.manager_id || null,
-        team_id: lead.team_id || null,
-      });
-    } else {
+    if (!open || !lead?.id) {
       setForm(initialState);
+      return;
     }
-  }, [lead, open]);
+
+    const fetchLeadDetails = async () => {
+      try {
+        const { data } = await LeadAPI.getById(lead.id);
+
+        setForm({
+          lead_number: data.lead_number ?? "",
+          first_name: data.first_name ?? "",
+          last_name: data.last_name ?? "",
+          company: data.company ?? "",
+          email: data.email ?? "",
+          mobile: data.mobile ?? "",
+          address: data.address ?? "",
+          city: data.city ?? "",
+          state: data.state ?? "",
+          country: data.country ?? "",
+          postal_code: data.postal_code ?? "",
+          product_interest: data.product_interest ?? "",
+          budget: data.budget ?? "",
+
+          // Enums
+          source_id: data.source ?? null,
+          priority_id: data.priority ?? null,
+          pipeline_id: data.pipeline ?? null,
+          stage: data.stage ?? null,
+
+          // Relations
+          assigned_to: data.assigned_to?.id ?? null,
+          manager_id: data.manager?.id ?? null,
+          team_id: data.team?.id ?? null,
+        });
+      } catch (error) {
+        console.error("Failed to load lead details:", error);
+      }
+    };
+
+    fetchLeadDetails();
+  }, [open, lead?.id]);
 
   const updateField = (field, value) => {
     setForm((prev) => ({
@@ -154,9 +166,9 @@ export default function LeadFormModal({
           />
 
           <SelectInput
-            label="Pipeline"
-            options={stages}
-            value={form.stage_id}
+            label="Stage"
+            options={stages.filter((t) => t.label !== "All Stage")}
+            value={form.stage}
             onChange={(e) => updateField("stage_id", e.target.value)}
           />
 
@@ -176,6 +188,39 @@ export default function LeadFormModal({
             type="number"
             value={form.budget}
             onChange={(e) => updateField("budget", e.target.value)}
+          />
+        </div>
+
+        <Textarea
+          label="Address"
+          rows={3}
+          value={form.address}
+          onChange={(e) => updateField("address", e.target.value)}
+        />
+
+        <div className={styles.formGrid}>
+          <TextInput
+            label="City"
+            value={form.city}
+            onChange={(e) => updateField("city", e.target.value)}
+          />
+
+          <TextInput
+            label="State"
+            value={form.state}
+            onChange={(e) => updateField("state", e.target.value)}
+          />
+
+          <TextInput
+            label="Country"
+            value={form.country}
+            onChange={(e) => updateField("country", e.target.value)}
+          />
+
+          <TextInput
+            label="Postal Code"
+            value={form.postal_code}
+            onChange={(e) => updateField("postal_code", e.target.value)}
           />
         </div>
 

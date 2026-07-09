@@ -185,13 +185,13 @@ export default function LeadDetailsModal({
 
           {/* Remarks */}
 
-          <section className={styles.section}>
+          {/* <section className={styles.section}>
             <h3>Remarks</h3>
 
             <p className={styles.description}>
               {remarks || "No remarks available"}
             </p>
-          </section>
+          </section> */}
 
           {/* Actions */}
 

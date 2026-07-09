@@ -59,32 +59,32 @@ const STAGE_OPTIONS = [
   },
 ];
 
-const STATUS_OPTIONS = [
-  {
-    label: "All Status",
-    value: "",
-  },
-  {
-    label: "Open",
-    value: "OPEN",
-  },
-  {
-    label: "Contacted",
-    value: "CONTACTED",
-  },
-  {
-    label: "Qualified",
-    value: "QUALIFIED",
-  },
-  {
-    label: "Lost",
-    value: "LOST",
-  },
-  {
-    label: "Won",
-    value: "WON",
-  },
-];
+// const STATUS_OPTIONS = [
+//   {
+//     label: "All Status",
+//     value: "",
+//   },
+//   {
+//     label: "Open",
+//     value: "OPEN",
+//   },
+//   {
+//     label: "Contacted",
+//     value: "CONTACTED",
+//   },
+//   {
+//     label: "Qualified",
+//     value: "QUALIFIED",
+//   },
+//   {
+//     label: "Lost",
+//     value: "LOST",
+//   },
+//   {
+//     label: "Won",
+//     value: "WON",
+//   },
+// ];
 
 export default function LeadManagement() {
   const [leads, setLeads] = useState([]);
@@ -117,6 +117,10 @@ export default function LeadManagement() {
   useEffect(() => {
     loadLeads();
   }, []);
+
+  const reload = () => {
+    window.location.reload();
+  };
 
   const loadLeads = async () => {
     try {
@@ -163,9 +167,11 @@ export default function LeadManagement() {
     try {
       const created = await LeadAPI.create(data);
 
-      setLeads((prev) => [...prev, created]);
+      // setLeads((prev) => [...prev, created]);
 
-      setCreateOpen(false);
+      // setCreateOpen(false);
+
+      reload();
     } catch (err) {
       setError(err.message || "Create failed");
     }
@@ -175,18 +181,20 @@ export default function LeadManagement() {
     try {
       const updated = await LeadAPI.update(editLead.id, data);
 
-      setLeads((prev) =>
-        prev.map((item) =>
-          item.id === editLead.id
-            ? {
-                ...item,
-                ...updated,
-              }
-            : item,
-        ),
-      );
+      reload();
 
-      setEditLead(null);
+      // setLeads((prev) =>
+      //   prev.map((item) =>
+      //     item.id === editLead.id
+      //       ? {
+      //           ...item,
+      //           ...updated,
+      //         }
+      //       : item,
+      //   ),
+      // );
+
+      // setEditLead(null);
     } catch (err) {
       setError(err.message || "Update failed");
     }
@@ -202,9 +210,11 @@ export default function LeadManagement() {
     try {
       await LeadAPI.remove(id);
 
-      setLeads((prev) => prev.filter((item) => item.id !== id));
+      reload();
 
-      setActionLead(null);
+      // setLeads((prev) => prev.filter((item) => item.id !== id));
+
+      // setActionLead(null);
     } catch (err) {
       setError(err.message || "Delete failed");
     }
@@ -217,16 +227,18 @@ export default function LeadManagement() {
   const assignLead = async (id, data) => {
     const updated = await LeadAPI.assign(id, data);
 
-    setLeads((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              ...updated,
-            }
-          : item,
-      ),
-    );
+    reload();
+
+    // setLeads((prev) =>
+    //   prev.map((item) =>
+    //     item.id === id
+    //       ? {
+    //           ...item,
+    //           ...updated,
+    //         }
+    //       : item,
+    //   ),
+    // );
   };
 
   /**
@@ -236,16 +248,18 @@ export default function LeadManagement() {
   const changeStage = async (id, data) => {
     const updated = await LeadAPI.changeStage(id, data);
 
-    setLeads((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              ...updated,
-            }
-          : item,
-      ),
-    );
+    reload();
+
+    // setLeads((prev) =>
+    //   prev.map((item) =>
+    //     item.id === id
+    //       ? {
+    //           ...item,
+    //           ...updated,
+    //         }
+    //       : item,
+    //   ),
+    // );
   };
 
   /**
@@ -255,16 +269,18 @@ export default function LeadManagement() {
   const updateStatus = async (id, data) => {
     const updated = await LeadAPI.updateStatus(id, data);
 
-    setLeads((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              ...updated,
-            }
-          : item,
-      ),
-    );
+    reload();
+
+    // setLeads((prev) =>
+    //   prev.map((item) =>
+    //     item.id === id
+    //       ? {
+    //           ...item,
+    //           ...updated,
+    //         }
+    //       : item,
+    //   ),
+    // );
   };
 
   /**
@@ -273,6 +289,8 @@ export default function LeadManagement() {
 
   const addNote = async (id, data) => {
     await LeadAPI.addNote(id, data);
+
+    reload();
   };
 
   /**
@@ -433,6 +451,7 @@ export default function LeadManagement() {
         lead={editLead}
         onSubmit={updateLead}
         onClose={() => setEditLead(null)}
+        stages={STAGE_OPTIONS}
       />
 
       {/* VIEW */}

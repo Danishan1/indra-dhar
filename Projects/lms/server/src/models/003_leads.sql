@@ -67,7 +67,7 @@ CREATE TABLE leads (
   state VARCHAR(100),
   country VARCHAR(100),
   postal_code VARCHAR(20),
-  product_interest VARCHAR(255),
+  product_interest VARCHAR(1000),
   budget NUMERIC(18, 2),
   source VARCHAR(100) DEFAULT 'PLATFORM',
   priority VARCHAR(50) DEFAULT 'MEDIUM',
