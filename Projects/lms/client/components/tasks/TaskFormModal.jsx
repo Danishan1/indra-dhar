@@ -12,6 +12,7 @@ import {
   TextInput,
 } from "../ui";
 import { FormComponent } from "../forms";
+import { SelectRemote } from "../ui/jsx/SelectRemote";
 
 const PRIORITY_OPTIONS = [
   {
@@ -37,7 +38,6 @@ export default function TaskFormModal({
 
   task = null,
 
-  users = [],
   leads = [],
   taskTypes = [],
 
@@ -50,17 +50,11 @@ export default function TaskFormModal({
 }) {
   const initialState = {
     title: "",
-
     description: "",
-
     assigned_to: "",
-
     lead_id: "",
-
     task_type_id: "",
-
     priority: "MEDIUM",
-
     due_date: "",
   };
 
@@ -72,19 +66,13 @@ export default function TaskFormModal({
   useEffect(() => {
     if (task) {
       setForm({
-        title: task.title || "",
-
+        title: task.task || "",
         description: task.description || "",
-
-        assigned_to: task.assigned_to || "",
-
+        assigned_to: task.assigned_id || "",
         lead_id: task.lead_id || "",
-
         task_type_id: task.task_type_id || "",
-
         priority: task.priority || "MEDIUM",
-
-        due_date: task.due_date ? task.due_date.substring(0, 10) : "",
+        due_date: task.due ? task.due.substring(0, 10) : "",
       });
     } else {
       setForm(initialState);
@@ -104,9 +92,7 @@ export default function TaskFormModal({
       ...form,
 
       // convert empty optional fields
-
       lead_id: form.lead_id || null,
-
       task_type_id: form.task_type_id || null,
     };
 
@@ -134,13 +120,16 @@ export default function TaskFormModal({
             onChange={(e) => updateField("title", e.target.value)}
           />
 
-          <SelectInput
-            label="Assigned To"
-            placeholder="Select user"
+          <SelectRemote
+            label="Assign To"
+            endpoint={"/users"}
+            labelField="full_name"
+            valueField="id"
             required
-            options={users}
+            // options={users}
             value={form.assigned_to}
             onChange={(e) => updateField("assigned_to", e.target.value)}
+            placeholder="Select User"
           />
 
           <SelectInput

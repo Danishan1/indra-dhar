@@ -97,22 +97,6 @@ export default function TaskManagement() {
     }
   };
 
-  /**
-   * Dummy dropdown data
-   */
-
-  const users = [
-    {
-      value: "u1",
-      label: "John Doe",
-    },
-
-    {
-      value: "u2",
-      label: "Sarah",
-    },
-  ];
-
   const leads = [];
 
   const taskTypes = [];
@@ -417,7 +401,6 @@ export default function TaskManagement() {
 
       <TaskFormModal
         open={createOpen}
-        users={users}
         leads={leads}
         taskTypes={taskTypes}
         onSubmit={createTask}
@@ -429,7 +412,6 @@ export default function TaskManagement() {
       <TaskFormModal
         open={!!editTask}
         task={editTask}
-        users={users}
         leads={leads}
         taskTypes={taskTypes}
         onSubmit={updateTask}
@@ -451,7 +433,6 @@ export default function TaskManagement() {
       <TaskDetailsModal
         open={!!actionTask}
         task={actionTask}
-        users={users}
         comments={[]}
         history={[]}
         onAssign={assignTask}

@@ -28,8 +28,6 @@ export function useDropdown({
 
         const data = result.data || result; // handle different response structures
 
-        console.log("DDDD : ", data);
-
         let formatted = [];
 
         if (transform) {

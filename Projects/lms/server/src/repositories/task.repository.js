@@ -32,6 +32,7 @@ export const TaskRepository = {
       t.title AS task,
 
       CONCAT_WS(' ', u.first_name, u.last_name) AS assigned,
+      u.id AS assigned_id,
 
       t.priority,
       t.status,
