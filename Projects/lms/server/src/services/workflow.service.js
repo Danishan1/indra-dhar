@@ -1,45 +1,62 @@
 import { WorkflowRepository } from "../repositories/workflow.repository.js";
-import { WorkflowEngine } from "../engine/workflow.engine.js";
+import { WorkflowExecutionRepository } from "../repositories/workflowExecution.repository.js";
+import { WORKFLOWS } from "../workflows/index.js";
 
 export const WorkflowService = {
-  async createRule(data) {
-    return WorkflowRepository.createRule(data);
+  async list(tenant_id) {
+    const configs = await WorkflowRepository.findAll(tenant_id);
+
+    return WORKFLOWS.map((workflow) => {
+      const config = configs.find((x) => x.workflow_key === workflow.key);
+
+      return {
+        key: workflow.key,
+        name: workflow.name,
+        description: workflow.description,
+        event: workflow.event,
+        is_active: config ? config.is_active : false,
+        config: config?.config || {},
+        settings: workflow.settings || [],
+      };
+    });
   },
 
-  async listRules(tenantId) {
-    return WorkflowRepository.listRules(tenantId);
+  async update(tenant_id, workflow_key, data) {
+    return WorkflowRepository.upsert({
+      tenant_id,
+      workflow_key,
+      is_active: data.is_active,
+      config: data.config || {},
+    });
   },
 
-  async getRule(id) {
-    return WorkflowRepository.getRule(id);
+  async remove(tenant_id, workflow_key) {
+    return WorkflowRepository.remove({ tenant_id, workflow_key });
   },
 
-  async updateRule(id, data) {
-    return WorkflowRepository.updateRule(id, data);
+  async executions(tenant_id, filters) {
+    return WorkflowExecutionRepository.findAll(tenant_id, filters);
   },
 
-  async deleteRule(id) {
-    return WorkflowRepository.deleteRule(id);
+  async execution(tenant_id, id) {
+    return WorkflowExecutionRepository.findById(tenant_id, id);
   },
 
-  async addCondition(ruleId, data) {
-    return WorkflowRepository.addCondition(ruleId, data);
+  catalog() {
+    return WorkflowRepository.catalog();
   },
 
-  async addAction(ruleId, data) {
-    return WorkflowRepository.addAction(ruleId, data);
-  },
+  async install({ tenant_id, workflow_key, config }) {
+    const exists = WORKFLOW_CATALOG.find((x) => x.key === workflow_key);
 
-  /**
-   * CORE ENTRY POINT
-   */
-  async executeRule(ruleId, leadId, payload) {
-    const rule = await WorkflowRepository.getFullRule(ruleId);
+    if (!exists) {
+      throw new Error("Workflow not found");
+    }
 
-    return WorkflowEngine.execute(rule, leadId, payload);
-  },
-
-  async executions(filters) {
-    return WorkflowRepository.getExecutions(filters);
+    return WorkflowRepository.install({
+      tenant_id,
+      workflow_key,
+      config,
+    });
   },
 };

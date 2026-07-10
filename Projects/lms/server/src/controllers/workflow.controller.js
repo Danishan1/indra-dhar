@@ -1,62 +1,94 @@
 import { WorkflowService } from "../services/workflow.service.js";
+import {
+  workflowKeySchema,
+  executionIdSchema,
+  updateWorkflowSchema,
+  executionQuerySchema,
+} from "../validators/workflow.validator.js";
+import { validate } from "../utils/validate.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 
 export const WorkflowController = {
-  async createRule(req, res) {
-    const rule = await WorkflowService.createRule({
-      ...req.body,
-      tenant_id: req.user.tenant_id,
+  async list(req, res) {
+    const data = await WorkflowService.list(req.user.tenant_id);
+
+    return ApiResponse.success({
+      res,
+      data,
     });
-
-    res.json(rule);
   },
 
-  async listRules(req, res) {
-    const rules = await WorkflowService.listRules(req.user.tenant_id);
-    res.json(rules);
-  },
+  async update(req, res) {
+    const { key } = validate(workflowKeySchema, req.params);
+    const body = validate(updateWorkflowSchema, req.body);
 
-  async getRule(req, res) {
-    const rule = await WorkflowService.getRule(req.params.id);
-    res.json(rule);
-  },
+    const result = await WorkflowService.update(req.user.tenant_id, key, body);
 
-  async updateRule(req, res) {
-    const rule = await WorkflowService.updateRule(req.params.id, req.body);
-    res.json(rule);
-  },
-
-  async deleteRule(req, res) {
-    const result = await WorkflowService.deleteRule(req.params.id);
-    res.json(result);
-  },
-
-  async addCondition(req, res) {
-    const condition = await WorkflowService.addCondition(
-      req.params.id,
-      req.body,
-    );
-
-    res.json(condition);
-  },
-
-  async addAction(req, res) {
-    const action = await WorkflowService.addAction(req.params.id, req.body);
-
-    res.json(action);
-  },
-
-  async executeRule(req, res) {
-    const result = await WorkflowService.executeRule(
-      req.params.id,
-      req.body.lead_id,
-      req.body.trigger_payload,
-    );
-
-    res.json(result);
+    return ApiResponse.success({
+      res,
+      data: result,
+      message: "Workflow updated successfully",
+    });
   },
 
   async executions(req, res) {
-    const logs = await WorkflowService.executions(req.query);
-    res.json(logs);
+    const query = validate(executionQuerySchema, req.query);
+
+    const data = await WorkflowService.executions(req.user.tenant_id, query);
+
+    return ApiResponse.success({
+      res,
+      data,
+    });
+  },
+
+  async execution(req, res) {
+    const { id } = validate(executionIdSchema, req.params);
+
+    const data = await WorkflowService.execution(req.user.tenant_id, id);
+
+    return ApiResponse.success({
+      res,
+      data,
+    });
+  },
+
+  async catalog(req, res) {
+    const data = await WorkflowService.catalog();
+
+    return ApiResponse.success({
+      res,
+      data,
+    });
+  },
+
+  async install(req, res) {
+    const { key } = validate(workflowKeySchema, req.params);
+
+    const data = await WorkflowService.install({
+      tenant_id: req.user.tenant_id,
+      workflow_key: key,
+    });
+
+    return ApiResponse.created({
+      res,
+      data,
+      message: "Workflow installed successfully",
+    });
+  },
+
+  async remove(req, res) {
+    const { key } = validate(workflowKeySchema, req.params);
+
+    const data = await WorkflowService.remove({
+      tenant_id: req.user.tenant_id,
+      workflow_key: key,
+    });
+
+    return ApiResponse.success({
+      res,
+      data,
+      message: "Workflow removed successfully",
+    });
   },
 };

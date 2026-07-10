@@ -1,0 +1,248 @@
+.container {
+  width: 100%;
+}
+
+/* ===========================
+   Page Header
+=========================== */
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: var(--space-xl);
+}
+
+.title {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.subtitle {
+  margin-top: var(--space-xs);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* ===========================
+   Sections
+=========================== */
+
+.section {
+  margin-top: var(--space-xl);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+
+  margin-bottom: var(--space-md);
+}
+
+/* ===========================
+   Workflow Grid
+=========================== */
+
+.grid {
+  display: grid;
+
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+
+  gap: var(--space-lg);
+}
+
+/* ===========================
+   Workflow Card
+=========================== */
+
+.workflowCard {
+  background: var(--color-surface);
+
+  border: 1px solid var(--color-border);
+
+  border-radius: var(--radius-md);
+
+  padding: var(--space-lg);
+
+  box-shadow: var(--shadow-sm);
+
+  transition: var(--transition-fast);
+}
+
+.workflowCard:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.cardHeader {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-start;
+
+  margin-bottom: var(--space-md);
+}
+
+.cardTitle {
+  font-size: var(--font-size-lg);
+
+  font-weight: 600;
+}
+
+.description {
+  margin-top: var(--space-xs);
+
+  color: var(--color-text-muted);
+
+  line-height: 1.5;
+}
+
+/* ===========================
+   Status Badge
+=========================== */
+
+.status {
+  padding: 4px 12px;
+
+  border-radius: 999px;
+
+  font-size: var(--font-size-xs);
+
+  font-weight: 600;
+}
+
+.active {
+  background: rgba(39, 174, 96, 0.12);
+
+  color: var(--color-success);
+}
+
+.inactive {
+  background: rgba(231, 76, 60, 0.12);
+
+  color: var(--color-danger);
+}
+
+/* ===========================
+   Actions
+=========================== */
+
+.actions {
+  display: flex;
+
+  gap: var(--space-sm);
+
+  margin-top: var(--space-lg);
+}
+
+/* ===========================
+   Modal Forms
+=========================== */
+
+.form {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: var(--space-md);
+}
+
+.modalActions {
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: var(--space-sm);
+
+  margin-top: var(--space-lg);
+}
+
+/* ===========================
+   Execution Table
+=========================== */
+
+.tableWrapper {
+  width: 100%;
+
+  overflow-x: auto;
+
+  background: var(--color-surface);
+
+  border: 1px solid var(--color-border);
+
+  border-radius: var(--radius-md);
+}
+
+.table {
+  width: 100%;
+
+  border-collapse: collapse;
+}
+
+.table th {
+  background: var(--color-bg);
+
+  padding: var(--space-md);
+
+  text-align: left;
+
+  font-size: var(--font-size-sm);
+
+  font-weight: 600;
+
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table td {
+  padding: var(--space-md);
+
+  border-bottom: 1px solid var(--color-border);
+
+  color: var(--color-text);
+}
+
+.table tbody tr:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+/* ===========================
+   Empty State
+=========================== */
+
+.empty {
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  min-height: 160px;
+
+  color: var(--color-text-muted);
+
+  background: var(--color-surface);
+
+  border: 1px dashed var(--color-border);
+
+  border-radius: var(--radius-md);
+}
+
+/* ===========================
+   Responsive
+=========================== */
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: var(--space-md);
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -4,84 +4,79 @@ import { WorkflowController } from "../controllers/workflow.controller.js";
 const router = Router();
 
 /**
- * @openapi
- * /workflows:
- *   post:
- *     tags: [Workflow]
- *     summary: Create workflow rule
+ * @swagger
+ * tags:
+ *   - name: Workflow
  */
-router.post("/", WorkflowController.createRule);
 
 /**
- * @openapi
- * /workflows:
+ * @swagger
+ * /workflow:
  *   get:
- *     tags: [Workflow]
- *     summary: List workflow rules
+ *     tags:
+ *       - Workflow
+ *     summary: List workflows
  */
-router.get("/", WorkflowController.listRules);
+router.get("/", WorkflowController.list);
 
 /**
- * @openapi
- * /workflows/{id}:
+ * @swagger
+ * /workflow/{key}:
+ *   put:
+ *     tags:
+ *       - Workflow
+ *     summary: Update workflow
+ */
+router.put("/:key", WorkflowController.update);
+
+/**
+ * @swagger
+ * /workflow/executions:
  *   get:
- *     tags: [Workflow]
- *     summary: Get workflow rule by id
- */
-router.get("/:id", WorkflowController.getRule);
-
-/**
- * @openapi
- * /workflows/{id}:
- *   patch:
- *     tags: [Workflow]
- *     summary: Update workflow rule
- */
-router.patch("/:id", WorkflowController.updateRule);
-
-/**
- * @openapi
- * /workflows/{id}:
- *   delete:
- *     tags: [Workflow]
- *     summary: Delete workflow rule
- */
-router.delete("/:id", WorkflowController.deleteRule);
-
-/**
- * @openapi
- * /workflows/{id}/conditions:
- *   post:
- *     tags: [Workflow]
- *     summary: Add condition to workflow rule
- */
-router.post("/:id/conditions", WorkflowController.addCondition);
-
-/**
- * @openapi
- * /workflows/{id}/actions:
- *   post:
- *     tags: [Workflow]
- *     summary: Add action to workflow rule
- */
-router.post("/:id/actions", WorkflowController.addAction);
-
-/**
- * @openapi
- * /workflows/{id}/execute:
- *   post:
- *     tags: [Workflow]
- *     summary: Manually execute workflow rule
- */
-router.post("/:id/execute", WorkflowController.executeRule);
-
-/**
- * @openapi
- * /workflows/executions:
- *   get:
- *     tags: [Workflow]
- *     summary: Get workflow execution logs
+ *     tags:
+ *       - Workflow
+ *     summary: List executions
  */
 router.get("/executions", WorkflowController.executions);
+
+/**
+ * @swagger
+ * /workflow/executions/{id}:
+ *   get:
+ *     tags:
+ *       - Workflow
+ *     summary: Get execution
+ */
+router.get("/executions/:id", WorkflowController.execution);
+
+/**
+ * @swagger
+ * /workflow/catalog:
+ *   get:
+ *     tags:
+ *       - Workflow
+ *     summary: List workflow catalog
+ */
+router.get("/catalog", WorkflowController.catalog);
+
+/**
+ * @swagger
+ * /workflow/{key}/install:
+ *   post:
+ *     tags:
+ *       - Workflow
+ *     summary: Install workflow
+ */
+router.post("/:key/install", WorkflowController.install);
+
+/**
+ * @swagger
+ * /workflow/{key}:
+ *   delete:
+ *     tags:
+ *       - Workflow
+ *     summary: Remove workflow
+ */
+router.delete("/:key", WorkflowController.remove);
 
 export default router;

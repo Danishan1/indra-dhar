@@ -1,39 +1,64 @@
-import { SIDEBAR_CONFIG } from "./sidebar.config";
-const { ICON_SIZE, icons, items, groups, roleConfig } = SIDEBAR_CONFIG;
+import {
+  Users,
+  UserSearch,
+  Upload,
+  Blocks,
+  LayoutDashboard,
+  Sprout,
+  Workflow,
+} from "lucide-react";
 
-function buildItem(key) {
-  const item = items[key];
-  const Icon = icons[item.icon];
+import { CONST } from "@/utils/CONST";
+import { BASE_PATH } from "@/utils/basePath";
 
-  return {
-    name: item.name,
-    path: item.path,
-    icon: <Icon size={ICON_SIZE} />,
-  };
-}
+const ICON_SIZE = CONST.ICON_SIZE;
 
-function buildGroup(groupKey, role) {
-  const group = groups[groupKey];
-  const Icon = icons[group.icon];
-  const overrides = roleConfig[role][groupKey] || {};
+const user = {
+  name: "Users",
+  icon: <Users size={ICON_SIZE} />,
+  path: BASE_PATH.users,
+};
 
-  const children = [
-    ...group.children.filter((key) => !overrides.remove?.includes(key)),
-    ...(overrides.add || []),
-  ].map(buildItem);
+const workflows = {
+  name: "Workflows",
+  icon: <Workflow size={ICON_SIZE} />,
+  path: BASE_PATH.workflows,
+};
 
-  return {
-    name: group.name,
-    icon: <Icon size={ICON_SIZE} />,
-    children,
-  };
-}
+const bulkUpload = {
+  name: "Bulk Upload",
+  icon: <Upload size={ICON_SIZE} />,
+  path: BASE_PATH.bulkUpload,
+};
 
-export const menuItems = Object.fromEntries(
-  Object.entries(roleConfig).map(([role, config]) => [
-    role,
-    config.groups.map((group) => buildGroup(group, role)),
-  ]),
-);
+const integrations = {
+  name: "Integrations",
+  icon: <Blocks size={ICON_SIZE} />,
+  path: BASE_PATH.integrations,
+};
+
+// Task Management
+const taskDashboard = {
+  name: "Tasks",
+  icon: <LayoutDashboard size={ICON_SIZE} />,
+  path: BASE_PATH.taskDashboard,
+};
+
+// Lead Management
+const leadDashboard = {
+  name: "Leads",
+  icon: <Sprout size={ICON_SIZE} />,
+  path: BASE_PATH.leads,
+};
+
+const common = [user, leadDashboard, taskDashboard, workflows, integrations];
+
+export const menuItems = {
+  admin: [...common],
+
+  manager: [...common],
+
+  user: [...common],
+};
 
 export default menuItems;

@@ -5,6 +5,7 @@ export const BASE_PATH = {
   leads: "/leads",
   integrations: "/settings/integrations",
   taskDashboard: "/tasks",
+  workflows: "/workflows",
   taskList: "/tasks/list",
   taskDetails: "/tasks/details",
   taskCreate: "/tasks/create",
