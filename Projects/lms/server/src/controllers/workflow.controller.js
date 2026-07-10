@@ -22,6 +22,8 @@ export const WorkflowController = {
     const { key } = validate(workflowKeySchema, req.params);
     const body = validate(updateWorkflowSchema, req.body);
 
+    console.log("DDDD : ", body, req.body)
+
     const result = await WorkflowService.update(req.user.tenant_id, key, body);
 
     return ApiResponse.success({

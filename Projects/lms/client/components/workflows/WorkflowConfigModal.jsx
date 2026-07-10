@@ -4,8 +4,14 @@ import { useState } from "react";
 
 import styles from "./Workflow.module.css";
 import { Button, Modal, SelectInput, TextInput } from "../ui";
+import { SelectRemote } from "../ui/jsx/SelectRemote";
 
-export default function WorkflowConfigModal({ workflow, onSave, onClose }) {
+export default function WorkflowConfigModal({
+  workflow,
+  onSave,
+  onClose,
+  onDelete,
+}) {
   const [config, setConfig] = useState(workflow.config || {});
 
   const update = (key, value) => {
@@ -34,6 +40,21 @@ export default function WorkflowConfigModal({ workflow, onSave, onClose }) {
               />
             );
 
+          if (field.type === "selectRemote")
+            return (
+              <SelectRemote
+                key={field.key}
+                label={field.label}
+                endpoint={field.endpoint}
+                labelField={field.labelField}
+                valueField={field.valueField}
+                required
+                value={config[field.key] || ""}
+                onChange={(e) => update(field.key, e.target.value)}
+                placeholder={field.label}
+              />
+            );
+
           return (
             <TextInput
               key={field.key}
@@ -49,7 +70,16 @@ export default function WorkflowConfigModal({ workflow, onSave, onClose }) {
             Cancel
           </Button>
 
-          <Button onClick={() => onSave(config)}>Save</Button>
+          <Button onClick={() => onSave(config, true)}>Save</Button>
+          {workflow?.is_active && (
+            <Button variant="outline" onClick={() => onSave(config, false)}>
+              In Active
+            </Button>
+          )}
+
+          <Button variant="danger" onClick={() => onDelete(workflow.key)}>
+            Delete
+          </Button>
         </div>
       </div>
     </Modal>

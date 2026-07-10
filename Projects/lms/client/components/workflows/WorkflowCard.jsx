@@ -3,11 +3,7 @@
 import { Button } from "../ui";
 import styles from "./Workflow.module.css";
 
-export default function WorkflowCard({
-  workflow,
-  onConfigure,
-  onRefresh,
-}) {
+export default function WorkflowCard({ workflow, onConfigure, onRefresh }) {
   return (
     <div className={styles.workflowCard}>
       <div className={styles.cardHeader}>

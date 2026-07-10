@@ -13,6 +13,7 @@ import { WorkflowAPI } from "@/service";
 
 export default function WorkflowsPage() {
   const [workflows, setWorkflows] = useState([]);
+  const [catalog, setCatalog] = useState([]);
   const [executions, setExecutions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showInstall, setShowInstall] = useState(false);
@@ -22,14 +23,17 @@ export default function WorkflowsPage() {
     try {
       setLoading(true);
 
-      const [workflowResponse, executionResponse] = await Promise.all([
-        WorkflowAPI.list(),
-        WorkflowAPI.executions({
-          limit: 10,
-        }),
-      ]);
+      const [workflowResponse, catalogResponse, executionResponse] =
+        await Promise.all([
+          WorkflowAPI.list(),
+          WorkflowAPI.catalog(),
+          WorkflowAPI.executions({
+            limit: 10,
+          }),
+        ]);
 
       setWorkflows(workflowResponse.data || []);
+      setCatalog(catalogResponse.data || []);
       setExecutions(executionResponse.data || []);
     } finally {
       setLoading(false);
@@ -49,12 +53,24 @@ export default function WorkflowsPage() {
     loadData();
   };
 
-  const saveConfiguration = async (config) => {
+  const saveConfiguration = async (config, is_active) => {
     await WorkflowAPI.update(configWorkflow.key, {
-      is_active: configWorkflow.is_active,
-
       config,
+      is_active: is_active,
     });
+
+    setConfigWorkflow(null);
+    loadData();
+  };
+
+  const handleDelete = async (key) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this Automation? This action cannot be undone.",
+    );
+
+    if (!confirmed) return;
+
+    await WorkflowAPI.remove(key);
 
     setConfigWorkflow(null);
     loadData();
@@ -98,7 +114,7 @@ export default function WorkflowsPage() {
 
       {showInstall && (
         <WorkflowInstallModal
-          workflows={workflows}
+          workflows={catalog}
           onInstall={installWorkflow}
           onClose={() => setShowInstall(false)}
         />
@@ -109,6 +125,7 @@ export default function WorkflowsPage() {
           workflow={configWorkflow}
           onSave={saveConfiguration}
           onClose={() => setConfigWorkflow(null)}
+          onDelete={handleDelete}
         />
       )}
     </div>

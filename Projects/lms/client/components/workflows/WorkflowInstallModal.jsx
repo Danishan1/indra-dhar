@@ -7,9 +7,7 @@ import { Button, Modal, SelectInput } from "../ui";
 
 export default function WorkflowInstallModal({
   workflows = [],
-
   onInstall,
-
   onClose,
 }) {
   const [selected, setSelected] = useState("");

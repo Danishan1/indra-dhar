@@ -1,5 +1,6 @@
 import { WorkflowRepository } from "../repositories/workflow.repository.js";
 import { WorkflowExecutionRepository } from "../repositories/workflowExecution.repository.js";
+import { WORKFLOW_CATALOG } from "../workflows/definitions/workflow.catalog.js";
 import { WORKFLOWS } from "../workflows/index.js";
 
 export const WorkflowService = {
@@ -9,16 +10,18 @@ export const WorkflowService = {
     return WORKFLOWS.map((workflow) => {
       const config = configs.find((x) => x.workflow_key === workflow.key);
 
+      if (!config) return null;
+
       return {
         key: workflow.key,
         name: workflow.name,
         description: workflow.description,
         event: workflow.event,
-        is_active: config ? true : false,
+        is_active: config ? config.is_active : false,
         config: config?.config || {},
         settings: workflow.settings || [],
       };
-    });
+    }).filter(Boolean);
   },
 
   async update(tenant_id, workflow_key, data) {
@@ -30,7 +33,7 @@ export const WorkflowService = {
     });
   },
 
-  async remove(tenant_id, workflow_key) {
+  async remove({ tenant_id, workflow_key }) {
     return WorkflowRepository.remove({ tenant_id, workflow_key });
   },
 

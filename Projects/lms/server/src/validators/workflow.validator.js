@@ -12,7 +12,7 @@ export const updateWorkflowSchema = z.object({
   name: z.string().min(1).optional(),
   description: z.string().optional(),
   config: z.record(z.any()).optional(),
-  enabled: z.boolean().optional(),
+  is_active: z.boolean().optional(),
 });
 
 export const executionQuerySchema = z.object({

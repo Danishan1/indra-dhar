@@ -61,7 +61,7 @@ export const WorkflowRepository = {
     return dbResponse.single(result);
   },
 
-  async install(tenant_id, workflow_key, config = {}) {
+  async install({ tenant_id, workflow_key, config = {} }) {
     const workflow = WORKFLOWS.find(
       (workflow) => workflow.key === workflow_key,
     );
@@ -73,7 +73,7 @@ export const WorkflowRepository = {
     return this.upsert({
       tenant_id,
       workflow_key,
-      is_active: true,
+      is_active: false,
       config,
     });
   },

@@ -15,7 +15,10 @@ export const WORKFLOW_CATALOG = [
       {
         key: "user_id",
         label: "Assign To",
-        type: "user",
+        type: "selectRemote",
+        endpoint: "/users",
+        labelField: "full_name",
+        valueField: "id",
       },
     ],
   },
