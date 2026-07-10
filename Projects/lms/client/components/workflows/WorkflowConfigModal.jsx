@@ -2,23 +2,10 @@
 
 import { useState } from "react";
 
-import { Modal } from "@/components/ui/Modal/Modal";
-
-import { TextInput } from "@/components/ui/TextInput/TextInput";
-
-import { SelectInput } from "@/components/ui/SelectInput";
-
-import { Button } from "@/components/ui/Button/Button";
-
 import styles from "./Workflow.module.css";
+import { Button, Modal, SelectInput, TextInput } from "../ui";
 
-export default function WorkflowConfigModal({
-  workflow,
-
-  onSave,
-
-  onClose,
-}) {
+export default function WorkflowConfigModal({ workflow, onSave, onClose }) {
   const [config, setConfig] = useState(workflow.config || {});
 
   const update = (key, value) => {

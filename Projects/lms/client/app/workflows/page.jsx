@@ -7,43 +7,29 @@ import WorkflowInstallModal from "@/components/workflows/WorkflowInstallModal";
 import WorkflowConfigModal from "@/components/workflows/WorkflowConfigModal";
 import ExecutionTable from "@/components/workflows/ExecutionTable";
 
-import { WorkflowAPI } from "@/api/workflow.api";
-
 import styles from "./Workflow.module.css";
 import { Button } from "@/components/ui";
+import { WorkflowAPI } from "@/service";
 
 export default function WorkflowsPage() {
   const [workflows, setWorkflows] = useState([]);
-
-  const [catalog, setCatalog] = useState([]);
-
   const [executions, setExecutions] = useState([]);
-
   const [loading, setLoading] = useState(true);
-
   const [showInstall, setShowInstall] = useState(false);
-
   const [configWorkflow, setConfigWorkflow] = useState(null);
 
   const loadData = async () => {
     try {
       setLoading(true);
 
-      const [workflowResponse, catalogResponse, executionResponse] =
-        await Promise.all([
-          WorkflowAPI.list(),
-
-          WorkflowAPI.catalog(),
-
-          WorkflowAPI.executions({
-            limit: 10,
-          }),
-        ]);
+      const [workflowResponse, executionResponse] = await Promise.all([
+        WorkflowAPI.list(),
+        WorkflowAPI.executions({
+          limit: 10,
+        }),
+      ]);
 
       setWorkflows(workflowResponse.data || []);
-
-      setCatalog(catalogResponse.data || []);
-
       setExecutions(executionResponse.data || []);
     } finally {
       setLoading(false);
@@ -60,23 +46,17 @@ export default function WorkflowsPage() {
     });
 
     setShowInstall(false);
-
     loadData();
   };
 
   const saveConfiguration = async (config) => {
-    await WorkflowAPI.update(
-      configWorkflow.key,
+    await WorkflowAPI.update(configWorkflow.key, {
+      is_active: configWorkflow.is_active,
 
-      {
-        is_active: configWorkflow.is_active,
-
-        config,
-      },
-    );
+      config,
+    });
 
     setConfigWorkflow(null);
-
     loadData();
   };
 
@@ -118,7 +98,7 @@ export default function WorkflowsPage() {
 
       {showInstall && (
         <WorkflowInstallModal
-          workflows={catalog}
+          workflows={workflows}
           onInstall={installWorkflow}
           onClose={() => setShowInstall(false)}
         />

@@ -1,14 +1,11 @@
 "use client";
 
-import { Button } from "@/components/ui/Button/Button";
-
+import { Button } from "../ui";
 import styles from "./Workflow.module.css";
 
 export default function WorkflowCard({
   workflow,
-
   onConfigure,
-
   onRefresh,
 }) {
   return (
@@ -21,15 +18,14 @@ export default function WorkflowCard({
         </div>
 
         <span
-          className={`${styles.status}
-${workflow.is_active ? styles.active : styles.inactive}`}
+          className={`${styles.status} ${workflow.is_active ? styles.active : styles.inactive}`}
         >
           {workflow.is_active ? "Active" : "Inactive"}
         </span>
       </div>
 
       <div>
-        <p>
+        <p className={styles.event}>
           <strong>Event:</strong> {workflow.event}
         </p>
       </div>

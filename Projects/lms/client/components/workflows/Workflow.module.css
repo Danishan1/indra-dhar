@@ -57,6 +57,11 @@
 .description {
   color: var(--color-text-muted);
   margin-top: var(--space-xs);
+  font-size: var(--font-size-sm);
+}
+
+.event {
+  font-size: var(--font-size-sm);
 }
 
 .status {

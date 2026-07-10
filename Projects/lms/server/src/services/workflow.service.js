@@ -14,7 +14,7 @@ export const WorkflowService = {
         name: workflow.name,
         description: workflow.description,
         event: workflow.event,
-        is_active: config ? config.is_active : false,
+        is_active: config ? true : false,
         config: config?.config || {},
         settings: workflow.settings || [],
       };

@@ -2,13 +2,8 @@
 
 import { useState } from "react";
 
-import { Modal } from "@/components/ui/Modal/Modal";
-
-import { SelectInput } from "@/components/ui/SelectInput";
-
-import { Button } from "@/components/ui/Button/Button";
-
 import styles from "./Workflow.module.css";
+import { Button, Modal, SelectInput } from "../ui";
 
 export default function WorkflowInstallModal({
   workflows = [],
