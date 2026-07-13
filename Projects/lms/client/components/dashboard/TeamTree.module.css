@@ -1,0 +1,97 @@
+.tree {
+  background: var(--color-surface);
+
+  border: 1px solid var(--color-border);
+
+  border-radius: var(--radius-md);
+
+  padding: var(--space-md);
+}
+
+.row {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  padding: 10px;
+
+  border-radius: var(--radius-sm);
+}
+
+.row:hover {
+  background: var(--color-bg);
+}
+
+.left {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+}
+
+.expand {
+  border: none;
+
+  background: none;
+
+  cursor: pointer;
+}
+
+.name {
+  font-weight: 600;
+}
+
+.metrics {
+  display: flex;
+
+  gap: 12px;
+}
+
+.metrics span {
+  display: flex;
+
+  align-items: center;
+
+  gap: 4px;
+
+  font-size: 12px;
+
+  padding: 4px 8px;
+
+  background: var(--color-bg);
+
+  border-radius: 20px;
+}
+
+.children {
+  margin-left: 25px;
+
+  border-left: 1px dashed var(--color-border);
+
+  padding-left: 15px;
+}
+
+@media (max-width: 600px) {
+  .row {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 8px;
+  }
+
+  .metrics {
+    width: 100%;
+
+    justify-content: flex-start;
+  }
+
+  .children {
+    margin-left: 12px;
+
+    padding-left: 8px;
+  }
+}

@@ -52,14 +52,20 @@ const leadDashboard = {
   path: BASE_PATH.leads,
 };
 
-// Lead Management
 const teams = {
   name: "Teams",
   icon: <Handshake size={ICON_SIZE} />,
   path: BASE_PATH.teams,
 };
 
+const dashboard = {
+  name: "Dashboard",
+  icon: <LayoutDashboard size={ICON_SIZE} />,
+  path: BASE_PATH.dashboard,
+};
+
 const common = [
+  dashboard,
   user,
   teams,
   leadDashboard,

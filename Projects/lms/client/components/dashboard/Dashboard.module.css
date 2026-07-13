@@ -1,0 +1,27 @@
+.container {
+  padding: var(--space-lg);
+}
+
+.header {
+  margin-bottom: var(--space-lg);
+}
+
+.header p {
+  color: var(--color-text-muted);
+
+  margin-top: 6px;
+}
+
+.section {
+  margin-top: var(--space-xl);
+}
+
+.section h2 {
+  margin-bottom: var(--space-md);
+}
+
+.loading {
+  padding: 40px;
+
+  text-align: center;
+}

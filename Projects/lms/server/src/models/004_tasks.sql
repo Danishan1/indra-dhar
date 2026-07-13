@@ -18,6 +18,7 @@ CREATE TABLE tasks (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
   lead_id UUID REFERENCES leads(id) ON DELETE CASCADE,
+  team_id UUID REFERENCES teams(id) ON DELETE CASCADE,
   assigned_to UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   task_type_id UUID REFERENCES task_types(id),
   title VARCHAR(255) NOT NULL,

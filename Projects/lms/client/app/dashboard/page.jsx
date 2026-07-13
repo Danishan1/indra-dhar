@@ -1,15 +1,8 @@
 "use client";
 
-import { DashboardLayout } from "@/components/common";
-import { ProfileAPI } from "@/service";
+import Dashboard from "@/components/dashboard/Dashboard";
 
 export default function DashboardPage() {
-  const res = ProfileAPI.useMe();
-
-  return (
-    <DashboardLayout>
-      <h1>Dashboard</h1>
-      <p>Welcome to your cost calculator dashboard!</p>
-    </DashboardLayout>
-  );
+  return <Dashboard />;
+  // return <AssignTaskModal open={true}/>;
 }
