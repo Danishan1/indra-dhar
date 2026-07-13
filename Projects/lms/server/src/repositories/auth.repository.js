@@ -20,8 +20,14 @@ export const AuthRepository = {
 
   async createSession(data) {
     return db.query(
-      `INSERT INTO sessions (user_id, refresh_token, ip_address, user_agent, expires_at)
-       VALUES ($1, $2, $3, $4, $5)`,
+      `INSERT INTO sessions (
+        user_id,
+        refresh_token,
+        ip_address,
+        user_agent,
+        expires_at
+      )
+      VALUES ($1, $2, $3, $4, $5)`,
       [
         data.user_id,
         data.refresh_token,
@@ -34,107 +40,128 @@ export const AuthRepository = {
 
   async revokeSession(token) {
     return db.query(
-      "UPDATE sessions SET revoked_at = NOW() WHERE refresh_token = $1",
+      `UPDATE sessions
+       SET revoked_at = NOW()
+       WHERE refresh_token = $1`,
       [token],
     );
   },
 
   async findSession(token) {
     return db.query(
-      "SELECT * FROM sessions WHERE refresh_token = $1 AND revoked_at IS NULL",
+      `SELECT *
+       FROM sessions
+       WHERE refresh_token = $1
+         AND revoked_at IS NULL`,
       [token],
     );
   },
 
   async createPasswordReset(userId, token, expiresAt) {
     return db.query(
-      `INSERT INTO password_resets (user_id, token, expires_at)
-       VALUES ($1, $2, $3)`,
+      `INSERT INTO password_resets (
+        user_id,
+        token,
+        expires_at
+      )
+      VALUES ($1, $2, $3)`,
       [userId, token, expiresAt],
     );
   },
 
   async findPasswordReset(token) {
     return db.query(
-      "SELECT * FROM password_resets WHERE token = $1 AND used_at IS NULL",
+      `SELECT *
+       FROM password_resets
+       WHERE token = $1
+         AND used_at IS NULL`,
       [token],
     );
   },
 
   async markPasswordResetUsed(token) {
     return db.query(
-      "UPDATE password_resets SET used_at = NOW() WHERE token = $1",
+      `UPDATE password_resets
+       SET used_at = NOW()
+       WHERE token = $1`,
       [token],
     );
   },
 
   async updatePassword(userId, hash) {
-    return db.query("UPDATE users SET password_hash = $1 WHERE id = $2", [
-      hash,
-      userId,
-    ]);
+    return db.query(
+      `UPDATE users
+       SET password_hash = $1
+       WHERE id = $2`,
+      [hash, userId],
+    );
   },
 
   async getUserDetailed(userId) {
     return db.query(
       `
-    SELECT
-      u.id,
-      u.first_name,
-      u.last_name,
-      CONCAT(u.first_name, ' ', COALESCE(u.last_name, '')) AS full_name,
-      u.email,
-      u.mobile,
-      u.avatar_url,
-      u.is_active,
-      u.email_verified,
-      u.mobile_verified,
-      u.last_login,
-      u.created_at,
+      SELECT
+        u.id,
+        u.first_name,
+        u.last_name,
+        CONCAT_WS(' ', u.first_name, u.last_name) AS full_name,
+        u.email,
+        u.mobile,
+        u.avatar_url,
+        u.is_active,
+        u.email_verified,
+        u.mobile_verified,
+        u.last_login,
+        u.created_at,
 
-      json_build_object(
-        'id', t.id,
-        'name', t.name,
-        'code', t.code,
-        'logo_url', t.logo_url
-      ) AS tenant,
+        json_build_object(
+          'id', t.id,
+          'name', t.name,
+          'code', t.code,
+          'logo_url', t.logo_url
+        ) AS tenant,
 
-      json_build_object(
-        'name', r.name,
-        'description', r.description
-      ) AS role,
+        CASE
+          WHEN m.id IS NULL THEN NULL
+          ELSE json_build_object(
+            'id', m.id,
+            'name', CONCAT_WS(' ', m.first_name, m.last_name),
+            'email', m.email
+          )
+        END AS manager,
 
-      CASE
-        WHEN tm.id IS NULL THEN NULL
-        ELSE json_build_object(
-          'name', tm.name
-        )
-      END AS team,
+        COALESCE(
+          json_agg(
+            DISTINCT jsonb_build_object(
+              'id', tm.id,
+              'name', tm.name,
+              'is_leader', tmem.is_leader
+            )
+          ) FILTER (WHERE tm.id IS NOT NULL),
+          '[]'
+        ) AS teams
 
-      CASE
-        WHEN m.id IS NULL THEN NULL
-        ELSE json_build_object(
-          'name', CONCAT(m.first_name, ' ', COALESCE(m.last_name, '')),
-          'email', m.email
-        )
-      END AS manager
+      FROM users u
 
-    FROM users u
+      INNER JOIN tenants t
+        ON t.id = u.tenant_id
 
-    INNER JOIN tenants t
-      ON t.id = u.tenant_id
+      LEFT JOIN users m
+        ON m.id = u.manager_id
 
-    INNER JOIN roles r
-      ON r.id = u.role_id
+      LEFT JOIN team_members tmem
+        ON tmem.user_id = u.id
 
-    LEFT JOIN teams tm
-      ON tm.id = u.team_id
+      LEFT JOIN teams tm
+        ON tm.id = tmem.team_id
 
-    LEFT JOIN users m
-      ON m.id = u.manager_id
+      WHERE u.id = $1
 
-    WHERE u.id = $1
-    `,
+      GROUP BY
+        u.id,
+        t.id,
+        m.id
+      `,
       [userId],
     );
   },

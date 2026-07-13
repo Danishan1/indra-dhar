@@ -27,11 +27,11 @@ export const UserService = {
     return UserRepository.updateStatus(id, isActive);
   },
 
-  async assignRole(id, roleId) {
-    return UserRepository.assignRole(id, roleId);
+  async assignTeam(userId, teamId, isLeader = false) {
+    return UserRepository.assignTeam(userId, teamId, isLeader);
   },
 
-  async assignTeam(id, teamId) {
-    return UserRepository.assignTeam(id, teamId);
+  async removeFromTeam(userId, teamId) {
+    return UserRepository.removeFromTeam(userId, teamId);
   },
 };

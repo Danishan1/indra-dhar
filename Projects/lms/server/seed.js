@@ -9,139 +9,155 @@ async function seed() {
 
   try {
     // =====================================================
-    // 1. TENANT
+    // TENANT
     // =====================================================
-    const tenantId = randomUUID();
 
-    await client.query(
+    let tenantId;
+
+    const tenant = await client.query(
       `
       INSERT INTO tenants (id, name, code, status)
-      VALUES ($1, $2, $3, $4)
-      ON CONFLICT (code) DO NOTHING
+      VALUES ($1,$2,$3,'ACTIVE')
+      ON CONFLICT (code)
+      DO UPDATE SET name = EXCLUDED.name
+      RETURNING id
       `,
-      [tenantId, "Default Tenant", "DEFAULT", "ACTIVE"],
+      [randomUUID(), "Default Tenant", "DEFAULT"],
     );
+
+    tenantId = tenant.rows[0].id;
 
     console.log("Tenant seeded");
 
     // =====================================================
-    // 2. ROLES
+    // USERS
     // =====================================================
-    const roles = [
-      { name: "admin", system: true },
-      { name: "manager", system: true },
-      { name: "user", system: true },
-    ];
 
-    const roleIds = {};
-
-    for (const role of roles) {
-      const roleId = randomUUID();
-
-      const res = await client.query(
-        `
-        INSERT INTO roles (id, tenant_id, name, system_role)
-        VALUES ($1, $2, $3, $4)
-        ON CONFLICT (tenant_id, name) DO NOTHING
-        RETURNING id
-        `,
-        [roleId, tenantId, role.name, role.system],
-      );
-
-      // if already exists, fetch it
-      if (res.rows.length > 0) {
-        roleIds[role.name] = res.rows[0].id;
-      } else {
-        const existing = await client.query(
-          `SELECT id FROM roles WHERE tenant_id = $1 AND name = $2`,
-          [tenantId, role.name],
-        );
-        roleIds[role.name] = existing.rows[0].id;
-      }
-    }
-
-    console.log("Roles seeded");
-
-    // =====================================================
-    // 3. USERS
-    // =====================================================
     const users = [
       {
         first_name: "Admin",
         last_name: "User",
         email: "admin@example.com",
         password: "Password@123",
-        role: "admin",
       },
       {
         first_name: "Project",
         last_name: "Manager",
         email: "manager@example.com",
         password: "Password@123",
-        role: "manager",
       },
       {
         first_name: "Regular",
         last_name: "User",
         email: "user@example.com",
         password: "Password@123",
-        role: "user",
       },
     ];
 
     const userIds = {};
 
     for (const user of users) {
-      const userId = randomUUID();
-      const passwordHash = await bcrypt.hash(user.password, 10);
+      const hash = await bcrypt.hash(user.password, 10);
 
       await client.query(
         `
         INSERT INTO users (
-          id, tenant_id, role_id,
-          first_name, last_name, email,
-          password_hash
+            id,
+            tenant_id,
+            first_name,
+            last_name,
+            email,
+            password_hash
         )
-        VALUES ($1,$2,$3,$4,$5,$6,$7)
-        ON CONFLICT (tenant_id, email) DO NOTHING
+        VALUES ($1,$2,$3,$4,$5,$6)
+        ON CONFLICT (tenant_id,email)
+        DO NOTHING
         `,
         [
-          userId,
+          randomUUID(),
           tenantId,
-          roleIds[user.role],
           user.first_name,
           user.last_name,
           user.email,
-          passwordHash,
+          hash,
         ],
       );
 
       const existing = await client.query(
-        `SELECT id FROM users WHERE tenant_id = $1 AND email = $2`,
+        `
+        SELECT id
+        FROM users
+        WHERE tenant_id = $1
+          AND email = $2
+        `,
         [tenantId, user.email],
       );
 
-      userIds[user.role] = existing.rows[0].id;
+      userIds[user.email] = existing.rows[0].id;
 
-      console.log(`Seeded user: ${user.email}`);
+      console.log(`${user.email}`);
     }
 
     // =====================================================
-    // 4. TEAMS
+    // TEAM
     // =====================================================
-    const teamId = randomUUID();
 
-    await client.query(
+    const team = await client.query(
       `
-      INSERT INTO teams (id, tenant_id, name, manager_id)
-      VALUES ($1, $2, $3, $4)
-      ON CONFLICT (tenant_id, name) DO NOTHING
+      INSERT INTO teams (
+          id,
+          tenant_id,
+          name
+      )
+      VALUES ($1,$2,$3)
+      ON CONFLICT (tenant_id,name)
+      DO UPDATE SET name = EXCLUDED.name
+      RETURNING id
       `,
-      [teamId, tenantId, "Core Team", userIds["manager"]],
+      [randomUUID(), tenantId, "Core Team"],
     );
 
-    console.log("Teams seeded");
+    const teamId = team.rows[0].id;
 
+    console.log("Team seeded");
+
+    // =====================================================
+    // TEAM MEMBERS
+    // =====================================================
+
+    const memberships = [
+      {
+        user: "admin@example.com",
+        leader: true,
+      },
+      {
+        user: "manager@example.com",
+        leader: false,
+      },
+      {
+        user: "user@example.com",
+        leader: false,
+      },
+    ];
+
+    for (const member of memberships) {
+      await client.query(
+        `
+        INSERT INTO team_members (
+            team_id,
+            user_id,
+            is_leader
+        )
+        VALUES ($1,$2,$3)
+        ON CONFLICT (team_id,user_id)
+        DO UPDATE
+        SET is_leader = EXCLUDED.is_leader
+        `,
+        [teamId, userIds[member.user], member.leader],
+      );
+    }
+
+    console.log("Team members seeded");
     console.log("Seeding completed successfully!");
   } finally {
     client.release();

@@ -5,15 +5,18 @@ export const UserRepository = {
   async create(data) {
     const result = await db.query(
       `INSERT INTO users (
-        tenant_id, role_id, team_id, manager_id,
-        first_name, last_name, email, mobile, password_hash
-      )
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-      RETURNING *`,
+      tenant_id,
+      manager_id,
+      first_name,
+      last_name,
+      email,
+      mobile,
+      password_hash
+    )
+    VALUES ($1,$2,$3,$4,$5,$6,$7)
+    RETURNING *`,
       [
         data.tenant_id,
-        data.role_id,
-        data.team_id,
         data.manager_id,
         data.first_name,
         data.last_name,
@@ -45,27 +48,40 @@ export const UserRepository = {
 
       t.name AS tenant,
 
-      r.name AS role,
+      CONCAT_WS(' ', m.first_name, m.last_name) AS manager,
 
-      tm.name AS team,
-
-      CONCAT_WS(' ', m.first_name, m.last_name) AS manager
+      COALESCE(
+        json_agg(
+          DISTINCT jsonb_build_object(
+            'id', tm.id,
+            'name', tm.name,
+            'is_leader', tmem.is_leader
+          )
+        ) FILTER (WHERE tm.id IS NOT NULL),
+        '[]'
+      ) AS teams
 
     FROM users u
 
-    INNER JOIN tenants t
+    JOIN tenants t
       ON t.id = u.tenant_id
-
-    INNER JOIN roles r
-      ON r.id = u.role_id
-
-    LEFT JOIN teams tm
-      ON tm.id = u.team_id
 
     LEFT JOIN users m
       ON m.id = u.manager_id
 
+    LEFT JOIN team_members tmem
+      ON tmem.user_id = u.id
+
+    LEFT JOIN teams tm
+      ON tm.id = tmem.team_id
+
     WHERE u.tenant_id = $1
+
+    GROUP BY
+      u.id,
+      t.name,
+      m.first_name,
+      m.last_name
 
     ORDER BY u.first_name, u.last_name
     `,
@@ -99,19 +115,6 @@ export const UserRepository = {
         'code', t.code
       ) AS tenant,
 
-      json_build_object(
-        'id', r.id,
-        'name', r.name
-      ) AS role,
-
-      CASE
-        WHEN tm.id IS NULL THEN NULL
-        ELSE json_build_object(
-          'id', tm.id,
-          'name', tm.name
-        )
-      END AS team,
-
       CASE
         WHEN m.id IS NULL THEN NULL
         ELSE json_build_object(
@@ -119,23 +122,39 @@ export const UserRepository = {
           'name', CONCAT_WS(' ', m.first_name, m.last_name),
           'email', m.email
         )
-      END AS manager
+      END AS manager,
+
+      COALESCE(
+        json_agg(
+          DISTINCT jsonb_build_object(
+            'id', tm.id,
+            'name', tm.name,
+            'is_leader', tmem.is_leader
+          )
+        ) FILTER (WHERE tm.id IS NOT NULL),
+        '[]'
+      ) AS teams
 
     FROM users u
 
-    INNER JOIN tenants t
+    JOIN tenants t
       ON t.id = u.tenant_id
-
-    INNER JOIN roles r
-      ON r.id = u.role_id
-
-    LEFT JOIN teams tm
-      ON tm.id = u.team_id
 
     LEFT JOIN users m
       ON m.id = u.manager_id
 
+    LEFT JOIN team_members tmem
+      ON tmem.user_id = u.id
+
+    LEFT JOIN teams tm
+      ON tm.id = tmem.team_id
+
     WHERE u.id = $1
+
+    GROUP BY
+      u.id,
+      t.id,
+      m.id
     `,
       [id],
     );
@@ -168,23 +187,33 @@ export const UserRepository = {
     return dbResponse.count(result);
   },
 
-  async assignRole(id, roleId) {
+  async assignTeam(userId, teamId, isLeader = false) {
     const result = await db.query(
-      `UPDATE users
-       SET role_id = $1
-       WHERE id = $2`,
-      [roleId, id],
+      `
+    INSERT INTO team_members (
+      user_id,
+      team_id,
+      is_leader
+    )
+    VALUES ($1,$2,$3)
+    ON CONFLICT (team_id, user_id)
+    DO UPDATE
+    SET is_leader = EXCLUDED.is_leader
+    `,
+      [userId, teamId, isLeader],
     );
 
     return dbResponse.count(result);
   },
 
-  async assignTeam(id, teamId) {
+  async removeFromTeam(userId, teamId) {
     const result = await db.query(
-      `UPDATE users
-       SET team_id = $1
-       WHERE id = $2`,
-      [teamId, id],
+      `
+    DELETE FROM team_members
+    WHERE user_id = $1
+      AND team_id = $2
+    `,
+      [userId, teamId],
     );
 
     return dbResponse.count(result);
@@ -193,19 +222,23 @@ export const UserRepository = {
   async getRandomAssignableUser({ tenant_id, team_id = null }) {
     const result = await db.query(
       `
-      SELECT
-        id,
-        first_name,
-        last_name,
-        email,
-        team_id
-      FROM users
-      WHERE tenant_id = $1
-        AND is_active = TRUE
-        AND ($2::uuid IS NULL OR team_id = $2)
-      ORDER BY RANDOM()
-      LIMIT 1
-      `,
+    SELECT DISTINCT
+      u.id,
+      u.first_name,
+      u.last_name,
+      u.email
+    FROM users u
+
+    LEFT JOIN team_members tm
+      ON tm.user_id = u.id
+
+    WHERE u.tenant_id = $1
+      AND u.is_active = TRUE
+      AND ($2::uuid IS NULL OR tm.team_id = $2)
+
+    ORDER BY RANDOM()
+    LIMIT 1
+    `,
       [tenant_id, team_id],
     );
 

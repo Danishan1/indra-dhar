@@ -50,20 +50,20 @@ router.patch("/:id/status", UserController.toggleStatus);
 
 /**
  * @openapi
- * /users/{id}/role:
- *   patch:
+ * /users/{id}/teams:
+ *   post:
  *     tags: [User]
- *     summary: Assign role to user
+ *     summary: Add user to a team
  */
-router.patch("/:id/role", UserController.assignRole);
+router.post("/:id/teams", UserController.assignTeam);
 
 /**
  * @openapi
- * /users/{id}/team:
- *   patch:
+ * /users/{id}/teams/{teamId}:
+ *   delete:
  *     tags: [User]
- *     summary: Assign user to team
+ *     summary: Remove user from a team
  */
-router.patch("/:id/team", UserController.assignTeam);
+router.delete("/:id/teams/:teamId", UserController.removeFromTeam);
 
 export default router;

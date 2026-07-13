@@ -1,10 +1,14 @@
 import { UserService } from "../services/user.service.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { validate } from "../utils/validate.js";
+import { UserValidator } from "../validators/user.validator.js";
 
 export const UserController = {
   create: async (req, res) => {
+    const body = validate(UserValidator.create, req.body);
+
     const data = await UserService.create({
-      ...req.body,
+      ...body,
       tenant_id: req.user.tenant_id,
     });
 
@@ -26,7 +30,9 @@ export const UserController = {
   },
 
   getById: async (req, res) => {
-    const data = await UserService.getById(req.params.id);
+    const { id } = validate(UserValidator.idParam, req.params);
+
+    const data = await UserService.getById(id);
 
     return ApiResponse.success({
       res,
@@ -36,7 +42,10 @@ export const UserController = {
   },
 
   update: async (req, res) => {
-    const data = await UserService.update(req.params.id, req.body);
+    const { id } = validate(UserValidator.idParam, req.params);
+    const body = validate(UserValidator.update, req.body);
+
+    const data = await UserService.update(id, body);
 
     return ApiResponse.success({
       res,
@@ -46,10 +55,10 @@ export const UserController = {
   },
 
   toggleStatus: async (req, res) => {
-    const data = await UserService.toggleStatus(
-      req.params.id,
-      req.body.is_active,
-    );
+    const { id } = validate(UserValidator.idParam, req.params);
+    const body = validate(UserValidator.toggleStatus, req.body);
+
+    const data = await UserService.toggleStatus(id, body.is_active);
 
     return ApiResponse.success({
       res,
@@ -58,23 +67,28 @@ export const UserController = {
     });
   },
 
-  assignRole: async (req, res) => {
-    const data = await UserService.assignRole(req.params.id, req.body.role_id);
+  assignTeam: async (req, res) => {
+    const { id } = validate(UserValidator.idParam, req.params);
+    const body = validate(UserValidator.assignTeam, req.body);
+
+    const data = await UserService.assignTeam(id, body.team_id, body.is_leader);
 
     return ApiResponse.success({
       res,
       data,
-      message: "Role assigned successfully",
+      message: "User added to team successfully",
     });
   },
 
-  assignTeam: async (req, res) => {
-    const data = await UserService.assignTeam(req.params.id, req.body.team_id);
+  removeFromTeam: async (req, res) => {
+    const { id, teamId } = validate(UserValidator.removeFromTeam, req.params);
+
+    const data = await UserService.removeFromTeam(id, teamId);
 
     return ApiResponse.success({
       res,
       data,
-      message: "Team assigned successfully",
+      message: "User removed from team successfully",
     });
   },
 };
