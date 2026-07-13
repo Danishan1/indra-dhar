@@ -1,64 +1,133 @@
 import { TeamService } from "../services/team.service.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { validate } from "../utils/validate.js";
+import { TeamValidator } from "../validators/team.validator.js";
 
 export const TeamController = {
-  async list(req, res) {
-    const tenantId = req.user.tenant_id;
+  create: async (req, res) => {
+    const body = validate(TeamValidator.create, req.body);
 
-    const teams = await TeamService.list(tenantId);
+    const data = await TeamService.create({
+      ...body,
+      tenant_id: req.user.tenant_id,
+    });
 
-    res.json(teams);
+    return ApiResponse.created({
+      res,
+      data,
+      message: "Team created successfully",
+    });
   },
 
-  async create(req, res) {
-    const tenantId = req.user.tenant_id;
+  list: async (req, res) => {
+    const data = await TeamService.list(req.user.tenant_id);
 
-    const team = await TeamService.create(tenantId, req.body);
-
-    res.status(201).json(team);
+    return ApiResponse.success({
+      res,
+      data,
+      message: "Teams fetched successfully",
+    });
   },
 
-  async getById(req, res) {
-    const tenantId = req.user.tenant_id;
+  getById: async (req, res) => {
+    const { id } = validate(TeamValidator.idParam, req.params);
 
-    const team = await TeamService.getById(req.params.id, tenantId);
+    const data = await TeamService.getById(id);
 
-    res.json(team);
+    return ApiResponse.success({
+      res,
+      data,
+      message: "Team fetched successfully",
+    });
   },
 
-  async update(req, res) {
-    const tenantId = req.user.tenant_id;
+  update: async (req, res) => {
+    const { id } = validate(TeamValidator.idParam, req.params);
 
-    const team = await TeamService.update(req.params.id, tenantId, req.body);
+    const body = validate(TeamValidator.update, req.body);
 
-    res.json(team);
+    const data = await TeamService.update(id, body);
+
+    return ApiResponse.success({
+      res,
+      data,
+      message: "Team updated successfully",
+    });
   },
 
-  async remove(req, res) {
-    const tenantId = req.user.tenant_id;
+  remove: async (req, res) => {
+    const { id } = validate(TeamValidator.idParam, req.params);
 
-    await TeamService.remove(req.params.id, tenantId);
+    const data = await TeamService.remove(id);
 
-    res.json({ success: true });
+    return ApiResponse.success({
+      res,
+      data,
+      message: "Team deleted successfully",
+    });
   },
 
-  async getMembers(req, res) {
-    const tenantId = req.user.tenant_id;
+  listMembers: async (req, res) => {
+    const { id } = validate(TeamValidator.idParam, req.params);
 
-    const members = await TeamService.getMembers(req.params.id, tenantId);
+    const data = await TeamService.listMembers(id);
 
-    res.json(members);
+    return ApiResponse.success({
+      res,
+      data,
+      message: "Team members fetched successfully",
+    });
   },
 
-  async assignManager(req, res) {
-    const tenantId = req.user.tenant_id;
-    const { managerId } = req.body;
+  addMember: async (req, res) => {
+    const { id } = validate(TeamValidator.idParam, req.params);
 
-    const team = await TeamService.assignManager(
-      req.params.id,
-      managerId,
-      tenantId,
-    );
+    const body = validate(TeamValidator.addMember, req.body);
 
-    res.json(team);
+    const data = await TeamService.addMember(id, body.user_id, body.is_leader);
+
+    return ApiResponse.success({
+      res,
+      data,
+      message: "Member added to team successfully",
+    });
+  },
+
+  removeMember: async (req, res) => {
+    const { id, userId } = validate(TeamValidator.memberParam, req.params);
+
+    const data = await TeamService.removeMember(id, userId);
+
+    return ApiResponse.success({
+      res,
+      data,
+      message: "Member removed from team successfully",
+    });
+  },
+
+  setLeader: async (req, res) => {
+    const { id } = validate(TeamValidator.idParam, req.params);
+
+    const body = validate(TeamValidator.setLeader, req.body);
+
+    const data = await TeamService.setLeader(id, body.user_id, body.is_leader);
+
+    return ApiResponse.success({
+      res,
+      data,
+      message: "Team leader updated successfully",
+    });
+  },
+
+  listChildren: async (req, res) => {
+    const { id } = validate(TeamValidator.idParam, req.params);
+
+    const data = await TeamService.listChildren(id);
+
+    return ApiResponse.success({
+      res,
+      data,
+      message: "Child teams fetched successfully",
+    });
   },
 };

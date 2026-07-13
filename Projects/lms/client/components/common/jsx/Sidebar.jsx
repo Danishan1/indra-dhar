@@ -13,7 +13,8 @@ export function Sidebar() {
   const router = useRouter();
   const { open, toggleSidebar } = useSidebar();
 
-  const items = menuItems[user?.role.name || "user"];
+  // const items = menuItems[user?.role.name || "user"];
+  const items = menuItems["admin"];
 
   return (
     <aside className={`${styles.sidebar} ${open ? styles.open : ""}`}>

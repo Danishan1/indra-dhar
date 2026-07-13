@@ -3,6 +3,7 @@ export const BASE_PATH = {
   users: "/users",
   bulkUpload: "/bulk-upload",
   leads: "/leads",
+  teams: "/teams",
   integrations: "/settings/integrations",
   taskDashboard: "/tasks",
   workflows: "/workflows",

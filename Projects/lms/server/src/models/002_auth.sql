@@ -24,7 +24,8 @@ CREATE TABLE teams (
     description TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    UNIQUE (tenant_id, name)
+    UNIQUE (tenant_id, name),
+    CONSTRAINT teams_no_self_parent CHECK (id <> parent_team_id)
 );
 --
 -- =====================================================
@@ -101,4 +102,4 @@ CREATE INDEX idx_sessions_expiry ON sessions(expires_at);
 CREATE INDEX idx_password_resets_user ON password_resets(user_id);
 --
 -- =====================================================
---
+-- ==

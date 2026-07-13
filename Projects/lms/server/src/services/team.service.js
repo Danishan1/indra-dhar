@@ -1,75 +1,97 @@
 import { TeamRepository } from "../repositories/team.repository.js";
 
 export const TeamService = {
-  async list(tenantId) {
-    const res = await TeamRepository.listByTenant(tenantId);
-    return res.rows;
-  },
-
-  async create(tenantId, data) {
-    const res = await TeamRepository.create({
-      tenantId,
-      name: data.name,
-      managerId: data.managerId,
-    });
-
-    return res.rows[0];
-  },
-
-  async getById(id, tenantId) {
-    const res = await TeamRepository.findById(id);
-
-    const team = res.rows[0];
-    if (!team) throw new Error("Team not found");
-
-    if (team.tenant_id !== tenantId) {
-      throw new Error("Forbidden");
+  async create(data) {
+    if (data.parent_team_id) {
+      await this.checkCycle(null, data.parent_team_id);
     }
 
-    return team;
+    return TeamRepository.create(data);
   },
 
-  async update(id, tenantId, data) {
-    const existing = await TeamRepository.findById(id);
-    const team = existing.rows[0];
-
-    if (!team) throw new Error("Team not found");
-    if (team.tenant_id !== tenantId) throw new Error("Forbidden");
-
-    const res = await TeamRepository.update(id, data);
-    return res.rows[0];
+  async list(tenantId) {
+    return TeamRepository.list(tenantId);
   },
 
-  async remove(id, tenantId) {
-    const existing = await TeamRepository.findById(id);
-    const team = existing.rows[0];
-
-    if (!team) throw new Error("Team not found");
-    if (team.tenant_id !== tenantId) throw new Error("Forbidden");
-
-    await TeamRepository.remove(id);
-    return true;
+  async getById(id) {
+    return TeamRepository.findById(id);
   },
 
-  async getMembers(teamId, tenantId) {
-    const teamRes = await TeamRepository.findById(teamId);
-    const team = teamRes.rows[0];
+  async update(id, data) {
+    if (data.parent_team_id) {
+      await this.checkCycle(id, data.parent_team_id);
+    }
 
-    if (!team) throw new Error("Team not found");
-    if (team.tenant_id !== tenantId) throw new Error("Forbidden");
-
-    const membersRes = await TeamRepository.getMembers(teamId);
-    return membersRes.rows;
+    return TeamRepository.update(id, data);
   },
 
-  async assignManager(teamId, managerId, tenantId) {
-    const teamRes = await TeamRepository.findById(teamId);
-    const team = teamRes.rows[0];
+  async remove(id) {
+    return TeamRepository.remove(id);
+  },
 
-    if (!team) throw new Error("Team not found");
-    if (team.tenant_id !== tenantId) throw new Error("Forbidden");
+  async listMembers(teamId) {
+    return TeamRepository.listMembers(teamId);
+  },
 
-    const updated = await TeamRepository.setManager(teamId, managerId);
-    return updated.rows[0];
+  async addMember(teamId, userId, isLeader = false) {
+    return TeamRepository.addMember({
+      team_id: teamId,
+
+      user_id: userId,
+
+      is_leader: isLeader,
+    });
+  },
+
+  async removeMember(teamId, userId) {
+    return TeamRepository.removeMember(teamId, userId);
+  },
+
+  async setLeader(teamId, userId, isLeader) {
+    return TeamRepository.setLeader(teamId, userId, isLeader);
+  },
+
+  async listChildren(teamId) {
+    return TeamRepository.listChildren(teamId);
+  },
+
+  /**
+   * Prevent circular hierarchy
+   *
+   * moving:
+   *
+   * A -> B -> C
+   *
+   * C parent cannot become A
+   *
+   */
+  async checkCycle(teamId, parentTeamId) {
+    if (teamId && teamId === parentTeamId) {
+      throw {
+        status: 400,
+
+        message: "A team cannot be its own parent",
+      };
+    }
+
+    let current = parentTeamId;
+
+    while (current) {
+      const parent = await TeamRepository.getParent(current);
+
+      if (!parent) {
+        break;
+      }
+
+      if (teamId && parent.id === teamId) {
+        throw {
+          status: 400,
+
+          message: "Invalid hierarchy. Cannot create cyclic team relationship",
+        };
+      }
+
+      current = parent.parent_team_id;
+    }
   },
 };

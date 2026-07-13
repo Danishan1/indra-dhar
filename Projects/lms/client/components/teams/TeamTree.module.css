@@ -1,0 +1,158 @@
+.tree {
+  width: 100%;
+
+  padding: 8px;
+}
+
+/*
+  Each hierarchy branch
+*/
+.branch {
+  position: relative;
+}
+
+/*
+  Row
+*/
+.node {
+  position: relative;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  margin-left: calc(var(--level) * 5px);
+
+  padding: 5px 8px;
+
+  border-radius: var(--radius-md);
+
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+/*
+  Vertical hierarchy connector
+*/
+.children {
+  margin-left: 20px;
+
+  padding-left: 14px;
+
+  border-left: 1px dashed var(--color-border);
+}
+
+.node:hover {
+  background: rgba(27, 58, 75, 0.05);
+}
+
+.selected {
+  background: rgba(27, 58, 75, 0.12);
+
+  border: 1px solid rgba(27, 58, 75, 0.25);
+}
+
+.left {
+  display: flex;
+
+  align-items: center;
+
+  flex: 1;
+
+  min-width: 0;
+}
+
+.expand {
+  width: 28px;
+
+  height: 28px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border: none;
+
+  background: transparent;
+
+  color: var(--color-text-muted);
+
+  cursor: pointer;
+
+  border-radius: var(--radius-sm);
+}
+
+.expand:hover {
+  background: var(--color-surface);
+
+  color: var(--color-primary);
+}
+
+.spacer {
+  width: 28px;
+}
+
+.icon {
+  margin-right: 8px;
+
+  color: var(--color-primary);
+}
+
+.team {
+  border: none;
+
+  background: none;
+
+  padding: 6px 4px;
+
+  cursor: pointer;
+
+  color: var(--color-text);
+
+  font-size: var(--font-size-sm);
+
+  font-weight: 500;
+
+  text-align: left;
+
+  overflow: hidden;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+}
+
+.team:hover {
+  color: var(--color-primary);
+}
+
+.meta {
+  display: flex;
+
+  align-items: center;
+
+  margin-left: 10px;
+}
+
+.meta span {
+  display: flex;
+
+  align-items: center;
+
+  gap: 4px;
+
+  padding: 3px 8px;
+
+  border-radius: 20px;
+
+  background: var(--color-bg);
+
+  color: var(--color-text-muted);
+
+  font-size: var(--font-size-xs);
+}

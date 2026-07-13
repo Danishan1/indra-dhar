@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   Sprout,
   Workflow,
+  Handshake,
 } from "lucide-react";
 
 import { CONST } from "@/utils/CONST";
@@ -51,7 +52,21 @@ const leadDashboard = {
   path: BASE_PATH.leads,
 };
 
-const common = [user, leadDashboard, taskDashboard, workflows, integrations];
+// Lead Management
+const teams = {
+  name: "Teams",
+  icon: <Handshake size={ICON_SIZE} />,
+  path: BASE_PATH.teams,
+};
+
+const common = [
+  user,
+  teams,
+  leadDashboard,
+  taskDashboard,
+  workflows,
+  integrations,
+];
 
 export const menuItems = {
   admin: [...common],

@@ -8,7 +8,7 @@ const router = Router();
  * /teams:
  *   get:
  *     tags: [Team]
- *     summary: List teams
+ *     summary: List all teams
  */
 router.get("/", TeamController.list);
 
@@ -17,7 +17,7 @@ router.get("/", TeamController.list);
  * /teams:
  *   post:
  *     tags: [Team]
- *     summary: Create team
+ *     summary: Create a team
  */
 router.post("/", TeamController.create);
 
@@ -26,7 +26,7 @@ router.post("/", TeamController.create);
  * /teams/{id}:
  *   get:
  *     tags: [Team]
- *     summary: Get team by id
+ *     summary: Get team details
  */
 router.get("/:id", TeamController.getById);
 
@@ -35,7 +35,7 @@ router.get("/:id", TeamController.getById);
  * /teams/{id}:
  *   patch:
  *     tags: [Team]
- *     summary: Update team
+ *     summary: Update a team
  */
 router.patch("/:id", TeamController.update);
 
@@ -44,7 +44,7 @@ router.patch("/:id", TeamController.update);
  * /teams/{id}:
  *   delete:
  *     tags: [Team]
- *     summary: Delete team
+ *     summary: Delete a team
  */
 router.delete("/:id", TeamController.remove);
 
@@ -53,17 +53,44 @@ router.delete("/:id", TeamController.remove);
  * /teams/{id}/members:
  *   get:
  *     tags: [Team]
- *     summary: Get team members
+ *     summary: List team members
  */
-router.get("/:id/members", TeamController.getMembers);
+router.get("/:id/members", TeamController.listMembers);
 
 /**
  * @openapi
- * /teams/{id}/assign-manager:
+ * /teams/{id}/members:
  *   post:
  *     tags: [Team]
- *     summary: Assign team manager
+ *     summary: Add a member to the team
  */
-router.post("/:id/assign-manager", TeamController.assignManager);
+router.post("/:id/members", TeamController.addMember);
+
+/**
+ * @openapi
+ * /teams/{id}/members/{userId}:
+ *   delete:
+ *     tags: [Team]
+ *     summary: Remove a member from the team
+ */
+router.delete("/:id/members/:userId", TeamController.removeMember);
+
+/**
+ * @openapi
+ * /teams/{id}/leader:
+ *   patch:
+ *     tags: [Team]
+ *     summary: Promote or demote a team leader
+ */
+router.patch("/:id/leader", TeamController.setLeader);
+
+/**
+ * @openapi
+ * /teams/{id}/children:
+ *   get:
+ *     tags: [Team]
+ *     summary: List child teams
+ */
+router.get("/:id/children", TeamController.listChildren);
 
 export default router;

@@ -1,0 +1,87 @@
+.container {
+  padding: var(--space-lg);
+}
+
+.header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: var(--space-lg);
+}
+
+.header h1 {
+  font-size: var(--font-size-xl);
+}
+
+.subtitle {
+  margin-top: 6px;
+
+  color: var(--color-text-muted);
+}
+
+.layout {
+  display: grid;
+
+  grid-template-columns:
+    320px
+    1fr;
+
+  gap: var(--space-lg);
+
+  min-height: calc(100vh - 180px);
+}
+
+.sidebar {
+  background: var(--color-surface);
+
+  border: 1px solid var(--color-border);
+
+  border-radius: var(--radius-md);
+
+  padding: var(--space-md);
+
+  box-shadow: var(--shadow-sm);
+}
+
+.cardHeader {
+  padding-bottom: var(--space-md);
+
+  margin-bottom: var(--space-sm);
+
+  border-bottom: 1px solid var(--color-border);
+}
+
+.content {
+  background: var(--color-surface);
+
+  border: 1px solid var(--color-border);
+
+  border-radius: var(--radius-md);
+
+  padding: var(--space-lg);
+
+  box-shadow: var(--shadow-sm);
+}
+
+.empty {
+  height: 100%;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  color: var(--color-text-muted);
+}
+
+.empty h3 {
+  color: var(--color-text);
+
+  margin-bottom: var(--space-sm);
+}
