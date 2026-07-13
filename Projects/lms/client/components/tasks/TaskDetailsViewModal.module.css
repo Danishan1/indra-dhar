@@ -143,6 +143,17 @@
   word-break: break-word;
 }
 
+.leadView{
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0 5px;
+}
+
+.leadView:hover {
+ cursor: pointer;
+ background-color: #fafefe;
+}
+
 /* Sections */
 
 .section {

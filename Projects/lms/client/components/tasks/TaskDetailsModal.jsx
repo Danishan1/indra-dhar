@@ -10,6 +10,7 @@ import {
   CheckCircle,
   Trash2,
 } from "lucide-react";
+import LeadDetailsViewModal from "../leads/LeadDetailsViewModal";
 
 import AssignTaskModal from "./AssignTaskModal";
 import ChangeStatusModal from "./ChangeStatusModal";
@@ -31,6 +32,7 @@ export default function TaskDetailsModal({
 
   const [comments, setComments] = useState([]);
   const [history, setHistory] = useState([]);
+  const [viewLead, setViewLead] = useState(null);
 
   const [loading, setLoading] = useState(false);
 
@@ -130,7 +132,12 @@ export default function TaskDetailsModal({
                   </p>
                 </div>
 
-                <div>
+                <div
+                  className={`${styles.leadView}`}
+                  onClick={() => {
+                    setViewLead(taskData.lead);
+                  }}
+                >
                   <label>Lead</label>
 
                   <p>{taskData.lead?.name || "-"}</p>
@@ -299,6 +306,12 @@ export default function TaskDetailsModal({
           refreshAfterAction();
         }}
         onClose={() => setCommentOpen(false)}
+      />
+
+      <LeadDetailsViewModal
+        open={!!viewLead}
+        lead={viewLead}
+        onClose={() => setViewLead(null)}
       />
     </>
   );
