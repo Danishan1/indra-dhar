@@ -1,7 +1,7 @@
 .tree {
   width: 100%;
-
   padding: 8px;
+  overflow-x: auto;
 }
 
 /*
@@ -9,6 +9,7 @@
 */
 .branch {
   position: relative;
+  min-width: 0;
 }
 
 /*
@@ -18,31 +19,20 @@
   position: relative;
 
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
 
   margin-left: calc(var(--level) * 5px);
 
-  padding: 5px 8px;
+  padding: 6px 8px;
 
   border-radius: var(--radius-md);
 
   transition:
     background var(--transition-fast),
     border-color var(--transition-fast);
-}
 
-/*
-  Vertical hierarchy connector
-*/
-.children {
-  margin-left: 20px;
-
-  padding-left: 14px;
-
-  border-left: 1px dashed var(--color-border);
+  min-width: 0;
 }
 
 .node:hover {
@@ -55,6 +45,20 @@
   border: 1px solid rgba(27, 58, 75, 0.25);
 }
 
+/*
+  Children hierarchy
+*/
+.children {
+  margin-left: 18px;
+
+  padding-left: 12px;
+
+  border-left: 1px dashed var(--color-border);
+}
+
+/*
+  Left section
+*/
 .left {
   display: flex;
 
@@ -65,16 +69,19 @@
   min-width: 0;
 }
 
+/*
+  Expand button
+*/
 .expand {
-  width: 28px;
-
-  height: 28px;
+  width: 30px;
+  height: 30px;
 
   display: flex;
 
   align-items: center;
-
   justify-content: center;
+
+  flex-shrink: 0;
 
   border: none;
 
@@ -94,21 +101,31 @@
 }
 
 .spacer {
-  width: 28px;
+  width: 30px;
+
+  flex-shrink: 0;
 }
 
+/*
+  Team icon
+*/
 .icon {
   margin-right: 8px;
+
+  flex-shrink: 0;
 
   color: var(--color-primary);
 }
 
+/*
+  Team name
+*/
 .team {
   border: none;
 
   background: none;
 
-  padding: 6px 4px;
+  padding: 8px 4px;
 
   cursor: pointer;
 
@@ -125,16 +142,23 @@
   white-space: nowrap;
 
   text-overflow: ellipsis;
+
+  min-width: 0;
 }
 
 .team:hover {
   color: var(--color-primary);
 }
 
+/*
+  Member count badge
+*/
 .meta {
   display: flex;
 
   align-items: center;
+
+  flex-shrink: 0;
 
   margin-left: 10px;
 }
@@ -154,5 +178,107 @@
 
   color: var(--color-text-muted);
 
-  font-size: var(--font-size-xs);
+  font-size: var(--color-font-xs);
+}
+
+/* ============================
+   Tablet
+   ============================ */
+
+@media (max-width: 768px) {
+  .tree {
+    padding: 4px;
+  }
+
+  .node {
+    margin-left: calc(var(--level) * 3px);
+
+    padding: 6px;
+  }
+
+  .children {
+    margin-left: 12px;
+
+    padding-left: 8px;
+  }
+
+  .icon {
+    margin-right: 5px;
+  }
+
+  .team {
+    font-size: 14px;
+  }
+
+  .meta span {
+    padding: 2px 6px;
+  }
+}
+
+/* ============================
+   Mobile
+   ============================ */
+
+@media (max-width: 480px) {
+  .tree {
+    overflow-x: hidden;
+  }
+
+  .node {
+    width: 100%;
+
+    margin-left: calc(var(--level) * 2px);
+
+    padding: 5px;
+  }
+
+  .children {
+    margin-left: 8px;
+
+    padding-left: 6px;
+  }
+
+  .expand,
+  .spacer {
+    width: 24px;
+
+    height: 24px;
+  }
+
+  .icon {
+    width: 15px;
+    height: 15px;
+
+    margin-right: 5px;
+  }
+
+  .team {
+    font-size: 13px;
+
+    max-width: 180px;
+  }
+
+  /*
+    Hide count badge on small devices
+    to keep hierarchy readable
+  */
+  .meta {
+    display: none;
+  }
+}
+
+/* ============================
+   Very small screens
+   ============================ */
+
+@media (max-width: 360px) {
+  .team {
+    max-width: 130px;
+  }
+
+  .children {
+    margin-left: 5px;
+
+    padding-left: 4px;
+  }
 }

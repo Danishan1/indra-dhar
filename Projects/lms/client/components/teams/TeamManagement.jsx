@@ -3,16 +3,21 @@
 import React, { useEffect, useState } from "react";
 
 import styles from "./TeamManagement.module.css";
+
 import { Button, Modal } from "../ui";
 import { TeamTree } from "./TeamTree";
 import { TeamDetails } from "./TeamDetails";
 import { TeamForm } from "./TeamForm";
+
 import { TeamAPI } from "@/service/team.api";
 
 export default function TeamManagement() {
   const [teams, setTeams] = useState([]);
+
   const [selectedTeam, setSelectedTeam] = useState(null);
+
   const [createOpen, setCreateOpen] = useState(false);
+
   const [loading, setLoading] = useState(false);
 
   const loadTeams = async () => {
@@ -21,17 +26,17 @@ export default function TeamManagement() {
 
       const res = await TeamAPI.list();
 
-      setTeams(res.data || []);
+      const data = res.data || [];
 
-      /*
-        Keep selected team synced
-        after refresh
-      */
+      setTeams(data);
+
       if (selectedTeam) {
-        const updated = res.data.find((t) => t.id === selectedTeam.id);
+        const updated = data.find((team) => team.id === selectedTeam.id);
 
         if (updated) {
           setSelectedTeam(updated);
+        } else {
+          setSelectedTeam(null);
         }
       }
     } finally {
@@ -60,7 +65,7 @@ export default function TeamManagement() {
       {/* Header */}
 
       <div className={styles.header}>
-        <div>
+        <div className={styles.title}>
           <h1>Team Management</h1>
 
           <p className={styles.subtitle}>
@@ -71,18 +76,18 @@ export default function TeamManagement() {
         <Button onClick={() => setCreateOpen(true)}>+ New Team</Button>
       </div>
 
-      {/* Main Layout */}
+      {/* Main */}
 
       <div className={styles.layout}>
         {/* Team Tree */}
 
-        <div className={styles.sidebar}>
+        <aside className={styles.sidebar}>
           <div className={styles.cardHeader}>
             <h3>Teams</h3>
           </div>
 
           {loading ? (
-            <p>Loading teams...</p>
+            <div className={styles.loading}>Loading teams...</div>
           ) : (
             <TeamTree
               teams={teams}
@@ -91,27 +96,36 @@ export default function TeamManagement() {
               }}
             />
           )}
-        </div>
+        </aside>
 
         {/* Details */}
 
-        <div className={styles.content}>
+        <section className={styles.content}>
           {selectedTeam ? (
-            <TeamDetails team={selectedTeam} onDeleted={handleDeleted} />
+            <>
+              <div className={styles.mobileBack}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setSelectedTeam(null)}
+                >
+                  ← Back to Teams
+                </Button>
+              </div>
+
+              <TeamDetails team={selectedTeam} onDeleted={handleDeleted} />
+            </>
           ) : (
             <div className={styles.empty}>
               <h3>Select a team</h3>
 
-              <p>
-                Choose a team from the left panel to manage members and
-                settings.
-              </p>
+              <p>Choose a team from the list to manage members and settings.</p>
             </div>
           )}
-        </div>
+        </section>
       </div>
 
-      {/* Create Modal */}
+      {/* Create Team */}
 
       {createOpen && (
         <Modal title="Create Team" onClose={() => setCreateOpen(false)}>
