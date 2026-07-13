@@ -9,6 +9,7 @@ import { Button, Modal, SelectInput, Textarea, TextInput } from "../ui";
 import { FormComponent } from "../forms";
 import { SelectRemote } from "../ui/jsx/SelectRemote";
 import { LeadAPI } from "@/service";
+import { TeamAPI } from "@/service/team.api";
 
 export default function LeadFormModal({
   open,
@@ -43,6 +44,33 @@ export default function LeadFormModal({
   };
 
   const [form, setForm] = useState(initialState);
+  const [teams, setTeams] = useState([]);
+  const [teamMembers, setTeamMembers] = useState([]);
+
+  /**
+   * Load teams
+   */
+  useEffect(() => {
+    if (open) {
+      loadTeams();
+    }
+  }, [open]);
+
+  const loadTeams = async () => {
+    try {
+      const res = await TeamAPI.getAssignableTeam();
+
+      setTeams(
+        res.data.map((team) => ({
+          label: team.name,
+          value: team.id,
+          members: team.members,
+        })),
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     if (!open || !lead?.id) {
@@ -95,6 +123,31 @@ export default function LeadFormModal({
       [field]: value,
     }));
   };
+
+  /**
+   * Team changed
+   */
+  const handleTeamChange = (e) => {
+    const teamId = e.target.value;
+
+    const selectedTeam = teams.find((team) => team.value === teamId);
+
+    setTeamMembers(selectedTeam?.members || []);
+
+    setForm((prev) => ({
+      ...prev,
+
+      team_id: teamId,
+
+      // reset user when team changes
+      assigned_to: "",
+    }));
+  };
+
+  const memberOptions = teamMembers.map((user) => ({
+    label: user.full_name,
+    value: user.id,
+  }));
 
   const handleSubmit = () => {
     const payload = {
@@ -168,19 +221,27 @@ export default function LeadFormModal({
           <SelectInput
             label="Stage"
             options={stages.filter((t) => t.label !== "All Stage")}
-            value={form.stage}
-            onChange={(e) => updateField("stage_id", e.target.value)}
+             value={form.stage}
+            onChange={(e) => updateField("stage", e.target.value)}
           />
 
-          <SelectRemote
-            label="Assign To"
-            endpoint={"/users"}
-            labelField="full_name"
-            valueField="id"
+          <SelectInput
+            label="Team"
+            placeholder="Select Team"
             required
+            options={teams}
+            value={form.team_id}
+            onChange={handleTeamChange}
+          />
+
+          <SelectInput
+            label="Assign To"
+            placeholder={form.team_id ? "Select Member" : "Select Team First"}
+            disabled={!form.team_id}
+            required
+            options={memberOptions}
             value={form.assigned_to}
             onChange={(e) => updateField("assigned_to", e.target.value)}
-            placeholder="Select User"
           />
 
           <TextInput

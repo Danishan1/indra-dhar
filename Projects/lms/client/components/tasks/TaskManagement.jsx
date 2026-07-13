@@ -98,7 +98,6 @@ export default function TaskManagement() {
   };
 
   const leads = [];
-
   const taskTypes = [];
 
   const filteredTasks = useMemo(() => {
@@ -120,15 +119,18 @@ export default function TaskManagement() {
    * Handlers
    */
 
+  const reload = () => {
+    window.location.reload();
+  };
+
   const createTask = async (data) => {
     try {
       setLoading(true);
 
       const task = await TaskAPI.create(data);
 
-      setTasks((prev) => [...prev, task]);
-
       setCreateOpen(false);
+      reload();
     } catch (err) {
       setError(err.message || "Create failed");
     } finally {
@@ -140,18 +142,8 @@ export default function TaskManagement() {
     try {
       const updated = await TaskAPI.update(editTask.id, data);
 
-      setTasks((prev) =>
-        prev.map((task) =>
-          task.id === editTask.id
-            ? {
-                ...task,
-                ...updated,
-              }
-            : task,
-        ),
-      );
-
       setEditTask(null);
+      reload();
     } catch (err) {
       setError(err.message || "Update failed");
     }
@@ -167,9 +159,8 @@ export default function TaskManagement() {
     try {
       await TaskAPI.remove(id);
 
-      setTasks((prev) => prev.filter((task) => task.id !== id));
-
       setActionTask(null);
+      reload();
     } catch (err) {
       setError(err.message || "Delete failed");
     }
@@ -178,58 +169,26 @@ export default function TaskManagement() {
   const changeStatus = async (id, data) => {
     const updated = await TaskAPI.changeStatus(id, data);
 
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === id
-          ? {
-              ...task,
-              ...updated,
-            }
-          : task,
-      ),
-    );
-
     setActionTask(null);
+    reload();
   };
 
   const assignTask = async (id, data) => {
     const updated = await TaskAPI.assign(id, data);
 
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === id
-          ? {
-              ...task,
-              ...updated,
-            }
-          : task,
-      ),
-    );
+    reload();
   };
 
   const updateOutcome = async (id, data) => {
     const updated = await TaskAPI.setOutcome(id, data);
 
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === id
-          ? {
-              ...task,
-              ...updated,
-            }
-          : task,
-      ),
-    );
+    reload();
   };
 
   const addComment = async (id, data) => {
     const comment = await TaskAPI.addComment(id, data);
 
-    setDetails((prev) => ({
-      ...prev,
-
-      comments: [...prev.comments, comment],
-    }));
+    reload();
   };
 
   const openTaskDetails = async (task) => {
@@ -336,7 +295,7 @@ export default function TaskManagement() {
 
                   <td>
                     <span
-                      className={`${styles.badge} ${styles[task.priority.toLowerCase()]}`}
+                      className={`${styles.badge} ${styles[task?.priority?.toLowerCase()]}`}
                     >
                       {task.priority}
                     </span>
@@ -344,7 +303,7 @@ export default function TaskManagement() {
 
                   <td>
                     <span
-                      className={`${styles.badge} ${styles[task.status.toLowerCase()]}`}
+                      className={`${styles.badge} ${styles[task.status?.toLowerCase()]}`}
                     >
                       {task.status}
                     </span>

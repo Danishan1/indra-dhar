@@ -94,4 +94,10 @@ export const TeamService = {
       current = parent.parent_team_id;
     }
   },
+
+  async getAssignableTeams(tenantId) {
+    const teams = await TeamRepository.listWithMembers(tenantId);
+
+    return teams;
+  },
 };

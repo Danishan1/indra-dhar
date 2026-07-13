@@ -39,10 +39,6 @@ export const TaskWorkflows = [
         type: "number",
         default: 1,
       },
-      {
-        key: "task_type_id",
-        type: "task_type",
-      },
     ],
 
     conditions: [],

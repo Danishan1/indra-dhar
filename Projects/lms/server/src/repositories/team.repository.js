@@ -59,6 +59,52 @@ export const TeamRepository = {
     return dbResponse.many(result);
   },
 
+  async listWithMembers(tenantId) {
+    const result = await db.query(
+      `
+    SELECT
+      t.id,
+      t.name,
+      t.description,
+
+      COALESCE(
+        json_agg(
+          jsonb_build_object(
+            'id', u.id,
+            'first_name', u.first_name,
+            'last_name', u.last_name,
+            'full_name', CONCAT_WS(' ', u.first_name, u.last_name),
+            'email', u.email,
+            'mobile', u.mobile,
+            'is_leader', tm.is_leader
+          )
+          ORDER BY u.first_name
+        )
+        FILTER (WHERE u.id IS NOT NULL),
+        '[]'
+      ) AS members
+
+    FROM teams t
+
+    LEFT JOIN team_members tm
+      ON tm.team_id = t.id
+
+    LEFT JOIN users u
+      ON u.id = tm.user_id
+      AND u.is_active = TRUE
+
+    WHERE t.tenant_id = $1
+
+    GROUP BY t.id
+
+    ORDER BY t.name
+    `,
+      [tenantId],
+    );
+
+    return dbResponse.many(result);
+  },
+
   async findById(id) {
     const result = await db.query(
       `

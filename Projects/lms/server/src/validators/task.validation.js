@@ -5,7 +5,7 @@ const uuid = z.string().uuid();
 export const createTaskSchema = z.object({
   lead_id: uuid.nullish(),
   assigned_to: uuid,
-  task_type_id: uuid.nullish(),
+  team_id: uuid,
 
   title: z.string().min(3).max(255),
 
@@ -18,15 +18,16 @@ export const createTaskSchema = z.object({
 
 export const updateTaskSchema = z.object({
   title: z.string().min(3).max(255).optional(),
-
+  lead_id: uuid.nullish().optional().nullable(),
+  assigned_to: uuid.optional().nullable(),
+  team_id: uuid.optional().nullable(),
   description: z.string().optional(),
-
   priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).optional(),
-
   due_date: z.coerce.date().optional(),
 });
 
 export const assignTaskSchema = z.object({
+  team_id: uuid,
   assigned_to: uuid,
 });
 

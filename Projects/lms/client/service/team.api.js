@@ -72,4 +72,11 @@ export const TeamAPI = {
   children: async (id) => {
     return await apiUtil.get(`/teams/${id}/children`);
   },
+
+  /**
+   * GET /teams/assignable
+   */
+  getAssignableTeam: async () => {
+    return await apiUtil.get(`/teams/assignable`);
+  },
 };

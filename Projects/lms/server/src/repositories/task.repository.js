@@ -5,14 +5,13 @@ export const TaskRepository = {
   async create(data) {
     const result = await db.query(
       `INSERT INTO tasks
-      (tenant_id, lead_id, assigned_to, task_type_id, title, description, priority, due_date, created_by)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+      (tenant_id, lead_id, assigned_to, title, description, priority, due_date, created_by)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
       RETURNING *`,
       [
         data.tenant_id,
         data.lead_id,
         data.assigned_to,
-        data.task_type_id,
         data.title,
         data.description,
         data.priority,
@@ -70,14 +69,6 @@ export const TaskRepository = {
       t.created_at,
       t.updated_at,
 
-      CASE
-        WHEN tt.id IS NULL THEN NULL
-        ELSE json_build_object(
-          'id', tt.id,
-          'name', tt.name
-        )
-      END AS task_type,
-
       json_build_object(
         'id', assignee.id,
         'name', CONCAT_WS(' ', assignee.first_name, assignee.last_name),
@@ -104,9 +95,6 @@ export const TaskRepository = {
       END AS created_by
 
     FROM tasks t
-
-    LEFT JOIN task_types tt
-      ON tt.id = t.task_type_id
 
     INNER JOIN users assignee
       ON assignee.id = t.assigned_to

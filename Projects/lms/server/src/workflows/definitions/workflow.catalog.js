@@ -114,11 +114,6 @@ export const WORKFLOW_CATALOG = [
         type: "number",
         default: 1,
       },
-      {
-        key: "task_type_id",
-        label: "Task Type",
-        type: "task_type",
-      },
     ],
   },
 
@@ -193,12 +188,7 @@ export const WORKFLOW_CATALOG = [
         label: "Due In (Days)",
         type: "number",
         default: 1,
-      },
-      {
-        key: "task_type_id",
-        label: "Task Type",
-        type: "task_type",
-      },
+      }
     ],
   },
 

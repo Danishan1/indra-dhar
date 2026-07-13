@@ -12,37 +12,23 @@ import {
   TextInput,
 } from "../ui";
 import { FormComponent } from "../forms";
+import { TeamAPI } from "@/service/team.api";
 import { SelectRemote } from "../ui/jsx/SelectRemote";
 
 const PRIORITY_OPTIONS = [
-  {
-    label: "Low",
-    value: "LOW",
-  },
-  {
-    label: "Medium",
-    value: "MEDIUM",
-  },
-  {
-    label: "High",
-    value: "HIGH",
-  },
-  {
-    label: "Urgent",
-    value: "URGENT",
-  },
+  { label: "Low", value: "LOW" },
+  { label: "Medium", value: "MEDIUM" },
+  { label: "High", value: "HIGH" },
+  { label: "Urgent", value: "URGENT" },
 ];
 
 export default function TaskFormModal({
   open,
-
   task = null,
 
   leads = [],
-  taskTypes = [],
 
   loading = false,
-
   error = "",
 
   onSubmit,
@@ -51,49 +37,100 @@ export default function TaskFormModal({
   const initialState = {
     title: "",
     description: "",
-    assigned_to: "",
-    lead_id: "",
-    task_type_id: "",
+    team_id: null,
+    assigned_to: null,
+    lead_id: null,
     priority: "MEDIUM",
     due_date: "",
   };
 
   const [form, setForm] = useState(initialState);
 
+  const [teams, setTeams] = useState([]);
+  const [teamMembers, setTeamMembers] = useState([]);
+
   /**
-   * Populate form when editing
+   * Load teams
+   */
+  useEffect(() => {
+    if (open) {
+      loadTeams();
+    }
+  }, [open]);
+
+  const loadTeams = async () => {
+    try {
+      const res = await TeamAPI.getAssignableTeam();
+
+      setTeams(
+        res.data.map((team) => ({
+          label: team.name,
+          value: team.id,
+          members: team.members,
+        })),
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  /**
+   * Populate edit data
    */
   useEffect(() => {
     if (task) {
       setForm({
         title: task.task || "",
         description: task.description || "",
-        assigned_to: task.assigned_id || "",
+        team_id: task.team_id || null,
+        assigned_to: task.assigned_id || null,
         lead_id: task.lead_id || "",
-        task_type_id: task.task_type_id || "",
         priority: task.priority || "MEDIUM",
         due_date: task.due ? task.due.substring(0, 10) : "",
       });
     } else {
       setForm(initialState);
+      setTeamMembers([]);
     }
   }, [task, open]);
 
   const updateField = (field, value) => {
     setForm((prev) => ({
       ...prev,
-
       [field]: value,
     }));
   };
+
+  /**
+   * Team changed
+   */
+  const handleTeamChange = (e) => {
+    const teamId = e.target.value;
+
+    const selectedTeam = teams.find((team) => team.value === teamId);
+
+    setTeamMembers(selectedTeam?.members || []);
+
+    setForm((prev) => ({
+      ...prev,
+
+      team_id: teamId,
+
+      // reset user when team changes
+      assigned_to: "",
+    }));
+  };
+
+  const memberOptions = teamMembers.map((user) => ({
+    label: user.full_name,
+    value: user.id,
+  }));
 
   const handleSubmit = () => {
     const payload = {
       ...form,
 
-      // convert empty optional fields
       lead_id: form.lead_id || null,
-      task_type_id: form.task_type_id || null,
     };
 
     onSubmit(payload);
@@ -120,32 +157,34 @@ export default function TaskFormModal({
             onChange={(e) => updateField("title", e.target.value)}
           />
 
-          <SelectRemote
-            label="Assign To"
-            endpoint={"/users"}
-            labelField="full_name"
-            valueField="id"
+          <SelectInput
+            label="Team"
+            placeholder="Select Team"
             required
-            // options={users}
+            options={teams}
+            value={form.team_id}
+            onChange={handleTeamChange}
+          />
+
+          <SelectInput
+            label="Assign To"
+            placeholder={form.team_id ? "Select Member" : "Select Team First"}
+            disabled={!form.team_id}
+            required
+            options={memberOptions}
             value={form.assigned_to}
             onChange={(e) => updateField("assigned_to", e.target.value)}
-            placeholder="Select User"
           />
 
-          <SelectInput
+          <SelectRemote
             label="Lead"
-            placeholder="Select lead"
-            options={leads}
+            endpoint={"/leads"}
+            labelField="name"
+            valueField="id"
+            required
             value={form.lead_id}
             onChange={(e) => updateField("lead_id", e.target.value)}
-          />
-
-          <SelectInput
-            label="Task Type"
-            placeholder="Select task type"
-            options={taskTypes}
-            value={form.task_type_id}
-            onChange={(e) => updateField("task_type_id", e.target.value)}
+            placeholder="Select Lead"
           />
 
           <SelectInput

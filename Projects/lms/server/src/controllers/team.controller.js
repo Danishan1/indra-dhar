@@ -130,4 +130,16 @@ export const TeamController = {
       message: "Child teams fetched successfully",
     });
   },
+
+  getAssignableTeams: async (req, res) => {
+    const tenantId = req.user.tenant_id;
+
+    const data = await TeamService.getAssignableTeams(tenantId);
+
+    return ApiResponse.success({
+      res,
+      data,
+      message: "Assignable Team fetched successfully",
+    });
+  },
 };

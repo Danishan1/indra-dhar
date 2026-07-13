@@ -23,6 +23,15 @@ router.post("/", TeamController.create);
 
 /**
  * @openapi
+ * /teams/assignable:
+ *   get:
+ *     tags: [Team]
+ *     summary: Get Assignable teams
+ */
+router.get("/assignable", TeamController.getAssignableTeams);
+
+/**
+ * @openapi
  * /teams/{id}:
  *   get:
  *     tags: [Team]

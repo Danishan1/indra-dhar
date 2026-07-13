@@ -1,15 +1,4 @@
---
--- =====================================================
---
-CREATE TABLE task_types (
-id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
-name VARCHAR(100) NOT NULL,
-is_active BOOLEAN NOT NULL DEFAULT TRUE,
-created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-UNIQUE (tenant_id, name)
-);
+
 --
 -- =====================================================
 --
@@ -20,7 +9,6 @@ CREATE TABLE tasks (
   lead_id UUID REFERENCES leads(id) ON DELETE CASCADE,
   team_id UUID REFERENCES teams(id) ON DELETE CASCADE,
   assigned_to UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  task_type_id UUID REFERENCES task_types(id),
   title VARCHAR(255) NOT NULL,
   description TEXT,
   priority VARCHAR(20) NOT NULL DEFAULT 'MEDIUM' CHECK (priority IN ('LOW', 'MEDIUM', 'HIGH', 'URGENT')),

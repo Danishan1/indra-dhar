@@ -222,20 +222,23 @@ export const UserRepository = {
   async getRandomAssignableUser({ tenant_id, team_id = null }) {
     const result = await db.query(
       `
-    SELECT DISTINCT
+    SELECT
       u.id,
       u.first_name,
       u.last_name,
       u.email
     FROM users u
-
-    LEFT JOIN team_members tm
-      ON tm.user_id = u.id
-
     WHERE u.tenant_id = $1
       AND u.is_active = TRUE
-      AND ($2::uuid IS NULL OR tm.team_id = $2)
-
+      AND (
+        $2::uuid IS NULL
+        OR EXISTS (
+          SELECT 1
+          FROM team_members tm
+          WHERE tm.user_id = u.id
+            AND tm.team_id = $2
+        )
+      )
     ORDER BY RANDOM()
     LIMIT 1
     `,

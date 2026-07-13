@@ -16,7 +16,6 @@ async function createTaskAction({ tenant_id, config, payload }) {
     tenant_id,
     lead_id: lead.id,
     assigned_to: assignedTo,
-    task_type_id: config.task_type_id,
     title: config.title,
     description: config.description,
     priority: config.priority || "MEDIUM",
